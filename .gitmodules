@@ -1,0 +1,3 @@
+[submodule "TriEngine/libraries/spdlog"]
+	path = TriEngine/libraries/spdlog
+	url = https://github.com/gabime/spdlog

@@ -11,7 +11,6 @@ namespace TriEngine {
 	}
 	void Application::Run()
 	{
-		printf("Running!\n");
 		while (true) {
 
 		}
