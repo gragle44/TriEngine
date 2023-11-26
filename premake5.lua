@@ -21,12 +21,12 @@ project "TriEngine"
 
 	files
 	{
-		"%{prj.name}/src/**.h"
-		"%{prj.name}/src/**.hpp"
+		"%{prj.name}/src/**.h",
+		"%{prj.name}/src/**.hpp",
 		"%{prj.name}/src/**.cpp"
 	}
 
-	include 
+	includedirs
 	{
 		"%{prj.name}/libraries/spdlog/include"
 	}
@@ -65,7 +65,7 @@ project "Sandbox"
 	language "C++"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{

@@ -6,6 +6,7 @@
 # Binary files
 .bin/
 .bin-int/
+.bin-obj/
 
 # User-specific files
 *.rsuser
