@@ -28,6 +28,7 @@ project "TriEngine"
 
 	includedirs
 	{
+		"TriEngine/src",
 		"%{prj.name}/libraries/spdlog/include"
 	}
 
@@ -64,7 +65,7 @@ project "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 
-	targetdir ("bin/git " .. outputdir .. "/%{prj.name}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
 
 	files

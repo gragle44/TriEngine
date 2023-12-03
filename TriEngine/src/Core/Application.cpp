@@ -1,6 +1,7 @@
 #include "Application.h"
 
-#include "stdio.h"
+#include "Log.h"
+#include "Events/ApplicationEvent.h"
 
 namespace TriEngine {
 	Application::Application()
@@ -11,8 +12,9 @@ namespace TriEngine {
 	}
 	void Application::Run()
 	{
-		while (true) {
+		WindowResizeEvent e(1920, 1080);
+		TRI_TRACE(e);
 
-		}
+		while (true);
 	}
 }
