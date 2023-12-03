@@ -1,3 +1,4 @@
+#include "tripch.h"
 #include "Application.h"
 
 #include "Log.h"

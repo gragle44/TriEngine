@@ -19,6 +19,9 @@ project "TriEngine"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
 
+	pchheader "tripch.h"
+	pchsource "TriEngine/src/tripch.cpp"
+
 	files
 	{
 		"%{prj.name}/src/**.h",
@@ -71,6 +74,7 @@ project "Sandbox"
 	files
 	{
 		"%{prj.name}/src/**.h",
+		"%{prj.name}/src/**.hpp",
 		"%{prj.name}/src/**.cpp"
 	}
 

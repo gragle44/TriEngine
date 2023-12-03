@@ -1,8 +1,7 @@
 #pragma once
 
+#include "tripch.h"
 #include "Event.h"
-
-#include <sstream>
 
 namespace TriEngine {
 
