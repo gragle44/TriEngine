@@ -11,6 +11,11 @@ workspace "TriEngine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+IncludeDir = {}
+IncludeDir["GLFW"] = "TriEngine/libraries/GLFW/include"
+
+include "TriEngine/libraries/GLFW"
+
 project "TriEngine"
 	location "TriEngine"
 	kind "SharedLib"
@@ -32,7 +37,16 @@ project "TriEngine"
 	includedirs
 	{
 		"TriEngine/src",
-		"%{prj.name}/libraries/spdlog/include"
+		"TriEngine/src/core",
+		"%{prj.name}/libraries/spdlog/include",
+		"%{IncludeDir.GLFW}"
+	}
+
+	links
+	{
+		"GLFW",
+		"opengl32.lib",
+		"dwmapi.lib"
 	}
 
 	filter "system:windows"

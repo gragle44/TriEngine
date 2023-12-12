@@ -9,4 +9,13 @@
 
 #endif
 
+
+#ifdef TRI_ENABLE_ASSERTS
+	#define TRI_ASSERT(x, ...) { if(!(x)) { HZ_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define TRI_CORE_ASSERT(x, ...) { if(!(x)) { HZ_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#else
+	#define TRI_ASSERT(x, ...)
+	#define TRI_CORE_ASSERT(x, ...)
+#endif
+
 #define BIT(x) (1 << x)

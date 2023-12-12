@@ -1,3 +1,9 @@
 [submodule "TriEngine/libraries/spdlog"]
 	path = TriEngine/libraries/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "libraries/GLFW"]
+	path = libraries/GLFW
+	url = https://github.com/gragle44/glfw
+[submodule "TriEngine/libraries/GLFW"]
+	path = TriEngine/libraries/GLFW
+	url = https://github.com/gragle44/glfw
