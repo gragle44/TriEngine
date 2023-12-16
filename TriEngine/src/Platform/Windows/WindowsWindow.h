@@ -19,8 +19,8 @@ namespace TriEngine {
 
 		// Window attributes
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
-		void SetVSync(bool enabled) override;
-		bool IsVSync() const override;
+		void SetVSync(VsyncMode mode) override;
+		VsyncMode IsVSync() const override;
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
@@ -31,7 +31,7 @@ namespace TriEngine {
 		{
 			std::string Title;
 			unsigned int Width, Height;
-			bool VSync;
+			VsyncMode VSyncMode;
 
 			EventCallbackFn EventCallback;
 		};
