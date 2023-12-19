@@ -68,14 +68,18 @@ project "TriEngine"
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
 		symbols "On"
+		buildoptions "/MDd"
 
 	filter "configurations:Release"
 		defines "TRI_RELEASE"
 		optimize "On"
+		buildoptions "/MD"
 
 	filter "configurations:Dist"
 		defines "TRI_DIST"
 		optimize "On"
+		buildoptions "/MD"
+
 
 project "Sandbox"
 	location "Sandbox"
@@ -116,14 +120,17 @@ project "Sandbox"
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
 		symbols "On"
+		buildoptions "/MDd"
 
 	filter "configurations:Release"
 		defines "TRI_RELEASE"
 		optimize "On"
+		buildoptions "/MD"
 
 	filter "configurations:Dist"
 		defines "TRI_DIST"
 		optimize "On"
+		buildoptions "/MD"
 
 
 
