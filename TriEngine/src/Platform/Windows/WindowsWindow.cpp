@@ -6,7 +6,7 @@
 #include "Events/MouseEvent.h"
 #include "Events/Event.h"
 
-#include "Log.h"
+#include <glad/glad.h>
 
 
 namespace TriEngine {
@@ -52,6 +52,8 @@ namespace TriEngine {
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
+		int status = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+		TRI_CORE_ASSERT(status, "Failed to intialize Glad!");
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(VsyncMode::On);
 

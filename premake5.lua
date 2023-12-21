@@ -12,9 +12,11 @@ workspace "TriEngine"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
-IncludeDir["GLFW"] = "TriEngine/libraries/GLFW/include"
+IncludeDir["GLFW"] = "TriEngine/vendor/GLFW/include"
+IncludeDir["Glad"] = "TriEngine/vendor/Glad/include"
 
-include "TriEngine/libraries/GLFW"
+include "TriEngine/vendor/GLFW"
+include "TriEngine/vendor/Glad"
 
 project "TriEngine"
 	location "TriEngine"
@@ -38,13 +40,15 @@ project "TriEngine"
 	{
 		"TriEngine/src",
 		"TriEngine/src/core",
-		"%{prj.name}/libraries/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}"
 	}
 
 	links
 	{
 		"GLFW",
+		"Glad",
 		"opengl32.lib",
 		"dwmapi.lib"
 	}
@@ -57,7 +61,8 @@ project "TriEngine"
 		defines 
 		{
 			"TRI_PLATFORM_WINDOWS",
-			"TRI_BUILD_DLL"
+			"TRI_BUILD_DLL",
+			"GLFW_INCLUDE_NONE"
 		}
 
 		postbuildcommands
@@ -98,7 +103,7 @@ project "Sandbox"
 
 	includedirs
 	{
-		"TriEngine/libraries/spdlog/include",
+		"TriEngine/vendor/spdlog/include",
 		"TriEngine/src"
 	}
 
