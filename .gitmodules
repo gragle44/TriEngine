@@ -1,11 +1,11 @@
-[submodule "TriEngine/libraries/spdlog"]
-	path = TriEngine/libraries/spdlog
+[submodule "TriEngine/vendor/spdlog"]
+	path = TriEngine/vendor/spdlog
 	url = https://github.com/gabime/spdlog
-[submodule "libraries/GLFW"]
-	path = libraries/GLFW
+[submodule "GLFW"]
+	path = GLFW
 	url = https://github.com/gragle44/glfw
-[submodule "TriEngine/libraries/GLFW"]
-	path = TriEngine/libraries/GLFW
+[submodule "TriEngine/vendor/GLFW"]
+	path = TriEngine/vendor/GLFW
 	url = https://github.com/gragle44/glfw
 [submodule "imgui"]
 	path = imgui
