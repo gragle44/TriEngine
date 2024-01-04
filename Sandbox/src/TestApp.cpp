@@ -20,6 +20,7 @@ class Sandbox : public TriEngine::Application {
 public:
     Sandbox() {
         PushLayer(new ExampleLayer());
+        PushOverlay(new TriEngine::ImGuiLayer());
     }
 
     ~Sandbox() {

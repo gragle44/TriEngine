@@ -7,3 +7,9 @@
 [submodule "TriEngine/libraries/GLFW"]
 	path = TriEngine/libraries/GLFW
 	url = https://github.com/gragle44/glfw
+[submodule "imgui"]
+	path = imgui
+	url = https://github.com/gragle44/imgui
+[submodule "TriEngine/vendor/imgui"]
+	path = TriEngine/vendor/imgui
+	url = https://github.com/gragle44/imgui

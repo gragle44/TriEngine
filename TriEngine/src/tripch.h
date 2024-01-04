@@ -14,6 +14,7 @@
 #include <unordered_set>
 
 #include "Log.h"
+#include "Core.h"
 
 
 #ifdef TRI_PLATFORM_WINDOWS
