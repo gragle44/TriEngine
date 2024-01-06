@@ -8,11 +8,12 @@ public:
     }
 
     void OnUpdate() override {
-        TRI_INFO("ExampleLayer::Update");
+        if (TriEngine::Input::IsMouseButtonPressed(TRI_MOUSE_BUTTON_1))
+            TRI_INFO("Mouse 1 clicked!");
     }
 
     void OnEvent(TriEngine::Event& event) override {
-        TRI_TRACE("{0}", event);
+        //TRI_TRACE("{0}", event);
     }
 };
 

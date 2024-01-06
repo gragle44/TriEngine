@@ -67,6 +67,8 @@
     <ClInclude Include="src\tripch.h" />
     <ClInclude Include="src\Core\Input.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
+    <ClInclude Include="src\Core\KeyCodes.h" />
+    <ClInclude Include="src\Core\MouseButtonCodes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
