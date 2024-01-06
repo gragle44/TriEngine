@@ -12,9 +12,11 @@ workspace "TriEngine"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
+IncludeDir["spdlog"] = "TriEngine/vendor/spdlog/include"
 IncludeDir["GLFW"] = "TriEngine/vendor/GLFW/include"
 IncludeDir["Glad"] = "TriEngine/vendor/Glad/include"
 IncludeDir["ImGui"] = "TriEngine/vendor/imgui"
+IncludeDir["glm"] = "TriEngine/vendor/glm"
 
 group "Dependancies"
 	include "TriEngine/vendor/GLFW"
@@ -44,11 +46,12 @@ project "TriEngine"
 	includedirs
 	{
 		"TriEngine/src",
-		"TriEngine/src/core",
-		"%{prj.name}/vendor/spdlog/include",
+		"TriEngine/src/Core",
+		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}"
 	}
 
 	links
@@ -109,7 +112,8 @@ project "Sandbox"
 
 	includedirs
 	{
-		"TriEngine/vendor/spdlog/include",
+		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.glm}",
 		"TriEngine/src"
 	}
 

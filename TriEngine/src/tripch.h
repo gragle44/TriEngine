@@ -13,8 +13,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Log.h"
-#include "Core.h"
+#include "Core/Log.h"
+#include "Core/Core.h"
 
 
 #ifdef TRI_PLATFORM_WINDOWS
