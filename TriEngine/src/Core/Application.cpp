@@ -2,8 +2,9 @@
 #include "Application.h"
 #include "Core.h"
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 
+#include "Input.h"
 
 namespace TriEngine {
 	Application* Application::s_Instance = nullptr;

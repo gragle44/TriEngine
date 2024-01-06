@@ -45,6 +45,8 @@ namespace TriEngine {
 		virtual void SetVSync(VsyncMode mode) = 0;
 		virtual VsyncMode IsVSync() const = 0;
 
+		virtual void* GetNativeWindow() const = 0;
+
 		static Window* Create(const WindowProps& props = WindowProps());
 	};
 
