@@ -1,15 +1,9 @@
-[submodule "TriEngine/vendor/spdlog"]
-	path = TriEngine/vendor/spdlog
-	url = https://github.com/gabime/spdlog
-[submodule "GLFW"]
-	path = GLFW
-	url = https://github.com/gragle44/glfw
-[submodule "TriEngine/vendor/GLFW"]
-	path = TriEngine/vendor/GLFW
-	url = https://github.com/gragle44/glfw
-[submodule "imgui"]
-	path = imgui
-	url = https://github.com/gragle44/imgui
 [submodule "TriEngine/vendor/imgui"]
 	path = TriEngine/vendor/imgui
 	url = https://github.com/gragle44/imgui
+[submodule "TriEngine/vendor/GLFW"]
+	path = TriEngine/vendor/GLFW
+	url = https://github.com/gragle44/glfw
+[submodule "TriEngine/vendor/spdlog"]
+	path = TriEngine/vendor/spdlog
+	url = https://github.com/gabime/spdlog
