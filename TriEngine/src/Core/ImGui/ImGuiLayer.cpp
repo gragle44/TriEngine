@@ -50,6 +50,9 @@ void TriEngine::ImGuiLayer::OnAttach()
 	io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
 	io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
+	io.SetClipboardTextFn = [](void*, const char* text) { glfwSetClipboardString(nullptr, text); };
+	io.GetClipboardTextFn = [](void*) -> const char* { return glfwGetClipboardString(nullptr); };
+
 	ImGui_ImplOpenGL3_Init("#version 460");
 }
 

@@ -16,9 +16,12 @@ IncludeDir["GLFW"] = "TriEngine/vendor/GLFW/include"
 IncludeDir["Glad"] = "TriEngine/vendor/Glad/include"
 IncludeDir["ImGui"] = "TriEngine/vendor/imgui"
 
-include "TriEngine/vendor/GLFW"
-include "TriEngine/vendor/Glad"
-include "TriEngine/vendor/imgui"
+group "Dependancies"
+	include "TriEngine/vendor/GLFW"
+	include "TriEngine/vendor/Glad"
+	include "TriEngine/vendor/imgui"
+
+group ""
 
 project "TriEngine"
 	location "TriEngine"
@@ -58,7 +61,7 @@ project "TriEngine"
 
 	filter "system:windows"
 		cppdialect "C++20"
-		staticruntime "On"
+		staticruntime "Off"
 		systemversion "latest"
 
 		defines 
@@ -70,23 +73,23 @@ project "TriEngine"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
 		symbols "On"
-		buildoptions "/MDd"
+		runtime "Debug"
 
 	filter "configurations:Release"
 		defines "TRI_RELEASE"
 		optimize "On"
-		buildoptions "/MD"
+		runtime "Release"
 
 	filter "configurations:Dist"
 		defines "TRI_DIST"
 		optimize "On"
-		buildoptions "/MD"
+		runtime "Release"
 
 
 project "Sandbox"
@@ -117,7 +120,7 @@ project "Sandbox"
 
 	filter "system:windows"
 		cppdialect "C++20"
-		staticruntime "On"
+		staticruntime "Off"
 		systemversion "latest"
 
 		defines
@@ -128,18 +131,14 @@ project "Sandbox"
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
 		symbols "On"
-		buildoptions "/MDd"
+		runtime "Debug"
 
 	filter "configurations:Release"
 		defines "TRI_RELEASE"
 		optimize "On"
-		buildoptions "/MD"
+		runtime "Release"
 
 	filter "configurations:Dist"
 		defines "TRI_DIST"
 		optimize "On"
-		buildoptions "/MD"
-
-
-
-	
+		runtime "Release"
