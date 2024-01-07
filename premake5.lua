@@ -112,7 +112,8 @@ project "Sandbox"
 
 	includedirs
 	{
-		"%{IncludeDir.spdlog}",
+		"TriEngine/vendor/spdlog/include",
+		"TriEngine/vendor/imgui",
 		"%{IncludeDir.glm}",
 		"TriEngine/src"
 	}

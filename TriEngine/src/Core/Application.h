@@ -7,6 +7,8 @@
 #include "LayerStack.h"
 #include "Window.h"
 
+#include "Core/ImGui/ImGuiLayer.h"
+
 namespace TriEngine {
 
 	class TRI_API Application
@@ -31,6 +33,7 @@ namespace TriEngine {
 
 		static Application* s_Instance;
 		std::unique_ptr<Window> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running;
 		LayerStack m_LayerStack;
 

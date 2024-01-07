@@ -5,6 +5,7 @@
 		#define TRI_API __declspec(dllexport)
 	#else
 		#define TRI_API __declspec(dllimport)
+		#define IMGUI_API __declspec(dllimport)
 	#endif	
 
 #endif

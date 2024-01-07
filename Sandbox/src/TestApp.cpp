@@ -1,5 +1,7 @@
 #include <TriEngine.h>
 
+#include "imgui.h"
+
 class ExampleLayer : public TriEngine::Layer {
 public:
     ExampleLayer()
@@ -12,6 +14,12 @@ public:
             TRI_INFO("Mouse 1 clicked!");
     }
 
+    void OnImGuiRender() override {
+        ImGui::Begin("HELLO");
+        ImGui::Text("i am very gui");
+        ImGui::End();
+    }
+
     void OnEvent(TriEngine::Event& event) override {
         //TRI_TRACE("{0}", event);
     }
@@ -21,7 +29,6 @@ class Sandbox : public TriEngine::Application {
 public:
     Sandbox() {
         PushLayer(new ExampleLayer());
-        PushOverlay(new TriEngine::ImGuiLayer());
     }
 
     ~Sandbox() {
