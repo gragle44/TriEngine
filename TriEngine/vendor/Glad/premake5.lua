@@ -1,9 +1,10 @@
 project "Glad"
     kind "StaticLib"
     language "C"
-    
+    staticruntime "on"
+
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+    objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
@@ -19,7 +20,13 @@ project "Glad"
 
 	filter "system:windows"
         systemversion "latest"
-        staticruntime "On"
 
-    filter { "system:windows", "configurations:Release" }
-        buildoptions "/MT"
+    	filter "configurations:Debug"
+		defines "TRI_DEBUG"
+		symbols "on"
+		runtime "Debug"
+
+	filter "configurations:Release"
+		defines "TRI_RELEASE"
+		optimize "on"
+		runtime "Release"

@@ -27,14 +27,21 @@ group ""
 
 project "TriEngine"
 	location "TriEngine"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
+	cppdialect "C++20"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "tripch.h"
 	pchsource "TriEngine/src/tripch.cpp"
+
+	defines 
+	{
+		"_CRT_SECURE_NO_WARNINGS"
+	}
 
 	files
 	{
@@ -63,8 +70,6 @@ project "TriEngine"
 	}
 
 	filter "system:windows"
-		cppdialect "C++20"
-		staticruntime "Off"
 		systemversion "latest"
 
 		defines 
@@ -74,24 +79,19 @@ project "TriEngine"
 			"GLFW_INCLUDE_NONE"
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
-		}
-
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
-		symbols "On"
+		symbols "on"
 		runtime "Debug"
 
 	filter "configurations:Release"
 		defines "TRI_RELEASE"
-		optimize "On"
+		optimize "on"
 		runtime "Release"
 
 	filter "configurations:Dist"
 		defines "TRI_DIST"
-		optimize "On"
+		optimize "on"
 		runtime "Release"
 
 
@@ -99,6 +99,8 @@ project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
+	cppdialect "C++20"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
@@ -124,8 +126,6 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-		cppdialect "C++20"
-		staticruntime "Off"
 		systemversion "latest"
 
 		defines
@@ -135,15 +135,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
-		symbols "On"
+		symbols "on"
 		runtime "Debug"
 
 	filter "configurations:Release"
 		defines "TRI_RELEASE"
-		optimize "On"
+		optimize "on"
 		runtime "Release"
 
 	filter "configurations:Dist"
 		defines "TRI_DIST"
-		optimize "On"
+		optimize "on"
 		runtime "Release"
