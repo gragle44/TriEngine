@@ -369,3 +369,7 @@ MigrationBackup/
 FodyWeavers.xsd
 /bin-obj/Debug-windows-x86_64
 /bin-obj/
+/TriEngine/vendor/Glad/bin-obj/Debug-windows-x86_64/Glad/Glad.tlog
+/TriEngine/vendor/Glad/bin-obj/Debug-windows-x86_64/Glad/Glad.vcxproj.FileListAbsolute.txt
+*.recipe
+/Sandbox/imgui.ini
