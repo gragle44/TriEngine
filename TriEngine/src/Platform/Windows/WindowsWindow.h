@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Core/Window.h"
-#include "GLFW/glfw3.h"
+#include "Renderer/RenderingContext.h"
+
+#include <GLFW/glfw3.h>
 
 namespace TriEngine {
 
@@ -27,6 +29,7 @@ namespace TriEngine {
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
+		RenderingContext* m_Context;
 
 		struct WindowData
 		{
