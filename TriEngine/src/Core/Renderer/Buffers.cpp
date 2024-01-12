@@ -11,6 +11,7 @@ namespace TriEngine {
 		switch (Renderer::GetCurrentAPI())
 		{
 		case RendererAPI::None:
+			TRI_CORE_ASSERT(false, "Renderer type 'None' is not currently supported");
 			return nullptr;
 		case RendererAPI::OpenGL:
 			return new OpenGLVertexBuffer(vertices, size);
@@ -22,6 +23,7 @@ namespace TriEngine {
 		switch (Renderer::GetCurrentAPI())
 		{
 		case RendererAPI::None:
+			TRI_CORE_ASSERT(false, "Renderer type 'None' is not currently supported");
 			return nullptr;
 		case RendererAPI::OpenGL:
 			return new OpenGLIndexBuffer(indices, size);

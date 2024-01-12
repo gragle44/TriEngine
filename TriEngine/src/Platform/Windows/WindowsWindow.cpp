@@ -162,6 +162,7 @@ namespace TriEngine {
 
 	void WindowsWindow::SetVSync(VsyncMode mode)
 	{
+		m_Data.VSyncMode = mode;
 		switch (mode) {
 		case VsyncMode::Off:
 			glfwSwapInterval(0);
@@ -169,18 +170,14 @@ namespace TriEngine {
 		case VsyncMode::On:
 			glfwSwapInterval(1);
 			break;
-		case VsyncMode::Half:
-			glfwSwapInterval(2);
-			break;
 		case VsyncMode::Adaptive:
 			// Set adaptive vsync if supported, otherwise, fallback to regular vsync
 			glfwSwapInterval(glfwExtensionSupported("GLX_EXT_swap_control_tear") ? -1 : 1);
 			break;
 		}
-		m_Data.VSyncMode = mode;
 	}
 
-	VsyncMode WindowsWindow::IsVSync() const
+	VsyncMode WindowsWindow::GetVSyncMode() const
 	{
 		return m_Data.VSyncMode;
 	}

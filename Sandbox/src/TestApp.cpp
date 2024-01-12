@@ -20,8 +20,8 @@ public:
         ImGui::End();
     }
 
-    void OnEvent(TriEngine::Event& event) override {
-        //TRI_TRACE("{0}", event);
+    void OnEvent(TriEngine::Event& e) override {
+
     }
 };
 

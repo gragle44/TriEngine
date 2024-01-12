@@ -15,15 +15,15 @@ namespace TriEngine {
 
 		void OnUpdate() override;
 
-		inline virtual unsigned int GetWidth() const override { return m_Data.Width; }
-		inline virtual unsigned int GetHeight() const override { return m_Data.Height; }
+		inline virtual unsigned int GetWidth() const final { return m_Data.Width; }
+		inline virtual unsigned int GetHeight() const final { return m_Data.Height; }
 
 		// Window attributes
-		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
-		void SetVSync(VsyncMode mode) override;
-		VsyncMode IsVSync() const override;
+		virtual inline void SetEventCallback(const EventCallbackFn& callback) final { m_Data.EventCallback = callback; }
+		virtual void SetVSync(VsyncMode mode) final;
+		virtual VsyncMode GetVSyncMode() const final;
 
-		inline virtual void* GetNativeWindow() const { return m_Window; }
+		inline virtual void* GetNativeWindow() const final { return m_Window; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();

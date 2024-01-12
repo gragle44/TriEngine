@@ -24,7 +24,6 @@ namespace TriEngine {
 	enum class VsyncMode {
 		Off = 0,
 		On = 1,
-		Half = 2,
 		Adaptive = -1
 	};
 
@@ -43,7 +42,7 @@ namespace TriEngine {
 		// Window attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void SetVSync(VsyncMode mode) = 0;
-		virtual VsyncMode IsVSync() const = 0;
+		virtual VsyncMode GetVSyncMode() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
 

@@ -2,6 +2,8 @@
 #include "Application.h"
 #include "Core.h"
 
+#include "Utils/PlatformUtils.h"
+
 #include <glad/glad.h>
 
 #include "Input.h"
