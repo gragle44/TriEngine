@@ -15,6 +15,8 @@ namespace TriEngine {
 			return nullptr;
 		case RendererAPI::OpenGL:
 			return new OpenGLVertexBuffer(vertices, size);
+		TRI_CORE_ASSERT(false, "Invalid renderer type!");
+		return nullptr;
 		}
 	}
 
@@ -27,6 +29,8 @@ namespace TriEngine {
 			return nullptr;
 		case RendererAPI::OpenGL:
 			return new OpenGLIndexBuffer(indices, size);
+		TRI_CORE_ASSERT(false, "Invalid renderer type!");
+		return nullptr;
 		}
 	}
 }

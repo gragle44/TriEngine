@@ -10,8 +10,7 @@ public:
     }
 
     void OnUpdate() override {
-        if (TriEngine::Input::IsMouseButtonPressed(TRI_MOUSE_BUTTON_1))
-            TRI_INFO("Mouse 1 clicked!");
+
     }
 
     void OnImGuiRender() override {

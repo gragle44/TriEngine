@@ -10,7 +10,11 @@ namespace TriEngine {
 
 		virtual void Bind() const final;
 		virtual void Unbind() const final;
+
+		virtual void SetLayout(const BufferLayout& layout) final { m_Layout = layout; };
+		virtual const BufferLayout& GetLayout() const final { return m_Layout; };
 	private:
+		BufferLayout m_Layout;
 		uint32_t m_BufferID;
 	};
 

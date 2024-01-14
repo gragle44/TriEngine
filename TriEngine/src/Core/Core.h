@@ -13,6 +13,9 @@
 #endif
 
 #ifdef TRI_DEBUG
+	#ifdef TRI_PLATFORM_WINDOWS
+		#define TRI_DEBUG_GL
+	#endif
 	#define TRI_ENABLE_ASSERTS
 #endif
 

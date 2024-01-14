@@ -34,7 +34,7 @@ namespace TriEngine {
 		:m_Count(count)
 	{
 		glCreateBuffers(1, &m_BufferID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * count, indices, GL_STATIC_DRAW);
 	}
 
