@@ -9,8 +9,7 @@ namespace TriEngine {
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
 	{
 		glCreateBuffers(1, &m_BufferID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
-		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+		glNamedBufferStorage(m_BufferID, size, vertices, GL_DYNAMIC_STORAGE_BIT);
 	}
 
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
@@ -34,8 +33,7 @@ namespace TriEngine {
 		:m_Count(count)
 	{
 		glCreateBuffers(1, &m_BufferID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * count, indices, GL_STATIC_DRAW);
+		glNamedBufferStorage(m_BufferID, count, indices, GL_DYNAMIC_STORAGE_BIT);
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()

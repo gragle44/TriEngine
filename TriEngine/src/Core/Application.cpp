@@ -49,7 +49,7 @@ namespace TriEngine {
 		m_VertexArray->AddVertexAndIndexBuffers(m_VertexBuffer, m_IndexBuffer);
 
 		std::string vertexSrc = R"(
-			#version 330 core
+			#version 450 core
 			
 			layout(location = 0) in vec3 a_Position;
 			layout(location = 1) in vec4 a_Color;
@@ -66,7 +66,7 @@ namespace TriEngine {
 		)";
 
 		std::string fragmentSrc = R"(
-			#version 330 core
+			#version 450 core
 			
 			layout(location = 0) out vec4 color;
 
