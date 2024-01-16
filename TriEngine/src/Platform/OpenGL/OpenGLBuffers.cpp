@@ -9,13 +9,17 @@ namespace TriEngine {
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
 	{
 		glCreateBuffers(1, &m_BufferID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
-		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+		glNamedBufferStorage(m_BufferID, size , vertices, GL_DYNAMIC_STORAGE_BIT);
 	}
 
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
 		glDeleteBuffers(1, &m_BufferID);
+	}
+
+	void OpenGLVertexBuffer::BindToVertexArray(uint32_t arrayID) const
+	{
+		glVertexArrayVertexBuffer(arrayID, 0, m_BufferID, 0, m_Layout.GetStride());
 	}
 
 	void OpenGLVertexBuffer::Bind() const
@@ -34,13 +38,17 @@ namespace TriEngine {
 		:m_Count(count)
 	{
 		glCreateBuffers(1, &m_BufferID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * count, indices, GL_STATIC_DRAW);
+		glNamedBufferStorage(m_BufferID, count*sizeof(uint32_t), indices, GL_DYNAMIC_STORAGE_BIT);
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
 		glDeleteBuffers(1, &m_BufferID);
+	}
+
+	void OpenGLIndexBuffer::BindToVertexArray(uint32_t arrayID) const
+	{
+		glVertexArrayElementBuffer(arrayID, m_BufferID);
 	}
 
 	void OpenGLIndexBuffer::Bind() const

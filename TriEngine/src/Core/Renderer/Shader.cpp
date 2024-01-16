@@ -100,7 +100,9 @@ namespace TriEngine {
 
 		// Always detach shaders after a successful link.
 		glDetachShader(program, vertexShader);
+		glDeleteShader(vertexShader);
 		glDetachShader(program, fragmentShader);
+		glDeleteShader(fragmentShader);
 	}
 
 	Shader::~Shader() {
