@@ -4,7 +4,7 @@
 
 #include "Utils/PlatformUtils.h"
 
-#include <glad/glad.h>
+#include "Renderer/Renderer.h"
 
 #include "Input.h"
 
@@ -49,7 +49,7 @@ namespace TriEngine {
 		m_VertexArray->AddVertexAndIndexBuffers(m_VertexBuffer, m_IndexBuffer);
 
 		std::string vertexSrc = R"(
-			#version 450 core
+			#version 330 core
 			
 			layout(location = 0) in vec3 a_Position;
 			layout(location = 1) in vec4 a_Color;
@@ -66,7 +66,7 @@ namespace TriEngine {
 		)";
 
 		std::string fragmentSrc = R"(
-			#version 450 core
+			#version 330 core
 			
 			layout(location = 0) out vec4 color;
 
@@ -90,12 +90,15 @@ namespace TriEngine {
 	{
 		while (m_Running)
 		{
-			glClearColor(0.1f, 0.1f, 0.1f, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			RenderCommand::ClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+			RenderCommand::Clear();
+
+			Renderer::Begin();
 
 			m_Shader->Bind();
-			m_VertexArray->Bind();
-			glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
+			Renderer::Submit(m_VertexArray);
+
+			Renderer::End();
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();

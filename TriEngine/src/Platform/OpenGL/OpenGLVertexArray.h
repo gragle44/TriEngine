@@ -17,7 +17,7 @@ namespace TriEngine {
 		virtual void Unbind() const final;
 
 		virtual const std::vector<std::shared_ptr<VertexBuffer>> GetVertexBuffers() const final { return m_VertexBuffers; };
-		virtual const std::shared_ptr<IndexBuffer> GetIndexBuffers() const final { return m_IndexBuffer; }
+		virtual const std::shared_ptr<IndexBuffer> GetIndexBuffer() const final { return m_IndexBuffer; }
 	private:
 		std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;

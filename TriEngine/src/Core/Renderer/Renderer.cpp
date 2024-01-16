@@ -2,5 +2,19 @@
 #include "Renderer/Renderer.h"
 
 namespace TriEngine {
-	RendererAPI Renderer::s_RendererAPI = RendererAPI::OpenGL;
+
+	void Renderer::Begin()
+	{
+	}
+
+	void Renderer::End()
+	{
+	}
+
+	void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray)
+	{
+		vertexArray->Bind();
+		RenderCommand::DrawElements(vertexArray);
+	}
+
 }

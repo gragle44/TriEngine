@@ -11,8 +11,6 @@ namespace TriEngine {
 		virtual void Bind() const final;
 		virtual void Unbind() const final;
 
-		virtual uint32_t GetID() const final { return m_BufferID; };
-
 		virtual void SetLayout(const BufferLayout& layout) final { m_Layout = layout; };
 		virtual const BufferLayout& GetLayout() const final { return m_Layout; };
 	private:
@@ -27,8 +25,6 @@ namespace TriEngine {
 
 		virtual void Bind() const final;
 		virtual void Unbind() const final;
-
-		virtual uint32_t GetID() const final { return m_BufferID; };
 
 		virtual inline uint32_t GetCount() const final { return m_Count; }
 	private:
