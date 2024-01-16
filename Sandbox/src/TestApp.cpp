@@ -5,8 +5,7 @@
 class ExampleLayer : public TriEngine::Layer {
 public:
     ExampleLayer()
-        : Layer("Example")
-    {
+        : Layer("Example") {
     }
 
     void OnUpdate() override {

@@ -91,6 +91,6 @@ void TriEngine::ImGuiLayer::OnDetach()
 
 void TriEngine::ImGuiLayer::OnImGuiRender()
 {
-	static bool show = true;
-	ImGui::ShowDemoWindow(&show);
+	//static bool show = true;
+	//ImGui::ShowDemoWindow(&show);
 }

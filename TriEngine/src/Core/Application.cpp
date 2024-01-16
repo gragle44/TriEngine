@@ -15,7 +15,7 @@ namespace TriEngine {
 	Application::Application()
 		:m_Running(true)
 	{
-		TRI_CORE_ASSERT(!s_Instance, "Application already exists!");
+			TRI_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
 		m_Window = std::unique_ptr<Window>(Window::Create());

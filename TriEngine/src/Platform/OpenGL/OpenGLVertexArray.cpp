@@ -28,7 +28,7 @@ namespace TriEngine {
 
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
-		glGenVertexArrays(1, &m_ArrayID);
+		glCreateVertexArrays(1, &m_ArrayID);
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
@@ -44,8 +44,7 @@ namespace TriEngine {
 
 	void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
 	{
-		glBindVertexArray(m_ArrayID);
-		vertexBuffer->Bind();
+		vertexBuffer->BindToVertexArray(m_ArrayID);
 
 		TRI_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
@@ -53,13 +52,14 @@ namespace TriEngine {
 		const auto& layout = vertexBuffer->GetLayout();
 		for (const auto& element : layout)
 		{
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index,
+			glEnableVertexArrayAttrib(m_ArrayID, index);
+			glVertexArrayAttribFormat(m_ArrayID,
+				index,
 				element.GetComponentCount(),
 				ShaderDataTypeToOpenGLType(element.DataType),
 				element.Normalized ? GL_TRUE : GL_FALSE,
-				layout.GetStride(),
-				(const void*)element.Offset);
+				element.Offset);
+			glVertexArrayAttribBinding(m_ArrayID, index, 0);
 			index++;
 		}
 
@@ -68,9 +68,7 @@ namespace TriEngine {
 
 	void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
 	{
-		glBindVertexArray(m_ArrayID);
-		indexBuffer->Bind();
-
+		indexBuffer->BindToVertexArray(m_ArrayID);
 		m_IndexBuffer = indexBuffer;
 	}
 

@@ -26,37 +26,21 @@ namespace TriEngine {
         }
 
         switch (type) {
-        case GL_DEBUG_TYPE_ERROR:
-            _type = "ERROR";
-            break;
+        case GL_DEBUG_TYPE_ERROR: _type = "ERROR"; break;
 
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-            _type = "DEPRECATED BEHAVIOR";
-            break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: _type = "DEPRECATED BEHAVIOR"; break;
 
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-            _type = "UDEFINED BEHAVIOR";
-            break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: _type = "UDEFINED BEHAVIOR"; break;
 
-        case GL_DEBUG_TYPE_PORTABILITY:
-            _type = "PORTABILITY";
-            break;
+        case GL_DEBUG_TYPE_PORTABILITY: _type = "PORTABILITY"; break;
 
-        case GL_DEBUG_TYPE_PERFORMANCE:
-            _type = "PERFORMANCE";
-            break;
+        case GL_DEBUG_TYPE_PERFORMANCE: _type = "PERFORMANCE"; break;
 
-        case GL_DEBUG_TYPE_OTHER:
-            _type = "OTHER";
-            break;
+        case GL_DEBUG_TYPE_OTHER: _type = "OTHER"; break;
 
-        case GL_DEBUG_TYPE_MARKER:
-            _type = "MARKER";
-            break;
+        case GL_DEBUG_TYPE_MARKER: _type = "MARKER"; break;
 
-        default:
-            _type = "UNKNOWN";
-            break;
+        default: _type = "UNKNOWN"; break;
         }
 
         switch (severity) {
