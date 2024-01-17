@@ -1,12 +1,17 @@
 #include "tripch.h"
 #include "Shader.h"
 
-#include "glad/glad.h"
+#include "Utils/PlatformUtils.h"
+
+#include <glad/glad.h>
 
 namespace TriEngine {
-	Shader::Shader(const std::string& vertSource, const std::string& fragSource) {
+	Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
 		uint32_t vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		const char* source = vertSource.c_str();
+
+		std::string tempSource = FileManager::ReadFromFile(vertexPath);
+		const char* source = tempSource.c_str();
+
 		glShaderSource(vertexShader, 1, &source, 0);
 
 		// Compile the vertex shader
@@ -36,7 +41,8 @@ namespace TriEngine {
 
 		// Send the fragment shader source code to GL
 		// Note that std::string's .c_str is NULL character terminated.
-		source = fragSource.c_str();
+		tempSource = FileManager::ReadFromFile(fragmentPath);
+		source = tempSource.c_str();
 		glShaderSource(fragmentShader, 1, &source, 0);
 
 		// Compile the fragment shader

@@ -6,9 +6,6 @@
 #include "Events/ApplicationEvent.h"
 #include "LayerStack.h"
 #include "Window.h"
-#include "Renderer/Shader.h"
-#include "Platform/OpenGL/OpenGLBuffers.h"
-#include "Platform/OpenGL/OpenGLVertexArray.h"
 
 #include "Core/ImGui/ImGuiLayer.h"
 
@@ -39,11 +36,6 @@ namespace TriEngine {
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running;
 		LayerStack m_LayerStack;
-
-		std::shared_ptr<Shader> m_Shader;
-		std::shared_ptr<VertexArray> m_VertexArray;
-		std::shared_ptr<VertexBuffer> m_VertexBuffer;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 
 	};
 
