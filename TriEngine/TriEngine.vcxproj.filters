@@ -107,6 +107,12 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\tripch.h" />
+    <ClInclude Include="src\Core\Renderer\RenderCommand.h" />
+    <ClInclude Include="src\Core\Renderer\RendererAPI.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
+    <ClInclude Include="src\Core\Renderer\Camera.h" />
+    <ClInclude Include="src\Core\Renderer\OrthographicCamera.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -158,6 +164,11 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\tripch.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderCommand.cpp" />
+    <ClCompile Include="src\Core\Renderer\RendererAPI.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
+    <ClCompile Include="src\Core\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\basicvert.glsl" />

@@ -5,6 +5,7 @@
 #include "Core/Log.h"
 
 //Graphics
+#include "Core/Renderer/OrthographicCamera.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/RenderCommand.h"
 #include "Core/Renderer/Buffers.h"

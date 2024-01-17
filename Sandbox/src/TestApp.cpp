@@ -1,11 +1,13 @@
 #include <TriEngine.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "imgui.h"
 
 class ExampleLayer : public TriEngine::Layer {
 public:
     ExampleLayer()
-        : Layer("Example") {
+        : Layer("Example"), m_ColorModifier(0.3f, 0.0f, 0.0f, 1.0f), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f) {
     }
 
     void OnAttach() final {
@@ -33,17 +35,24 @@ public:
 
         m_VertexArray->AddVertexAndIndexBuffers(m_VertexBuffer, m_IndexBuffer);
 
-        m_Shader.reset(new TriEngine::Shader("src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl"));
+        m_Shader.reset(TriEngine::Shader::Create("src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl"));
     }
 
     void OnUpdate() final {
         TriEngine::RenderCommand::ClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
         TriEngine::RenderCommand::Clear();
 
-        TriEngine::Renderer::Begin();
+        if (TriEngine::Input::IsKeyPressed(TRI_KEY_RIGHT)) {
+            m_Camera.SetRotation(m_Camera.GetRotation() + 2.0f);
+        } 
+        else if (TriEngine::Input::IsKeyPressed(TRI_KEY_LEFT)) {
+            m_Camera.SetRotation(m_Camera.GetRotation() - 2.0f);
+        }
 
-        m_Shader->Bind();
-        TriEngine::Renderer::Submit(m_VertexArray);
+        m_Camera.SetPosition({ 0.0f, 0.0f, 0.0f });
+        TriEngine::Renderer::Begin(m_Camera);
+
+        TriEngine::Renderer::Submit(m_Shader, m_VertexArray);
 
         TriEngine::Renderer::End();
     }
@@ -58,6 +67,8 @@ public:
 
     }
 private:
+    TriEngine::OrthographicCamera m_Camera;
+    glm::vec4 m_ColorModifier;
     std::shared_ptr<TriEngine::Shader> m_Shader;
     std::shared_ptr<TriEngine::VertexArray> m_VertexArray;
     std::shared_ptr<TriEngine::VertexBuffer> m_VertexBuffer;
