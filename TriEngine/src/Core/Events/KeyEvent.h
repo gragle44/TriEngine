@@ -2,10 +2,11 @@
 
 #include "tripch.h"
 #include "Event.h"
+#include "KeyEvent.h"
 
 namespace TriEngine {
 
-	class TRI_API KeyEvent : public Event
+	class  KeyEvent : public Event
 	{
 	public:
 		inline int GetKeyCode() const { return m_KeyCode; }
@@ -18,7 +19,7 @@ namespace TriEngine {
 		int m_KeyCode;
 	};
 
-	class TRI_API KeyPressedEvent : public KeyEvent
+	class  KeyPressedEvent : public KeyEvent
 	{
 	public:
 		KeyPressedEvent(int keycode, int repeatCount)
@@ -38,7 +39,7 @@ namespace TriEngine {
 		int m_RepeatCount;
 	};
 
-	class TRI_API KeyReleasedEvent : public KeyEvent
+	class  KeyReleasedEvent : public KeyEvent
 	{
 	public:
 		KeyReleasedEvent(int keycode)
@@ -54,7 +55,7 @@ namespace TriEngine {
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
-	class TRI_API KeyTypedEvent : public KeyEvent
+	class  KeyTypedEvent : public KeyEvent
 	{
 	public:
 		KeyTypedEvent(unsigned int keycode)

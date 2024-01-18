@@ -7,7 +7,7 @@
 #include "Core/Events/MouseEvent.h"
 
 namespace TriEngine {
-	class TRI_API ImGuiLayer : public Layer {
+	class  ImGuiLayer : public Layer {
 	public:
 		ImGuiLayer();
 		~ImGuiLayer();

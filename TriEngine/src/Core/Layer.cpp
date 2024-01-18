@@ -6,7 +6,3 @@ TriEngine::Layer::Layer(const std::string& debugName)
 {
 
 }
-
-TriEngine::Layer::~Layer()
-{
-}

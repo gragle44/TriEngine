@@ -5,7 +5,7 @@
 struct GLFWwindow;
 
 namespace TriEngine {
-	class TRI_API OpenGLContext : public RenderingContext {
+	class  OpenGLContext : public RenderingContext {
 	public:
 		OpenGLContext(GLFWwindow* windowHandle);
 

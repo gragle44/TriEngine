@@ -2,8 +2,6 @@
 #include "Application.h"
 #include "Core.h"
 
-#include "Utils/PlatformUtils.h"
-
 #include "Input.h"
 
 namespace TriEngine {
@@ -23,16 +21,13 @@ namespace TriEngine {
 		
 	}
 
-	Application::~Application()
-	{
-	}
-
 	void Application::Run()
 	{
 		while (m_Running)
 		{
+			m_DeltaTime.Update();
 			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
+				layer->OnUpdate(m_DeltaTime);
 
 			m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)

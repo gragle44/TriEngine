@@ -7,15 +7,17 @@
 #include "LayerStack.h"
 #include "Window.h"
 
+#include "Deltatime.h"
+
 #include "Core/ImGui/ImGuiLayer.h"
 
 namespace TriEngine {
 
-	class TRI_API Application
+	class Application
 	{
 	public:
 		Application();
-		virtual ~Application();
+		virtual ~Application() = default;
 
 		void Run();
 
@@ -33,9 +35,10 @@ namespace TriEngine {
 
 		static Application* s_Instance;
 		std::unique_ptr<Window> m_Window;
-		ImGuiLayer* m_ImGuiLayer;
-		bool m_Running;
 		LayerStack m_LayerStack;
+		ImGuiLayer* m_ImGuiLayer;
+		DeltaTime m_DeltaTime;
+		bool m_Running;
 
 	};
 

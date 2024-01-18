@@ -27,12 +27,12 @@ namespace TriEngine {
 		Adaptive = -1
 	};
 
-	class TRI_API Window
+	class  Window
 	{
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
 
-		virtual ~Window() {}
+		virtual ~Window() = default;
 
 		virtual void OnUpdate() = 0;
 

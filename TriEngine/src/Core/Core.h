@@ -3,9 +3,9 @@
 #ifdef TRI_PLATFORM_WINDOWS
 #if TRI_DYNAMIC_LINK
 	#ifdef TRI_BUILD_DLL
-		#define TRI_API __declspec(dllexport)
+		#define  __declspec(dllexport)
 	#else
-		#define TRI_API __declspec(dllimport)
+		#define  __declspec(dllimport)
 	#endif
 #else
 	#define TRI_API

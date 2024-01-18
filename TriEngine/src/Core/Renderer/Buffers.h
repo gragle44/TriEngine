@@ -108,7 +108,7 @@ namespace TriEngine {
 
 	class VertexBuffer {
 	public:
-		virtual ~VertexBuffer() {}
+		virtual ~VertexBuffer() = default;
 
 		static VertexBuffer* Create(float* vertices, uint32_t size);
 
@@ -125,7 +125,7 @@ namespace TriEngine {
 
 	class IndexBuffer {
 	public:
-		virtual ~IndexBuffer() {}
+		virtual ~IndexBuffer() = default;
 
 		static IndexBuffer* Create(uint32_t* indices, uint32_t count);
 

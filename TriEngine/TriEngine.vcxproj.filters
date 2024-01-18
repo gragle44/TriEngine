@@ -113,6 +113,7 @@
     <ClInclude Include="src\Core\Renderer\Camera.h" />
     <ClInclude Include="src\Core\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
+    <ClInclude Include="src\Core\Deltatime.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">

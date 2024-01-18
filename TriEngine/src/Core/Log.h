@@ -6,7 +6,7 @@
 
 namespace TriEngine {
 
-	class TRI_API Log
+	class  Log
 	{
 	public:
 		static void Init();
