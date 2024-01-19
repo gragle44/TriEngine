@@ -9,6 +9,10 @@ namespace TriEngine {
 			s_RendererAPI->DrawElements(vertexArray);
 		}
 
+		static void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
+			s_RendererAPI->SetViewPort(x, y, width, height);
+		}
+
 		static void Clear() {
 			s_RendererAPI->Clear();
 		}

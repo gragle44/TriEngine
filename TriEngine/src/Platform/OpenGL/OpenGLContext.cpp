@@ -108,6 +108,10 @@ namespace TriEngine {
 
 			TRI_CORE_ASSERT(versionMajor > 4 || (versionMajor == 4 && versionMinor >= 5), "Invalid OpenGL Version! 4.5 or greater is required.");
 		#endif
+
+		//Temp, move into a RenderAPI::Init eventually
+		glEnable(GL_LINE_SMOOTH);
+
 	}
 
 	void OpenGLContext::SwapBuffers()

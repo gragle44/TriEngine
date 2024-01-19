@@ -2,6 +2,8 @@
 #include "Application.h"
 #include "Core.h"
 
+#include "Renderer/RenderCommand.h"
+
 #include "Input.h"
 
 namespace TriEngine {
@@ -79,6 +81,7 @@ namespace TriEngine {
 			return false;
 		}
 
+		RenderCommand::SetViewPort(0, 0, e.GetWidth(), e.GetHeight());
 		m_Minimized = false;
 		return false;
 
