@@ -32,6 +32,7 @@ namespace TriEngine {
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
+		bool OnWindowResize(WindowResizeEvent& e);
 
 		static Application* s_Instance;
 		std::unique_ptr<Window> m_Window;
@@ -39,6 +40,7 @@ namespace TriEngine {
 		ImGuiLayer* m_ImGuiLayer;
 		DeltaTime m_DeltaTime;
 		bool m_Running;
+		bool m_Minimized;
 
 	};
 

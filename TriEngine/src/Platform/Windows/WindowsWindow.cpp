@@ -64,7 +64,7 @@ namespace TriEngine {
 		m_Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
-		SetVSync(VsyncMode::Off);
+		SetVSync(VsyncMode::Adaptive);
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);

@@ -1,13 +1,14 @@
 #include <TriEngine.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "imgui.h"
 
 class ExampleLayer : public TriEngine::Layer {
 public:
     ExampleLayer()
-        : Layer("Example"), m_Camera(1280, 720), m_CameraPos(0.0f, 0.0f, 0.0f), m_TrianglePos(0.0f, 0.0f, 0.0f) {
+        : Layer("Example"), m_Camera(1280, 720), m_CameraPos(0.0f, 0.0f, 0.0f), m_TrianglePos(0.0f, 0.0f, 0.0f), m_ColorModifier(0.0f) {
     }
 
     void OnAttach() final {
@@ -76,6 +77,9 @@ public:
 
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), { 0.1f, 0.1f, 1.0f });
 
+        m_Shader->Bind();
+        m_Shader->SetFloat3("u_Color", m_ColorModifier);
+
         for (int y = 0; y < 25; y++) {
             for (int x = 0; x < 25; x++) {
                 glm::vec3 pos(0.11f * x, 0.11f * y, 0.0f);
@@ -88,7 +92,9 @@ public:
     }
 
     void OnImGuiRender() final {
-
+        ImGui::Begin("Utils");
+        ImGui::ColorEdit3("Color Modifier", glm::value_ptr(m_ColorModifier));
+        ImGui::End();
     }
 
     void OnEvent(TriEngine::Event& e) final {
@@ -100,6 +106,7 @@ private:
 
     glm::vec3 m_CameraPos;
     glm::vec3 m_TrianglePos;
+    glm::vec3 m_ColorModifier;
 
     TriEngine::OrthographicCamera m_Camera;
     std::shared_ptr<TriEngine::Shader> m_Shader;
