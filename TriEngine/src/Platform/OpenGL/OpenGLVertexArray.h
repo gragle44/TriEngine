@@ -8,19 +8,19 @@ namespace TriEngine {
 		OpenGLVertexArray();
 		virtual ~OpenGLVertexArray();
 
-		virtual void AddVertexAndIndexBuffers(const std::shared_ptr<VertexBuffer>& vertexBuffer, const std::shared_ptr<IndexBuffer>&) final;
+		virtual void AddVertexAndIndexBuffers(const Reference<VertexBuffer>& vertexBuffer, const Reference<IndexBuffer>&) final;
 
-		virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) final;
-		virtual void SetIndexBuffer(const std::shared_ptr<IndexBuffer>&) final;
+		virtual void AddVertexBuffer(const Reference<VertexBuffer>& vertexBuffer) final;
+		virtual void SetIndexBuffer(const Reference<IndexBuffer>&) final;
 
 		virtual void Bind() const final;
 		virtual void Unbind() const final;
 
-		virtual const std::vector<std::shared_ptr<VertexBuffer>> GetVertexBuffers() const final { return m_VertexBuffers; };
-		virtual const std::shared_ptr<IndexBuffer> GetIndexBuffer() const final { return m_IndexBuffer; }
+		virtual const std::vector<Reference<VertexBuffer>> GetVertexBuffers() const final { return m_VertexBuffers; };
+		virtual const Reference<IndexBuffer> GetIndexBuffer() const final { return m_IndexBuffer; }
 	private:
-		std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+		std::vector<Reference<VertexBuffer>> m_VertexBuffers;
+		Reference<IndexBuffer> m_IndexBuffer;
 
 		uint32_t m_ArrayID;
 	};

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #ifdef TRI_PLATFORM_WINDOWS
 #if TRI_DYNAMIC_LINK
 	#ifdef TRI_BUILD_DLL
@@ -31,3 +33,11 @@
 #define BIT(x) (1 << x)
 
 #define TRI_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
+namespace TriEngine {
+	template<typename T>
+	using Reference = std::shared_ptr<T>;
+
+	template<typename T>
+	using Scoped = std::unique_ptr<T>;
+}

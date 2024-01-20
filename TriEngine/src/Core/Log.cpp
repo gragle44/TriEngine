@@ -4,8 +4,8 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 
 namespace TriEngine {
-	std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
-	std::shared_ptr<spdlog::logger> Log::s_ClientLogger;
+	Reference<spdlog::logger> Log::s_CoreLogger;
+	Reference<spdlog::logger> Log::s_ClientLogger;
 
 	void Log::Init()
 	{

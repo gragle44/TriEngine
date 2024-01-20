@@ -14,7 +14,7 @@ namespace TriEngine {
 
 		virtual void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const final;
 
-		virtual void DrawElements(const std::shared_ptr<VertexArray>& vertexArray) const final;
+		virtual void DrawElements(const Reference<VertexArray>& vertexArray) const final;
 
 	};
 }

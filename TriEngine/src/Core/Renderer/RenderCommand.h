@@ -5,7 +5,7 @@
 namespace TriEngine {
 	class RenderCommand {
 	public:
-		static void DrawElements(const std::shared_ptr<VertexArray>& vertexArray) {
+		static void DrawElements(const Reference<VertexArray>& vertexArray) {
 			s_RendererAPI->DrawElements(vertexArray);
 		}
 

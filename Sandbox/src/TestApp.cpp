@@ -8,17 +8,17 @@
 class ExampleLayer : public TriEngine::Layer {
 public:
     ExampleLayer()
-        : Layer("Example"), m_Camera(1280, 720), m_CameraPos(0.0f, 0.0f, 0.0f), m_TrianglePos(0.0f, 0.0f, 0.0f), m_ColorModifier(0.0f) {
+        : Layer("Example"), m_Camera(1280, 720), m_CameraPos(0.0f), m_TrianglePos(0.0f), m_ColorModifier(0.0f, 0.5f, 0.95f) {
     }
 
     void OnAttach() final {
         m_VertexArray.reset(TriEngine::VertexArray::Create());
 
-        float vertices[4 * 7] = {
-            -0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
-             0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-             0.5f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f,
-             -0.5f,  0.5f, 0.0f, 0.6f, 0.85f, 0.2f, 1.0f
+        float vertices[] = {
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+             0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+             0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
         };
 
         m_VertexBuffer.reset(TriEngine::VertexBuffer::Create(vertices, sizeof(vertices)));
@@ -26,7 +26,7 @@ public:
         {
             TriEngine::BufferLayout layout = {
                 { "a_Position", TriEngine::ShaderDataType::Float3 },
-                { "a_Color", TriEngine::ShaderDataType::Float4 }
+                { "a_TexCoord", TriEngine::ShaderDataType::Float2 }
             };
 
             m_VertexBuffer->SetLayout(layout);
@@ -42,7 +42,7 @@ public:
 
     void OnUpdate(float deltaTime) final {
         TRI_TRACE(deltaTime * 1000.0f);
-        TriEngine::RenderCommand::ClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+        TriEngine::RenderCommand::ClearColor({ 0.12f, 0.12f, 0.12f, 1.0f });
         TriEngine::RenderCommand::Clear();
 
         if (TriEngine::Input::IsKeyPressed(TRI_KEY_RIGHT)) {
@@ -98,7 +98,7 @@ public:
     }
 
     void OnEvent(TriEngine::Event& e) final {
-
+        //TriEngine::EventDispatcher dispatcher(e);
     }
 
 private:
@@ -109,10 +109,10 @@ private:
     glm::vec3 m_ColorModifier;
 
     TriEngine::OrthographicCamera m_Camera;
-    std::shared_ptr<TriEngine::Shader> m_Shader;
-    std::shared_ptr<TriEngine::VertexArray> m_VertexArray;
-    std::shared_ptr<TriEngine::VertexBuffer> m_VertexBuffer;
-    std::shared_ptr<TriEngine::IndexBuffer> m_IndexBuffer;
+    TriEngine::Reference<TriEngine::Shader> m_Shader;
+    TriEngine::Reference<TriEngine::VertexArray> m_VertexArray;
+    TriEngine::Reference<TriEngine::VertexBuffer> m_VertexBuffer;
+    TriEngine::Reference<TriEngine::IndexBuffer> m_IndexBuffer;
 };
 
 class Sandbox : public TriEngine::Application {

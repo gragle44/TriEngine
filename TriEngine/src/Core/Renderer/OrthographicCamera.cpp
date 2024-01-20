@@ -21,9 +21,11 @@ namespace TriEngine {
 
 	void OrthographicCamera::SetZoom(float zoom)
 	{
-		m_Zoom = zoom; 
-		m_ScaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(m_Zoom, m_Zoom, 1.0f)); 
-		RecalculateViewProjectionMatrix();
+		if (zoom > 0.0f) {
+			m_Zoom = zoom;
+			m_ScaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(m_Zoom, m_Zoom, 1.0f));
+			RecalculateViewProjectionMatrix();
+		}
 	}
 
 	void OrthographicCamera::SetProjection(float left, float right, float bottom, float top)

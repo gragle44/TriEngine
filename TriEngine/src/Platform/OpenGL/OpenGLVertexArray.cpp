@@ -36,13 +36,13 @@ namespace TriEngine {
 		glDeleteVertexArrays(1, &m_ArrayID);
 	}
 
-	void OpenGLVertexArray::AddVertexAndIndexBuffers(const std::shared_ptr<VertexBuffer>& vertexBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
+	void OpenGLVertexArray::AddVertexAndIndexBuffers(const Reference<VertexBuffer>& vertexBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
 	{
 		AddVertexBuffer(vertexBuffer);
 		SetIndexBuffer(indexBuffer);
 	}
 
-	void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
+	void OpenGLVertexArray::AddVertexBuffer(const Reference<VertexBuffer>& vertexBuffer)
 	{
 		vertexBuffer->BindToVertexArray(m_ArrayID);
 
@@ -66,7 +66,7 @@ namespace TriEngine {
 		m_VertexBuffers.push_back(vertexBuffer);
 	}
 
-	void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
+	void OpenGLVertexArray::SetIndexBuffer(const Reference<IndexBuffer>& indexBuffer)
 	{
 		indexBuffer->BindToVertexArray(m_ArrayID);
 		m_IndexBuffer = indexBuffer;

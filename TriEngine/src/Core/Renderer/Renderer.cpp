@@ -15,10 +15,9 @@ namespace TriEngine {
 	{
 	}
 
-	void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform)
+	void Renderer::Submit(const Reference<Shader>& shader, const Reference<VertexArray>& vertexArray, const glm::mat4& transform)
 	{
 		shader->Bind();
-		shader->SetMat4("u_ViewProjection", s_ViewProjectionMatrix);
 
 		std::dynamic_pointer_cast<OpenGLShader>(shader)->SetMat4("u_ViewProjection", s_ViewProjectionMatrix);
 		std::dynamic_pointer_cast<OpenGLShader>(shader)->SetMat4("u_Model", transform);

@@ -29,7 +29,7 @@ namespace TriEngine {
 		glViewport(x, y, width, height);
 	}
 
-	void TriEngine::OpenGLRendererAPI::DrawElements(const std::shared_ptr<VertexArray>& vertexArray) const
+	void TriEngine::OpenGLRendererAPI::DrawElements(const Reference<VertexArray>& vertexArray) const
 	{
 		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 	}
