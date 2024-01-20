@@ -17,6 +17,7 @@ workspace "TriEngine"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
+IncludeDir["stb_image"] = "TriEngine/vendor/stb_image"
 IncludeDir["spdlog"] = "TriEngine/vendor/spdlog/include"
 IncludeDir["GLFW"] = "TriEngine/vendor/GLFW/include"
 IncludeDir["Glad"] = "TriEngine/vendor/Glad/include"
@@ -51,14 +52,19 @@ project "TriEngine"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.hpp",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+
+		"%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/stb_image/**.cpp",
+		"%{prj.name}/vendor/glm/glm/**.hpp",
+		"%{prj.name}/vendor/glm/glm/**.inl",
 	}
 
 	includedirs
 	{
 		"TriEngine/src",
 		"TriEngine/src/Core",
+		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
@@ -70,8 +76,7 @@ project "TriEngine"
 	{
 		"GLFW",
 		"Glad",
-		"ImGui",
-		"opengl32.lib",
+		"ImGui"
 	}
 
 	filter "system:windows"
@@ -113,8 +118,7 @@ project "Sandbox"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.hpp",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
 	}
 
 	includedirs

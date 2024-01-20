@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #ifdef TRI_PLATFORM_WINDOWS
 #if TRI_DYNAMIC_LINK
@@ -35,6 +36,8 @@
 #define TRI_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 namespace TriEngine {
+	using ByteBuffer = std::vector<std::byte>;
+
 	template<typename T>
 	using Reference = std::shared_ptr<T>;
 

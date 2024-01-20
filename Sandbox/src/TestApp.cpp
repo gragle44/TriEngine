@@ -3,6 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <filesystem>
+
 #include "imgui.h"
 
 class ExampleLayer : public TriEngine::Layer {
@@ -38,6 +40,13 @@ public:
         m_VertexArray->AddVertexAndIndexBuffers(m_VertexBuffer, m_IndexBuffer);
 
         m_Shader.reset(TriEngine::Shader::Create("src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl"));
+
+        std::filesystem::path currentPath = std::filesystem::current_path() / "src\\assets\\test.png";
+        TRI_TRACE(currentPath);
+        m_Texture.reset(TriEngine::Texture2D::Create("src\\assets\\test.png"));
+
+        m_Shader->Bind();
+        m_Shader->SetInt("u_Texture", 0);
     }
 
     void OnUpdate(float deltaTime) final {
@@ -84,6 +93,7 @@ public:
             for (int x = 0; x < 25; x++) {
                 glm::vec3 pos(0.11f * x, 0.11f * y, 0.0f);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), pos) * scale;
+                m_Texture->Bind(0);
                 TriEngine::Renderer::Submit(m_Shader, m_VertexArray, translation);
             }
         }
@@ -110,6 +120,7 @@ private:
 
     TriEngine::OrthographicCamera m_Camera;
     TriEngine::Reference<TriEngine::Shader> m_Shader;
+    TriEngine::Reference<TriEngine::Texture2D> m_Texture;
     TriEngine::Reference<TriEngine::VertexArray> m_VertexArray;
     TriEngine::Reference<TriEngine::VertexBuffer> m_VertexBuffer;
     TriEngine::Reference<TriEngine::IndexBuffer> m_IndexBuffer;

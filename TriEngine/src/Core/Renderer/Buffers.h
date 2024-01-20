@@ -50,7 +50,7 @@ namespace TriEngine {
 		bool Normalized;
 
 		BufferElement(const std::string& name, ShaderDataType dataType, bool normalized = false)
-			:Name(name), DataType(dataType), Size(ShaderDataTypeSize(dataType)), Normalized(normalized) {
+			:Name(name), DataType(dataType), Size(ShaderDataTypeSize(dataType)), Normalized(normalized), Offset(0) {
 			
 		}
 
