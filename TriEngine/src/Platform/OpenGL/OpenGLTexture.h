@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/glm.hpp>
 #include "Renderer/Texture.h"
 #include "Core/Core.h"
 
@@ -7,6 +8,7 @@ namespace TriEngine {
 	class OpenGLTexture2D : public Texture2D {
 	public:
 		OpenGLTexture2D(const std::string& filePath);
+		OpenGLTexture2D(const glm::vec4& color, uint32_t size);
 		virtual ~OpenGLTexture2D() final;
 
 		virtual void Bind(uint32_t slot) const final;
@@ -20,7 +22,7 @@ namespace TriEngine {
 	private:
 		uint32_t m_TextureID;
 		
-		ByteBuffer m_Buffer = std::vector<std::byte>({'e'});
+		ByteBuffer m_Buffer;
 		uint32_t m_Width, m_Height;
 		std::string m_Path;
 	};

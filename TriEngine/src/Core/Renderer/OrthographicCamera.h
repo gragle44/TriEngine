@@ -24,11 +24,6 @@ namespace TriEngine {
 
 		void SetProjection(float left, float right, float bottom, float top);
 
-		void SetNearClip(float nearClip) { m_NearClip = nearClip; RecalculateViewProjectionMatrix(); }
-		float GetNearClip() const { return m_NearClip; }
-		void SetFarClip(float farClip) { m_FarClip = farClip; RecalculateViewProjectionMatrix(); }
-		float GetFarClip() const { return m_FarClip; }
-
 	private:
 		void RecalculateViewProjectionMatrix();
 
@@ -40,8 +35,5 @@ namespace TriEngine {
 		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
 		float m_Rotation = 0.0f;
 		float m_Zoom = 1.0f;
-
-		float m_NearClip = -1.0f;
-		float m_FarClip = 1.0f;
 	};
 }

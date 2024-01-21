@@ -9,6 +9,8 @@
 namespace TriEngine {
 	class Renderer {
 	public:
+		static void Init();
+
 		static void Begin(const OrthographicCamera& camera);
 		static void End();
 

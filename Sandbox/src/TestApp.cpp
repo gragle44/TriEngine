@@ -3,8 +3,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <filesystem>
-
 #include "imgui.h"
 
 class ExampleLayer : public TriEngine::Layer {
@@ -17,10 +15,10 @@ public:
         m_VertexArray.reset(TriEngine::VertexArray::Create());
 
         float vertices[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-             0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-             0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
+           -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+            0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+           -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
         };
 
         m_VertexBuffer.reset(TriEngine::VertexBuffer::Create(vertices, sizeof(vertices)));
@@ -35,22 +33,21 @@ public:
         }
 
         uint32_t indices[6] = { 0, 1, 2, 2, 3, 0 };
+
         m_IndexBuffer.reset(TriEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
         m_VertexArray->AddVertexAndIndexBuffers(m_VertexBuffer, m_IndexBuffer);
 
-        m_Shader.reset(TriEngine::Shader::Create("src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl"));
+        m_Shader.reset(TriEngine::Shader::Create("TextureShader", "src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl"));
+        m_ShaderLib.Push(m_Shader->GetName(), m_Shader);
 
-        std::filesystem::path currentPath = std::filesystem::current_path() / "src\\assets\\test.png";
-        TRI_TRACE(currentPath);
-        m_Texture.reset(TriEngine::Texture2D::Create("src\\assets\\test.png"));
+        m_Texture.reset(TriEngine::Texture2D::Create("assets/test2.png"));
 
         m_Shader->Bind();
         m_Shader->SetInt("u_Texture", 0);
     }
 
     void OnUpdate(float deltaTime) final {
-        TRI_TRACE(deltaTime * 1000.0f);
         TriEngine::RenderCommand::ClearColor({ 0.12f, 0.12f, 0.12f, 1.0f });
         TriEngine::RenderCommand::Clear();
 
@@ -62,10 +59,10 @@ public:
         }
 
         if (TriEngine::Input::IsKeyPressed(TRI_KEY_UP)) {
-            m_Camera.SetZoom(m_Camera.GetZoom() - 8.0f * deltaTime);
+            m_Camera.SetZoom(m_Camera.GetZoom() - 5.0f * deltaTime);
         }
         else if (TriEngine::Input::IsKeyPressed(TRI_KEY_DOWN)) {
-            m_Camera.SetZoom(m_Camera.GetZoom() + 8.0f * deltaTime);
+            m_Camera.SetZoom(m_Camera.GetZoom() + 5.0f * deltaTime);
         }
 
         glm::vec3 direction(0.0f, 0.0f, 0.0f);
@@ -86,15 +83,12 @@ public:
 
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), { 0.1f, 0.1f, 1.0f });
 
-        m_Shader->Bind();
-        m_Shader->SetFloat3("u_Color", m_ColorModifier);
-
         for (int y = 0; y < 25; y++) {
             for (int x = 0; x < 25; x++) {
                 glm::vec3 pos(0.11f * x, 0.11f * y, 0.0f);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), pos) * scale;
                 m_Texture->Bind(0);
-                TriEngine::Renderer::Submit(m_Shader, m_VertexArray, translation);
+                TriEngine::Renderer::Submit(m_ShaderLib.Get("TextureShader"), m_VertexArray, translation);
             }
         }
 
@@ -102,8 +96,8 @@ public:
     }
 
     void OnImGuiRender() final {
-        ImGui::Begin("Utils");
-        ImGui::ColorEdit3("Color Modifier", glm::value_ptr(m_ColorModifier));
+        ImGui::Begin("Settings");
+
         ImGui::End();
     }
 
@@ -119,6 +113,7 @@ private:
     glm::vec3 m_ColorModifier;
 
     TriEngine::OrthographicCamera m_Camera;
+    TriEngine::AssetLibrary<TriEngine::Shader> m_ShaderLib;
     TriEngine::Reference<TriEngine::Shader> m_Shader;
     TriEngine::Reference<TriEngine::Texture2D> m_Texture;
     TriEngine::Reference<TriEngine::VertexArray> m_VertexArray;

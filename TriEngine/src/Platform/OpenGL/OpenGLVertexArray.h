@@ -22,6 +22,7 @@ namespace TriEngine {
 		std::vector<Reference<VertexBuffer>> m_VertexBuffers;
 		Reference<IndexBuffer> m_IndexBuffer;
 
+		uint32_t m_VertexBufferIndexOffset = 0;
 		uint32_t m_ArrayID;
 	};
 }

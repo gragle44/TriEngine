@@ -6,6 +6,11 @@
 namespace TriEngine {
 	glm::mat4 Renderer::s_ViewProjectionMatrix(1.0f);
 	
+	void Renderer::Init()
+	{
+		RenderCommand::Init();
+	}
+
 	void Renderer::Begin(const OrthographicCamera& camera)
 	{
 		s_ViewProjectionMatrix = camera.GetViewProjectionMatrix();

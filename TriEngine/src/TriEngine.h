@@ -4,6 +4,7 @@
 #include "Core/Layer.h"
 #include "Core/Deltatime.h"
 #include "Core/Log.h"
+#include "Core/Base/AssetLibrary.h"
 
 #include "Utils/PlatformUtils.h"
 

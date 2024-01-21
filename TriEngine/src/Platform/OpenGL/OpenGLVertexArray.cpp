@@ -36,7 +36,7 @@ namespace TriEngine {
 		glDeleteVertexArrays(1, &m_ArrayID);
 	}
 
-	void OpenGLVertexArray::AddVertexAndIndexBuffers(const Reference<VertexBuffer>& vertexBuffer, const std::shared_ptr<IndexBuffer>& indexBuffer)
+	void OpenGLVertexArray::AddVertexAndIndexBuffers(const Reference<VertexBuffer>& vertexBuffer, const Reference<IndexBuffer>& indexBuffer)
 	{
 		AddVertexBuffer(vertexBuffer);
 		SetIndexBuffer(indexBuffer);
@@ -52,18 +52,19 @@ namespace TriEngine {
 		const auto& layout = vertexBuffer->GetLayout();
 		for (const auto& element : layout)
 		{
-			glEnableVertexArrayAttrib(m_ArrayID, index);
+			glEnableVertexArrayAttrib(m_ArrayID, index + m_VertexBufferIndexOffset);
 			glVertexArrayAttribFormat(m_ArrayID,
 				index,
 				element.GetComponentCount(),
 				ShaderDataTypeToOpenGLType(element.DataType),
 				element.Normalized ? GL_TRUE : GL_FALSE,
 				element.Offset);
-			glVertexArrayAttribBinding(m_ArrayID, index, 0);
+			glVertexArrayAttribBinding(m_ArrayID, index + m_VertexBufferIndexOffset, 0);
 			index++;
 		}
 
 		m_VertexBuffers.push_back(vertexBuffer);
+		m_VertexBufferIndexOffset += layout.GetElements().size();
 	}
 
 	void OpenGLVertexArray::SetIndexBuffer(const Reference<IndexBuffer>& indexBuffer)

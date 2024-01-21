@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Application.h" />
+    <ClInclude Include="src\Core\Base\AssetLibrary.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\Deltatime.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />

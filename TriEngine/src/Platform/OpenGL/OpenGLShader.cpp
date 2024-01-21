@@ -7,7 +7,9 @@
 #include <glad/glad.h>
 
 namespace TriEngine {
-	OpenGLShader::OpenGLShader(const std::string& vertexPath, const std::string& fragmentPath) {
+	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath) 
+		:m_Name(name)
+	{
 		uint32_t vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
 		std::string tempSource = FileManager::ReadFromFile(vertexPath);

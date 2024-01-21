@@ -2,7 +2,7 @@
 #include "Application.h"
 #include "Core.h"
 
-#include "Renderer/RenderCommand.h"
+#include "Renderer/Renderer.h"
 
 #include "Input.h"
 
@@ -17,6 +17,8 @@ namespace TriEngine {
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(TRI_BIND_EVENT_FN(Application::OnEvent));
+
+		TriEngine::Renderer::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

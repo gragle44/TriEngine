@@ -5,6 +5,10 @@
 namespace TriEngine {
 	class RenderCommand {
 	public:
+		static void Init() {
+			s_RendererAPI->Init();
+		}
+
 		static void DrawElements(const Reference<VertexArray>& vertexArray) {
 			s_RendererAPI->DrawElements(vertexArray);
 		}

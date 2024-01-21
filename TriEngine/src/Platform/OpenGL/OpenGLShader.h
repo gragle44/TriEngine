@@ -6,11 +6,13 @@
 namespace TriEngine {
 	class OpenGLShader : public Shader {
 	public:
-		OpenGLShader(const std::string& vertexPath, const std::string& fragmentPath);
+		OpenGLShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath);
 		virtual ~OpenGLShader() final;
 
 		virtual void Bind() const final;
 		virtual void UnBind() const final;
+
+		virtual const std::string& GetName() const final { return m_Name; }
 
 		virtual void SetInt(const std::string& name, int value) final;
 		virtual void SetFloat(const std::string& name, float value) final;
@@ -23,6 +25,7 @@ namespace TriEngine {
 	private:
 		int GetUniformLocation(const std::string& name);
 
+		std::string m_Name;
 		uint32_t m_ShaderID;
 		std::unordered_map<std::string, int> m_UniformLocationCache;
 	};
