@@ -8,6 +8,13 @@
 .bin/
 .bin-int/
 
+#Visual studio files
+*.vcxproj
+*.filters
+*.users
+*.sln
+*.vcxproj.user
+
 # User-specific files
 *.rsuser
 *.suo

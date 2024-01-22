@@ -21,10 +21,10 @@ namespace TriEngine {
 		}
 	};
 
-	enum class VsyncMode {
+	enum class VsyncMode : uint8_t {
 		Off = 0,
-		On = 1,
-		Adaptive = -1
+		On,
+		Adaptive
 	};
 
 	class  Window
