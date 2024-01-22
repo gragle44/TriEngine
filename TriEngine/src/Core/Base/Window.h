@@ -3,7 +3,7 @@
 #include "tripch.h"
 
 #include "Core.h"
-#include "Events/Event.h"
+#include "Core/Events/Event.h"
 
 namespace TriEngine {
 

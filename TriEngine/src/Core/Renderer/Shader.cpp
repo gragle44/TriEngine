@@ -1,6 +1,8 @@
 #include "tripch.h"
 #include "Shader.h"
 
+#include "Base/Assert.h"
+
 #include "Renderer.h"
 
 #include "Platform/OpenGL/OpenGLShader.h"

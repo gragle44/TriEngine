@@ -3,6 +3,8 @@
 #include "Core/Renderer/Shader.h"
 #include "Utils/PlatformUtils.h"
 
+#include "Base/Assert.h"
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 

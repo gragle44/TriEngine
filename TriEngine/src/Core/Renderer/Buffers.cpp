@@ -1,6 +1,8 @@
 #include "tripch.h"
 #include "Buffers.h"
 
+#include "Base/Assert.h"
+
 #include "Renderer.h"
 
 #include "Platform/OpenGL/OpenGLBuffers.h"

@@ -1,5 +1,6 @@
 #include "tripch.h"
-#include "Core/Core.h"
+
+#include "Base/Assert.h"
 
 #include "OpenGLContext.h"
 

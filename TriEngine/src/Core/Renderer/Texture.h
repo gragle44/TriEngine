@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Core.h"
+#include "Core/Base/Core.h"
 #include <string>
 
 namespace TriEngine {

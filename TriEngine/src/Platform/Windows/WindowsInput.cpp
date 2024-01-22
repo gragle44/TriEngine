@@ -1,7 +1,7 @@
 #include "tripch.h"
 #include "WindowsInput.h"
 
-#include "Application.h"
+#include "Base/Application.h"
 #include <GLFW/glfw3.h>
 
 namespace TriEngine {

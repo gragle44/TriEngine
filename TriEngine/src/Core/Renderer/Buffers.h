@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Base/Assert.h"
+
 namespace TriEngine {
 	enum class ShaderDataType : uint8_t {
 		None = 0,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Input.h"
+#include "Core/Base/Input.h"
 
 namespace TriEngine {
 	class WindowsInput : public Input {

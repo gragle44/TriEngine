@@ -1,6 +1,7 @@
 #include "tripch.h"
 #include "Application.h"
 #include "Core.h"
+#include "Assert.h"
 
 #include "Renderer/Renderer.h"
 

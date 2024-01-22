@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tripch.h"
-#include "Core/Core.h"
+#include "Core/Base/Core.h"
 
 namespace TriEngine {
 

@@ -1,6 +1,8 @@
 #include "tripch.h"
 #include "OpenGLVertexArray.h"
 
+#include "Base/Assert.h"
+
 #include <Glad/glad.h>
 
 namespace TriEngine {

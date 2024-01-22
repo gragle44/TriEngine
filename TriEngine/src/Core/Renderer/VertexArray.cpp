@@ -1,6 +1,8 @@
 #include "tripch.h"
 #include "VertexArray.h"
 
+#include "Base/Assert.h"
+
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLVertexArray.h"
 

@@ -15,6 +15,9 @@
 *.sln
 *.vcxproj.user
 
+#ImGui config file
+*.ini
+
 # User-specific files
 *.rsuser
 *.suo
@@ -380,3 +383,4 @@ FodyWeavers.xsd
 /TriEngine/vendor/Glad/bin-obj/Debug-windows-x86_64/Glad/Glad.vcxproj.FileListAbsolute.txt
 *.recipe
 /Sandbox/imgui.ini
+/TriEngine/vendor/Glad/bin-obj

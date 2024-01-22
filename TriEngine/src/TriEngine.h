@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Core/Application.h"
-#include "Core/Layer.h"
-#include "Core/Deltatime.h"
-#include "Core/Log.h"
+#include "Core/Base/Application.h"
+#include "Core/Base/Layer.h"
+#include "Core/Base/Deltatime.h"
+#include "Core/Base/Log.h"
+#include "Core/Base/Assert.h"
 #include "Core/Base/AssetLibrary.h"
 
 #include "Utils/PlatformUtils.h"
@@ -19,8 +20,8 @@
 #include "Core/ImGui/ImGuiLayer.h"
 
 //Input
-#include "Core/Input.h"
-#include "Core/MouseButtonCodes.h"
-#include "Core/KeyCodes.h"
+#include "Core/Base/Input.h"
+#include "Core/Base/MouseButtonCodes.h"
+#include "Core/Base/KeyCodes.h"
 
-#include "Core/EntryPoint.h"
+#include "Core/Base/EntryPoint.h"

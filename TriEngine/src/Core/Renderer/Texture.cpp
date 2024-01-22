@@ -1,6 +1,8 @@
 #include "tripch.h"
 #include "Texture.h"
 
+#include "Base/Assert.h"
+
 #include "Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 

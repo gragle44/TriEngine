@@ -85,7 +85,6 @@ project "TriEngine"
 		defines 
 		{
 			"TRI_PLATFORM_WINDOWS",
-			"TRI_BUILD_DLL",
 			"GLFW_INCLUDE_NONE"
 		}
 

@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 #include "Renderer/Texture.h"
-#include "Core/Core.h"
+#include "Core/Base/Core.h"
 
 namespace TriEngine {
 	class OpenGLTexture2D : public Texture2D {

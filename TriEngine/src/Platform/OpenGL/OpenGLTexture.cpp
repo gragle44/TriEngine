@@ -1,6 +1,8 @@
 #include "tripch.h"
 #include "OpenGLTexture.h"
 
+#include "Base/Assert.h"
+
 #include "stb_image.h"
 #include <glad/glad.h>
 
