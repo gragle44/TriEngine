@@ -8,7 +8,7 @@
 class ExampleLayer : public TriEngine::Layer {
 public:
     ExampleLayer()
-        : Layer("Example"), m_Camera(1280, 720), m_CameraPos(0.0f), m_TrianglePos(0.0f), m_ColorModifier(0.0f, 0.5f, 0.95f) {
+        : Layer("Example"), m_CameraController(TriEngine::OrthographicCamera(1280, 720)), m_CameraPos(0.0f), m_TrianglePos(0.0f), m_ColorModifier(0.0f, 0.5f, 0.95f) {
     }
 
     void OnAttach() final {
@@ -51,35 +51,9 @@ public:
         TriEngine::RenderCommand::ClearColor({ 0.12f, 0.12f, 0.12f, 1.0f });
         TriEngine::RenderCommand::Clear();
 
-        if (TriEngine::Input::IsKeyPressed(TRI_KEY_RIGHT)) {
-            m_Camera.SetRotation(m_Camera.GetRotation() - 25.0f * deltaTime);
-        } 
-        else if (TriEngine::Input::IsKeyPressed(TRI_KEY_LEFT)) {
-            m_Camera.SetRotation(m_Camera.GetRotation() + 25.0f * deltaTime);
-        }
+        m_CameraController.OnUpdate(deltaTime);
 
-        if (TriEngine::Input::IsKeyPressed(TRI_KEY_UP)) {
-            m_Camera.SetZoom(m_Camera.GetZoom() - 5.0f * deltaTime);
-        }
-        else if (TriEngine::Input::IsKeyPressed(TRI_KEY_DOWN)) {
-            m_Camera.SetZoom(m_Camera.GetZoom() + 5.0f * deltaTime);
-        }
-
-        glm::vec3 direction(0.0f, 0.0f, 0.0f);
-
-        if (TriEngine::Input::IsKeyPressed(TRI_KEY_A))
-            direction = { -m_CameraSpeed, 0.0f, 0.0f };
-        if (TriEngine::Input::IsKeyPressed(TRI_KEY_D))
-            direction = { m_CameraSpeed, 0.0f, 0.0f };
-        if (TriEngine::Input::IsKeyPressed(TRI_KEY_W))
-            direction = { 0.0f, m_CameraSpeed, 0.0f };
-        if (TriEngine::Input::IsKeyPressed(TRI_KEY_S))
-            direction = { 0.0f, -m_CameraSpeed, 0.0f };
-
-        m_CameraPos += direction * deltaTime;
-
-        m_Camera.SetPosition(m_CameraPos);
-        TriEngine::Renderer::Begin(m_Camera);
+        TriEngine::Renderer::Begin(m_CameraController.GetCamera());
 
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), { 0.1f, 0.1f, 1.0f });
 
@@ -102,6 +76,7 @@ public:
     }
 
     void OnEvent(TriEngine::Event& e) final {
+        m_CameraController.OnEvent(e);
         //TriEngine::EventDispatcher dispatcher(e);
     }
 
@@ -112,7 +87,7 @@ private:
     glm::vec3 m_TrianglePos;
     glm::vec3 m_ColorModifier;
 
-    TriEngine::OrthographicCamera m_Camera;
+    TriEngine::OrthographicCameraController m_CameraController;
     TriEngine::AssetLibrary<TriEngine::Shader> m_ShaderLib;
     TriEngine::Reference<TriEngine::Shader> m_Shader;
     TriEngine::Reference<TriEngine::Texture2D> m_Texture;

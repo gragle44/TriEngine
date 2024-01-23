@@ -11,6 +11,7 @@
 
 //Graphics
 #include "Core/Renderer/OrthographicCamera.h"
+#include "Core/Renderer/CameraController.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/RenderCommand.h"
 #include "Core/Renderer/Buffers.h"

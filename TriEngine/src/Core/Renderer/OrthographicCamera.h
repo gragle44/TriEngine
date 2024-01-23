@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Camera.h"
+#include <glm/glm.hpp>
 
 namespace TriEngine {
 	class OrthographicCamera{
@@ -23,17 +23,18 @@ namespace TriEngine {
 		float GetZoom() const { return m_Zoom; }
 
 		void SetProjection(float left, float right, float bottom, float top);
+		void SetProjection(uint32_t width, uint32_t height);
 
 	private:
 		void RecalculateViewProjectionMatrix();
 
-		glm::mat4 m_ScaleMatrix;
+		float m_AspectRatio;
+		float m_Rotation = 0.0f;
+		float m_Zoom = 1.0f;
 		glm::mat4 m_ProjectionMatrix;
 		glm::mat4 m_ViewMatrix;
 		glm::mat4 m_ViewProjectionMatrix;
 
 		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
-		float m_Rotation = 0.0f;
-		float m_Zoom = 1.0f;
 	};
 }

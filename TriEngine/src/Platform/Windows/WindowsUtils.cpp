@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <filesystem>
+#include <fstream>
 
 namespace TriEngine {
 	float Time::GetTime() {
