@@ -3,6 +3,7 @@
 #include "Utils/PlatformUtils.h"
 
 #include <GLFW/glfw3.h>
+#include <chrono>
 
 #include <filesystem>
 #include <fstream>
@@ -10,6 +11,7 @@
 namespace TriEngine {
 	float Time::GetTime() {
 		return (float)glfwGetTime();
+
 	}
 
 	std::string FileManager::ReadFromFile(const std::string& filePath) {

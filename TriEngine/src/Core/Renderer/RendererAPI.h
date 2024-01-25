@@ -13,7 +13,9 @@ namespace TriEngine {
 
 		virtual void Init() = 0;
 
-		virtual void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const = 0;
+		virtual void SetViewPort(const glm::ivec4& dimensions) const = 0;
+
+		virtual void EnableWireframes(bool enabled) const = 0;
 
 		virtual void ClearColor(const glm::vec4& color) const = 0;
 		virtual void ClearDepth() const = 0;

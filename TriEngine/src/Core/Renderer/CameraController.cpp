@@ -39,7 +39,7 @@ namespace TriEngine {
 
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
-		m_Camera.SetZoom(m_Camera.GetZoom() - e.GetYOffset() * 0.25f);
+		m_Camera.SetZoom(m_Camera.GetZoom() - e.GetYOffset() * 0.5f);
 		return true;
 	}
 

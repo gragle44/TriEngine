@@ -41,14 +41,14 @@ public:
         m_Shader.reset(TriEngine::Shader::Create("TextureShader", "src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl"));
         m_ShaderLib.Push(m_Shader->GetName(), m_Shader);
 
-        m_Texture.reset(TriEngine::Texture2D::Create("assets/test2.png"));
-
+        m_Texture.reset(TriEngine::Texture2D::Create("assets/test.jpg"));
+            
         m_Shader->Bind();
         m_Shader->SetInt("u_Texture", 0);
     }
 
     void OnUpdate(float deltaTime) final {
-        TriEngine::RenderCommand::ClearColor({ 0.12f, 0.12f, 0.12f, 1.0f });
+        TriEngine::RenderCommand::SetClearColor({ 0.12f, 0.12f, 0.12f, 1.0f });
         TriEngine::RenderCommand::Clear();
 
         m_CameraController.OnUpdate(deltaTime);
@@ -70,7 +70,17 @@ public:
     }
 
     void OnImGuiRender() final {
+        static bool wireframeEnabled;
+        static bool prevWireFrame;
+
         ImGui::Begin("Settings");
+
+        ImGui::Checkbox("Enable wireframe", &wireframeEnabled);
+
+        if (wireframeEnabled != prevWireFrame) {
+            prevWireFrame = wireframeEnabled;
+            TriEngine::RenderCommand::EnableWireframes(wireframeEnabled);
+        }
 
         ImGui::End();
     }

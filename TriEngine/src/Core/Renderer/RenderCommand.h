@@ -13,19 +13,19 @@ namespace TriEngine {
 			s_RendererAPI->DrawElements(vertexArray);
 		}
 
-		static void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
-			s_RendererAPI->SetViewPort(x, y, width, height);
+		static void SetViewPort(const glm::ivec4& dimensions) {
+			s_RendererAPI->SetViewPort(dimensions);
 		}
 
 		static void Clear() {
 			s_RendererAPI->Clear();
 		}
 
-		static void ClearDepth() {
-			s_RendererAPI->ClearDepth();
+		static void EnableWireframes(bool enabled) {
+			s_RendererAPI->EnableWireframes(enabled);
 		}
 
-		static void ClearColor(const glm::vec4& color) {
+		static void SetClearColor(const glm::vec4& color) {
 			s_RendererAPI->ClearColor(color);
 		}
 
