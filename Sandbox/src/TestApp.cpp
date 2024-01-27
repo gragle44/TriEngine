@@ -1,9 +1,12 @@
 #include <TriEngine.h>
+#include <Core/Base/EntryPoint.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "imgui.h"
+#include "Example2D.h"
+
+#include <imgui.h>
 
 class ExampleLayer : public TriEngine::Layer {
 public:
@@ -12,7 +15,7 @@ public:
     }
 
     void OnAttach() final {
-        m_VertexArray.reset(TriEngine::VertexArray::Create());
+        m_VertexArray = TriEngine::VertexArray::Create();
 
         float vertices[] = {
            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -21,7 +24,7 @@ public:
            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
         };
 
-        m_VertexBuffer.reset(TriEngine::VertexBuffer::Create(vertices, sizeof(vertices)));
+        m_VertexBuffer = TriEngine::VertexBuffer::Create(vertices, sizeof(vertices));
 
         {
             TriEngine::BufferLayout layout = {
@@ -34,14 +37,14 @@ public:
 
         uint32_t indices[6] = { 0, 1, 2, 2, 3, 0 };
 
-        m_IndexBuffer.reset(TriEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+        m_IndexBuffer = TriEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 
         m_VertexArray->AddVertexAndIndexBuffers(m_VertexBuffer, m_IndexBuffer);
 
-        m_Shader.reset(TriEngine::Shader::Create("TextureShader", "src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl"));
+        m_Shader = TriEngine::Shader::Create("TextureShader", "src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl");
         m_ShaderLib.Push(m_Shader->GetName(), m_Shader);
 
-        m_Texture.reset(TriEngine::Texture2D::Create("assets/test.jpg"));
+        m_Texture = TriEngine::Texture2D::Create("assets/test.jpg");
             
         m_Shader->Bind();
         m_Shader->SetInt("u_Texture", 0);
@@ -109,7 +112,8 @@ private:
 class Sandbox : public TriEngine::Application {
 public:
     Sandbox() {
-        PushLayer(new ExampleLayer());
+        //PushLayer(new ExampleLayer());
+        PushLayer(new Example2D());
     }
 
     ~Sandbox() {

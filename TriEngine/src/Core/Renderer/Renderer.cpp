@@ -24,8 +24,8 @@ namespace TriEngine {
 	{
 		shader->Bind();
 
-		std::dynamic_pointer_cast<OpenGLShader>(shader)->SetMat4("u_ViewProjection", s_ViewProjectionMatrix);
-		std::dynamic_pointer_cast<OpenGLShader>(shader)->SetMat4("u_Model", transform);
+		shader->SetMat4("u_ViewProjection", s_ViewProjectionMatrix);
+		shader->SetMat4("u_Model", transform);
 
 		vertexArray->Bind();
 		RenderCommand::DrawElements(vertexArray);

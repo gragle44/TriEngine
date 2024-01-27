@@ -112,7 +112,7 @@ namespace TriEngine {
 	public:
 		virtual ~VertexBuffer() = default;
 
-		static VertexBuffer* Create(float* vertices, uint32_t size);
+		static Reference<VertexBuffer> Create(float* vertices, uint32_t size);
 
 		virtual void BindToVertexArray(uint32_t arrayID) const = 0;
 		virtual void Bind() const = 0;
@@ -129,7 +129,7 @@ namespace TriEngine {
 	public:
 		virtual ~IndexBuffer() = default;
 
-		static IndexBuffer* Create(uint32_t* indices, uint32_t count);
+		static Reference<IndexBuffer> Create(uint32_t* indices, uint32_t count);
 
 		virtual void BindToVertexArray(uint32_t arrayID) const = 0;
 		virtual void Bind() const = 0;

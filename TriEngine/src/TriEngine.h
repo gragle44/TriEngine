@@ -13,6 +13,7 @@
 #include "Core/Renderer/OrthographicCamera.h"
 #include "Core/Renderer/CameraController.h"
 #include "Core/Renderer/Renderer.h"
+#include "Core/Renderer/Renderer2D.h"
 #include "Core/Renderer/RenderCommand.h"
 #include "Core/Renderer/Buffers.h"
 #include "Core/Renderer/Shader.h"
@@ -24,5 +25,3 @@
 #include "Core/Base/Input.h"
 #include "Core/Base/MouseButtonCodes.h"
 #include "Core/Base/KeyCodes.h"
-
-#include "Core/Base/EntryPoint.h"

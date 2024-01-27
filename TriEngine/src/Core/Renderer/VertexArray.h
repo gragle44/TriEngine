@@ -6,7 +6,7 @@
 namespace TriEngine {
 	class VertexArray {
 	public:
-		virtual ~VertexArray() {}
+		virtual ~VertexArray() = default;
 
 		virtual void AddVertexAndIndexBuffers(const Reference<VertexBuffer>& vertexBuffer, const Reference<IndexBuffer>&) = 0;
 
@@ -19,6 +19,6 @@ namespace TriEngine {
 		virtual const std::vector<Reference<VertexBuffer>> GetVertexBuffers() const = 0;
 		virtual const Reference<IndexBuffer> GetIndexBuffer() const = 0;
 
-		static VertexArray* Create();
+		static Reference<VertexArray> Create();
 	};
 }

@@ -4,6 +4,7 @@
 #include "Assert.h"
 
 #include "Renderer/Renderer.h"
+#include "Renderer/Renderer2D.h"
 
 #include "Input.h"
 
@@ -13,13 +14,14 @@ namespace TriEngine {
 	Application::Application()
 		:m_Running(true), m_Minimized(false)
 	{
-			TRI_CORE_ASSERT(!s_Instance, "Application already exists!");
+		TRI_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(TRI_BIND_EVENT_FN(Application::OnEvent));
 
 		TriEngine::Renderer::Init();
+		TriEngine::Renderer2D::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

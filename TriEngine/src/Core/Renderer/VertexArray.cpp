@@ -7,7 +7,7 @@
 #include "Platform/OpenGL/OpenGLVertexArray.h"
 
 namespace TriEngine {
-	VertexArray* VertexArray::Create()
+	Reference<VertexArray> VertexArray::Create()
 	{
 		switch (Renderer::GetCurrentAPI())
 		{
@@ -15,7 +15,7 @@ namespace TriEngine {
 			TRI_CORE_ASSERT(false, "Renderer type 'None' is not currently supported");
 			return nullptr;
 		case RendererAPI::API::OpenGL:
-			return new OpenGLVertexArray();
+			return std::make_unique<OpenGLVertexArray>(OpenGLVertexArray());
 
 		TRI_CORE_ASSERT(false, "Invalid renderer type!");
 		return nullptr;
