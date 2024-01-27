@@ -19,14 +19,17 @@ namespace TriEngine {
 		   -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 
-		Reference<VertexBuffer>vertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
+		Reference<VertexBuffer> vertexBuffer;
+		vertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
 
-		TriEngine::BufferLayout layout = {
-			{ "a_Position", TriEngine::ShaderDataType::Float3 },
-			{ "a_TexCoord", TriEngine::ShaderDataType::Float2 }
-		};
+		{
+			TriEngine::BufferLayout layout = {
+				{ "a_Position", TriEngine::ShaderDataType::Float3 },
+				{ "a_TexCoord", TriEngine::ShaderDataType::Float2 }
+			};
 
-		vertexBuffer->SetLayout(layout); 
+			vertexBuffer->SetLayout(layout);
+		}
 
 		uint32_t indices[6] = { 0, 1, 2, 2, 3, 0 };
 		Reference<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));

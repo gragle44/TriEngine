@@ -16,7 +16,7 @@ namespace TriEngine {
 			TRI_CORE_ASSERT(false, "Renderer type 'None' is not currently supported");
 			return nullptr;
 		case RendererAPI::API::OpenGL:
-			return std::make_shared<OpenGLVertexBuffer>(OpenGLVertexBuffer(vertices, size));
+			return std::make_shared<OpenGLVertexBuffer>(vertices, size);
 
 		TRI_CORE_ASSERT(false, "Invalid renderer type!");
 		return nullptr;
@@ -31,7 +31,7 @@ namespace TriEngine {
 			TRI_CORE_ASSERT(false, "Renderer type 'None' is not currently supported");
 			return nullptr;
 		case RendererAPI::API::OpenGL:
-			return std::make_shared<OpenGLIndexBuffer>(OpenGLIndexBuffer(indices, size));
+			return std::make_shared<OpenGLIndexBuffer>(indices, size);
 
 		TRI_CORE_ASSERT(false, "Invalid renderer type!");
 		return nullptr;

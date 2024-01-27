@@ -15,7 +15,7 @@ namespace TriEngine {
 			TRI_CORE_ASSERT(false, "Renderer type 'None' is not currently supported");
 			return nullptr;
 		case RendererAPI::API::OpenGL:
-			return std::make_shared<OpenGLShader>(OpenGLShader(name, vertexPath, fragmentPath));
+			return std::make_shared<OpenGLShader>(name, vertexPath, fragmentPath);
 
 			TRI_CORE_ASSERT(false, "Invalid renderer type!");
 			return nullptr;

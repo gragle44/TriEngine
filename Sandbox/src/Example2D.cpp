@@ -19,6 +19,7 @@ void Example2D::OnDetach()
 
 void Example2D::OnUpdate(float deltaTime)
 {
+	m_CameraController.OnUpdate(deltaTime);
 	TriEngine::Quad quad = TriEngine::Quad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_Texture);
 	TriEngine::RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
 
@@ -33,4 +34,5 @@ void Example2D::OnImGuiRender()
 
 void Example2D::OnEvent(TriEngine::Event& e)
 {
+	m_CameraController.OnEvent(e);
 }
