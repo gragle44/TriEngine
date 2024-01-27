@@ -24,7 +24,7 @@ void Example2D::OnUpdate(float deltaTime)
 
 	TriEngine::Renderer2D::Begin(m_CameraController.GetCamera());
 	TriEngine::Renderer2D::DrawQuad(quad);
-	TriEngine::Renderer2D::End();
+	TriEngine::Renderer2D::End(); 
 }
 
 void Example2D::OnImGuiRender()

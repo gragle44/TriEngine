@@ -16,5 +16,5 @@ public:
 	void OnEvent(TriEngine::Event& e) override;
 private:
 	TriEngine::OrthographicCameraController m_CameraController;
-	TriEngine::Reference<TriEngine::Texture2D> m_Texture;
+	TriEngine::Reference<TriEngine::Texture2D> m_Texture; 
 };

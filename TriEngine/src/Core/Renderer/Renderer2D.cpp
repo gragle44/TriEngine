@@ -26,7 +26,7 @@ namespace TriEngine {
 			{ "a_TexCoord", TriEngine::ShaderDataType::Float2 }
 		};
 
-		vertexBuffer->SetLayout(layout);
+		vertexBuffer->SetLayout(layout); 
 
 		uint32_t indices[6] = { 0, 1, 2, 2, 3, 0 };
 		Reference<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));

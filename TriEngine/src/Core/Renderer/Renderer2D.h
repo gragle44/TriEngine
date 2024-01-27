@@ -21,7 +21,7 @@ namespace TriEngine {
 		static void Begin(const OrthographicCamera& camera);
 		static void End();
 
-		static void DrawQuad(const Quad& quad);
+		static void DrawQuad(const Quad& quad); 
 	private:
 		struct RenderData {
 			Reference<Shader> MainShader;
