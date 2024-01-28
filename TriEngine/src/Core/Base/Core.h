@@ -15,7 +15,7 @@
 #define TRI_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 namespace TriEngine {
-	using ByteBuffer = std::vector<std::byte>;
+	using ByteBuffer = std::vector<uint8_t>;
 
 	template<typename T>
 	using Reference = std::shared_ptr<T>;

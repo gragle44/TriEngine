@@ -48,8 +48,10 @@ namespace TriEngine {
 		std::string Name;
 		ShaderDataType DataType;
 		uint32_t Size;
-		uint32_t Offset;
+		size_t Offset;
 		bool Normalized;
+
+		BufferElement() = default;
 
 		BufferElement(const std::string& name, ShaderDataType dataType, bool normalized = false)
 			:Name(name), DataType(dataType), Size(ShaderDataTypeSize(dataType)), Normalized(normalized), Offset(0) {
@@ -115,9 +117,6 @@ namespace TriEngine {
 		static Reference<VertexBuffer> Create(float* vertices, uint32_t size);
 
 		virtual void BindToVertexArray(uint32_t arrayID) const = 0;
-		virtual void Bind() const = 0;
-		virtual void Unbind() const = 0;
-
 
 		virtual uint32_t GetID() const = 0;
 
@@ -132,8 +131,6 @@ namespace TriEngine {
 		static Reference<IndexBuffer> Create(uint32_t* indices, uint32_t count);
 
 		virtual void BindToVertexArray(uint32_t arrayID) const = 0;
-		virtual void Bind() const = 0;
-		virtual void Unbind() const = 0;
 
 		virtual uint32_t GetID() const = 0;
 

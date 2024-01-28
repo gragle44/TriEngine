@@ -9,8 +9,6 @@ namespace TriEngine {
 		virtual ~OpenGLVertexBuffer();
 
 		virtual void BindToVertexArray(uint32_t arrayID) const final;
-		virtual void Bind() const final;
-		virtual void Unbind() const final;
 
 		virtual uint32_t GetID() const final { return m_BufferID; }
 
@@ -27,8 +25,6 @@ namespace TriEngine {
 		virtual ~OpenGLIndexBuffer();
 
 		virtual void BindToVertexArray(uint32_t arrayID) const final;
-		virtual void Bind() const final;
-		virtual void Unbind() const final;
 
 		virtual uint32_t GetID() const final { return m_BufferID; }
 

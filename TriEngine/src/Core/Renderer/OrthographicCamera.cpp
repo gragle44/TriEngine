@@ -22,11 +22,14 @@ namespace TriEngine {
 
 	void OrthographicCamera::SetZoom(float zoom)
 	{
-		if (zoom > 0.0f && zoom != m_Zoom) {
-			m_Zoom = zoom;
-			m_ProjectionMatrix = glm::ortho(-m_AspectRatio * zoom, m_AspectRatio * zoom, -zoom, zoom, -1.0f, 1.0f);
-			RecalculateViewProjectionMatrix();
+		// Prevent camera inverting while allowing mice to scroll in far still
+		if (zoom < 0.0f) {
+			zoom = 0.1f;
 		}
+
+		m_Zoom = zoom;
+		m_ProjectionMatrix = glm::ortho(-m_AspectRatio * zoom, m_AspectRatio * zoom, -zoom, zoom, -1.0f, 1.0f);
+		RecalculateViewProjectionMatrix();
 	}
 
 	void OrthographicCamera::SetProjection(float left, float right, float bottom, float top)

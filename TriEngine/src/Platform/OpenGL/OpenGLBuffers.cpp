@@ -21,16 +21,6 @@ namespace TriEngine {
 	{
 		glVertexArrayVertexBuffer(arrayID, 0, m_BufferID, 0, m_Layout.GetStride());
 	}
-
-	void OpenGLVertexBuffer::Bind() const
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
-	}
-
-	void OpenGLVertexBuffer::Unbind() const
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
 	
 	//Index Buffer
 
@@ -49,16 +39,6 @@ namespace TriEngine {
 	void OpenGLIndexBuffer::BindToVertexArray(uint32_t arrayID) const
 	{
 		glVertexArrayElementBuffer(arrayID, m_BufferID);
-	}
-
-	void OpenGLIndexBuffer::Bind() const
-	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
-	}
-
-	void OpenGLIndexBuffer::Unbind() const
-	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
 }

@@ -3,6 +3,7 @@
 #include "Core/Base/Application.h"
 #include "Core/Base/Layer.h"
 #include "Core/Base/Deltatime.h"
+#include "Core/Base/Random.h"
 #include "Core/Base/Log.h"
 #include "Core/Base/Assert.h"
 #include "Core/Base/AssetLibrary.h"

@@ -1,45 +1,41 @@
 #include "tripch.h"
-#include "WindowsInput.h"
+#include "Core/Base/Input.h"
 
 #include "Base/Application.h"
 #include <GLFW/glfw3.h>
 
 namespace TriEngine {
-	Input* Input::s_Instance = new WindowsInput();
-
-	bool WindowsInput::IsKeyPressedImpl(int keycode)
+	bool Input::IsKeyPressed(int keycode)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		int state = glfwGetKey(window, keycode);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	bool WindowsInput::IsMouseButtonPressedImpl(int button)
+	bool Input::IsMouseButtonPressed(int button)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		int state = glfwGetMouseButton(window, button);
 		return state == GLFW_PRESS;
 	}
 
-	std::pair<float, float> WindowsInput::GetMousePositionImpl()
+	glm::vec2 Input::GetMousePosition()
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 
 		double xPos, yPos;
 		glfwGetCursorPos(window, &xPos, &yPos);
-		return std::pair<float, float>((float)xPos, (float)yPos);
+		return { (float)xPos, (float)yPos };
 	}
 
-	float WindowsInput::GetMouseXImpl()
+	float Input::GetMouseX()
 	{
-		auto [x, y] = GetMousePositionImpl();
-		return x;
+		return GetMousePosition().x;
 	}
 
-	float WindowsInput::GetMouseYImpl()
+	float Input::GetMouseY()
 	{
-		auto [x, y] = GetMousePositionImpl();
-		return y;
+		return GetMousePosition().y;
 	}
 
 }

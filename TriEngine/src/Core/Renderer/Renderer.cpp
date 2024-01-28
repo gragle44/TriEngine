@@ -8,7 +8,6 @@ namespace TriEngine {
 	
 	void Renderer::Init()
 	{
-		RenderCommand::Init();
 	}
 
 	void Renderer::Begin(const OrthographicCamera& camera)

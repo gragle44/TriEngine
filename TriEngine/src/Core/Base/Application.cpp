@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Core.h"
 #include "Assert.h"
+#include "Random.h"
 
 #include "Renderer/Renderer.h"
 #include "Renderer/Renderer2D.h"
@@ -20,8 +21,9 @@ namespace TriEngine {
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(TRI_BIND_EVENT_FN(Application::OnEvent));
 
-		TriEngine::Renderer::Init();
-		TriEngine::Renderer2D::Init();
+		Random::Init();
+
+		InitRenderer();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -90,5 +92,12 @@ namespace TriEngine {
 		m_Minimized = false;
 		return false;
 
+	}
+
+	void Application::InitRenderer()
+	{
+		RenderCommand::Init();
+		Renderer::Init();
+		Renderer2D::Init();
 	}
 }

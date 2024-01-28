@@ -5,11 +5,13 @@
 #include "Core/Events/Event.h"
 #include "Core/Events/ApplicationEvent.h"
 #include "LayerStack.h"
-#include "Core/Base/Window.h"
+#include "Window.h"
 
 #include "Deltatime.h"
 
 #include "Core/ImGui/ImGuiLayer.h"
+
+int main(int argc, char** argv);
 
 namespace TriEngine {
 
@@ -18,8 +20,6 @@ namespace TriEngine {
 	public:
 		Application();
 		virtual ~Application() = default;
-
-		void Run();
 
 		void OnEvent(Event& e);
 
@@ -31,16 +31,21 @@ namespace TriEngine {
 		inline static Application& Get() { return *s_Instance; }
 
 	private:
+		void Run();
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 
-		static Application* s_Instance;
+		void InitRenderer();
+
 		std::unique_ptr<Window> m_Window;
 		LayerStack m_LayerStack;
 		ImGuiLayer* m_ImGuiLayer;
 		DeltaTime m_DeltaTime;
 		bool m_Running;
 		bool m_Minimized;
+
+		static Application* s_Instance;
+		friend int ::main(int argc, char** argv);
 
 	};
 

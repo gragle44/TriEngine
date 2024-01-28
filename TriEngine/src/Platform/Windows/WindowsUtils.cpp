@@ -11,7 +11,6 @@
 namespace TriEngine {
 	float Time::GetTime() {
 		return (float)glfwGetTime();
-
 	}
 
 	std::string FileManager::ReadFromFile(const std::string& filePath) {
