@@ -21,7 +21,7 @@ namespace TriEngine {
 
 		virtual void Clear() const = 0;
 
-		virtual void DrawElements(const Reference<VertexArray>& vertexArray) const = 0;
+		virtual void DrawElements(const Reference<VertexArray>& vertexArray, uint32_t count = 0) const = 0;
 
 		static API GetApi() { return s_API; }
 	private:

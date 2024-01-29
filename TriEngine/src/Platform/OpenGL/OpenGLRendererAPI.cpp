@@ -39,9 +39,10 @@ namespace TriEngine {
 		glViewport(dimensions.x, dimensions.y, dimensions.z, dimensions.w);
 	}
 
-	void TriEngine::OpenGLRendererAPI::DrawElements(const Reference<VertexArray>& vertexArray) const
+	void TriEngine::OpenGLRendererAPI::DrawElements(const Reference<VertexArray>& vertexArray, uint32_t elementCount) const
 	{
-		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+		uint32_t count = elementCount ? elementCount : vertexArray->GetIndexBuffer()->GetCount();
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
 }

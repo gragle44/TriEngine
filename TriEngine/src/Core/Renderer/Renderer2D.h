@@ -48,15 +48,38 @@ namespace TriEngine {
 
 		static void Begin(const OrthographicCamera& camera);
 		static void End();
+		static void Flush();
+
+		static void SubmitQuad(const ColoredQuad& quad);
 
 		static void DrawQuad(const TexturedQuad& quad);
 		static void DrawQuad(const ColoredQuad& quad);
 	private:
+		struct QuadVertex
+		{
+			glm::vec3 Position;
+			glm::vec4 Color;
+			glm::vec2 TexCoord;
+		};
+
 		struct RenderData {
+			const uint32_t MaxBatchSize = 10000;
+			const uint32_t MaxVertices = MaxBatchSize * 4;
+			const uint32_t MaxIndices = MaxBatchSize * 6;
+
 			Reference<Shader> MainShader;
 			Reference<VertexArray> VertexArray;
+			Reference<VertexBuffer> VertexBuffer;
 			Reference<Texture> DefaultTexture;
+
+			std::vector<QuadVertex> VertexData;
+			std::vector<QuadVertex>::iterator VertexDataPtr;
+
+			uint32_t QuadCount = 0;
+			uint32_t DrawCount = 0;
+			uint32_t IndexCount = 0;
 		};
+
 		static RenderData* s_RenderData;
 	};
 }

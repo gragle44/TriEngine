@@ -47,7 +47,7 @@ public:
         m_Texture = TriEngine::Texture2D::Create("assets/test.jpg");
             
         m_Shader->Bind();
-        m_Shader->SetInt("u_Texture", 0);
+        //m_Shader->SetInt("u_Texture", 0);
     }
 
     void OnUpdate(float deltaTime) final {

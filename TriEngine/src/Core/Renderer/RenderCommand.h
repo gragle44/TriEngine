@@ -9,8 +9,8 @@ namespace TriEngine {
 			s_RendererAPI->Init();
 		}
 
-		static void DrawElements(const Reference<VertexArray>& vertexArray) {
-			s_RendererAPI->DrawElements(vertexArray);
+		static void DrawElements(const Reference<VertexArray>& vertexArray, uint32_t count = 0) {
+			s_RendererAPI->DrawElements(vertexArray, count);
 		}
 
 		static void SetViewPort(const glm::ivec4& dimensions) {
