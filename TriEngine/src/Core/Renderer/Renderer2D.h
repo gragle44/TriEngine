@@ -51,6 +51,7 @@ namespace TriEngine {
 		static void Flush();
 
 		static void SubmitQuad(const ColoredQuad& quad);
+		static void SubmitQuad(const TexturedQuad& quad);
 
 		static void DrawQuad(const TexturedQuad& quad);
 		static void DrawQuad(const ColoredQuad& quad);
@@ -60,20 +61,25 @@ namespace TriEngine {
 			glm::vec3 Position;
 			glm::vec4 Color;
 			glm::vec2 TexCoord;
+
+			float TexIndex;
 		};
 
 		struct RenderData {
 			const uint32_t MaxBatchSize = 10000;
 			const uint32_t MaxVertices = MaxBatchSize * 4;
 			const uint32_t MaxIndices = MaxBatchSize * 6;
+			static const uint32_t MaxTextureSlots = 32;
 
 			Reference<Shader> MainShader;
 			Reference<VertexArray> VertexArray;
 			Reference<VertexBuffer> VertexBuffer;
-			Reference<Texture> DefaultTexture;
+			Reference<Texture2D> DefaultTexture;
 
 			std::vector<QuadVertex> VertexData;
 			std::vector<QuadVertex>::iterator VertexDataPtr;
+			std::array<Reference<Texture2D>, MaxTextureSlots> TextureSlots;
+			uint32_t TextureSlotIndex = 1;
 
 			uint32_t QuadCount = 0;
 			uint32_t DrawCount = 0;

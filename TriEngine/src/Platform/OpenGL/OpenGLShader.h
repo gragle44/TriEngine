@@ -15,6 +15,7 @@ namespace TriEngine {
 		virtual const std::string& GetName() const final { return m_Name; }
 
 		virtual void SetInt(const std::string& name, int value) final;
+		virtual void SetIntArray(const std::string& name, int* value, uint32_t count) final;
 		virtual void SetFloat(const std::string& name, float value) final;
 		virtual void SetFloat2(const std::string& name, const glm::vec2& value) final;
 		virtual void SetFloat3(const std::string& name, const glm::vec3& value) final;

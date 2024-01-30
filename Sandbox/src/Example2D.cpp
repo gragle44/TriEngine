@@ -10,8 +10,8 @@ Example2D::Example2D()
 
 void Example2D::OnAttach()
 {
-	//m_Texture = TriEngine::Texture2D::Create("assets/test.jpg");
-	//m_Texture2 = TriEngine::Texture2D::Create("assets/test2.png");
+	m_Texture = TriEngine::Texture2D::Create("assets/test.jpg");
+	m_Texture2 = TriEngine::Texture2D::Create("assets/test2.png");
 	m_Texture3 = TriEngine::Texture2D::Create({ 0.1f, 0.25f, 0.65f, 1.0f }, 1);
 
 	for (int y = 0; y < 59; y++) {
@@ -28,19 +28,20 @@ void Example2D::OnDetach()
 void Example2D::OnUpdate(float deltaTime)
 {
 	m_CameraController.OnUpdate(deltaTime);
-	//TriEngine::TexturedQuad quad2 = TriEngine::TexturedQuad({ 1.25f, 1.25f }, { 3.0f, 3.0f }, m_Texture2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, 0.1f);
+	TriEngine::TexturedQuad quad2 = TriEngine::TexturedQuad({ -1.25f, -1.25f }, { 1.0f, 1.0f }, m_Texture, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, 0.1f);
+	TriEngine::TexturedQuad quad3 = TriEngine::TexturedQuad({ -2.5f, -2.5f }, { 1.0f, 1.0f }, m_Texture2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, 0.0f);
 
 	TriEngine::RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
 	TriEngine::RenderCommand::Clear();
 
 	TriEngine::Renderer2D::Begin(m_CameraController.GetCamera());
 
+	TriEngine::Renderer2D::SubmitQuad(quad2);
+	TriEngine::Renderer2D::SubmitQuad(quad3);
+
 	for (const auto& quad : m_Quads) {
 		TriEngine::Renderer2D::SubmitQuad(quad);
 	} 
-
-	auto quad2 = TriEngine::ColoredQuad({ -0.5f, -0.5f }, { 0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-	TriEngine::Renderer2D::SubmitQuad(quad2);
 
 	TriEngine::Renderer2D::End(); 
 }

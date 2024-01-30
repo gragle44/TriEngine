@@ -133,6 +133,11 @@ namespace TriEngine {
 		glUniform1i(GetUniformLocation(name), value);
 	}
 
+	void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)
+	{
+		glUniform1iv(GetUniformLocation(name), count, value);
+	}
+
 	void OpenGLShader::SetFloat(const std::string& name, float value)
 	{
 		glUniform1f(GetUniformLocation(name), value);
