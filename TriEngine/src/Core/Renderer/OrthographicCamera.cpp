@@ -23,8 +23,8 @@ namespace TriEngine {
 	void OrthographicCamera::SetZoom(float zoom)
 	{
 		// Prevent camera inverting while allowing mice to scroll in far still
-		if (zoom < 0.0f) {
-			zoom = 0.1f;
+		if (zoom <= 0.0f) {
+			return;
 		}
 
 		m_Zoom = zoom;

@@ -45,4 +45,11 @@ namespace TriEngine {
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
+	uint32_t OpenGLRendererAPI::GetMaxTextureSlots() const
+	{
+		int32_t maxTextureUnits;
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+		return maxTextureUnits;
+	}
+
 }

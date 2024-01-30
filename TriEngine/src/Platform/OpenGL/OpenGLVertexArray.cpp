@@ -55,12 +55,22 @@ namespace TriEngine {
 		for (const auto& element : layout)
 		{
 			glEnableVertexArrayAttrib(m_ArrayID, index + m_VertexBufferIndexOffset);
-			glVertexArrayAttribFormat(m_ArrayID,
-				index,
-				element.GetComponentCount(),
-				ShaderDataTypeToOpenGLType(element.DataType),
-				element.Normalized ? GL_TRUE : GL_FALSE,
-				element.Offset);
+
+			if (element.DataType == ShaderDataType::Int)
+				glVertexArrayAttribIFormat(
+					m_ArrayID,
+					index,
+					element.GetComponentCount(),
+					ShaderDataTypeToOpenGLType(element.DataType),
+					element.Offset
+				);
+			else 
+				glVertexArrayAttribFormat(m_ArrayID,
+					index,
+					element.GetComponentCount(),
+					ShaderDataTypeToOpenGLType(element.DataType),
+					element.Normalized ? GL_TRUE : GL_FALSE,
+					element.Offset);
 			glVertexArrayAttribBinding(m_ArrayID, index + m_VertexBufferIndexOffset, 0);
 			index++;
 		}

@@ -9,6 +9,9 @@ namespace TriEngine {
 
 	void Renderer2D::Init()
 	{
+		s_RenderData->MaxTextureSlots = RenderCommand::GetMaxTextureSlots();
+		s_RenderData->TextureSlots.resize(s_RenderData->MaxTextureSlots);
+
 		s_RenderData->VertexArray = VertexArray::Create();
 
 		s_RenderData->VertexData.resize(s_RenderData->MaxVertices);
@@ -21,7 +24,7 @@ namespace TriEngine {
 				{ "a_Position", TriEngine::ShaderDataType::Float3 },
 				{ "a_Color", TriEngine::ShaderDataType::Float4 },
 				{ "a_TexCoord", TriEngine::ShaderDataType::Float2 },
-				{ "a_TexIndex", TriEngine::ShaderDataType::Float}
+				{ "a_TexIndex", TriEngine::ShaderDataType::Int}
 			};
 
 			s_RenderData->VertexBuffer->SetLayout(layout);
@@ -51,7 +54,7 @@ namespace TriEngine {
 
 		int* samplers = new int[s_RenderData->MaxTextureSlots];
 
-		for (int i = 0; i < s_RenderData->MaxTextureSlots; i++)
+		for (uint32_t i = 0; i < s_RenderData->MaxTextureSlots; i++)
 			samplers[i] = i;
 
 
@@ -73,18 +76,18 @@ namespace TriEngine {
 
 	void Renderer2D::Begin(const OrthographicCamera& camera)
 	{
+
+		s_RenderData->Stats.Reset();
 		s_RenderData->MainShader->Bind();
 		s_RenderData->MainShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
 
-		s_RenderData->VertexDataPtr = s_RenderData->VertexData.begin();
-		s_RenderData->IndexCount = 0;
-
-		s_RenderData->TextureSlotIndex = 1;
+		NewBatch();
 	}
 
 	void Renderer2D::End()
 	{
-		uint32_t size = std::distance(s_RenderData->VertexData.begin(), s_RenderData->VertexDataPtr);
+		uint32_t size = (uint32_t)std::distance(s_RenderData->VertexData.begin(), s_RenderData->VertexDataPtr);
+
 		s_RenderData->VertexBuffer->SetData(s_RenderData->VertexData.data(), size * sizeof(QuadVertex));
 
 		Flush();
@@ -98,32 +101,64 @@ namespace TriEngine {
 
 		s_RenderData->VertexArray->Bind();
 		RenderCommand::DrawElements(s_RenderData->VertexArray, s_RenderData->IndexCount);
+		s_RenderData->Stats.DrawCount++;
+	}
+
+	void Renderer2D::NewBatch()
+	{
+		s_RenderData->Stats.QuadCount += s_RenderData->IndexCount / 6;
+
+		s_RenderData->VertexDataPtr = s_RenderData->VertexData.begin();
+		s_RenderData->IndexCount = 0;
+
+		s_RenderData->TextureSlotIndex = 1;
 	}
 
 	void Renderer2D::SubmitQuad(const ColoredQuad& quad)
 	{
-		s_RenderData->VertexDataPtr->Position = { quad.Position.x, quad.Position.y, quad.SortingOrder };
+		if (s_RenderData->IndexCount >= s_RenderData->MaxIndices) {
+			End();
+			NewBatch();
+		}
+
+		constexpr glm::vec4 basePos1 = { -0.5f, -0.5f, 0.0f, 1.0f };
+		constexpr glm::vec4 basePos2 = {  0.5f, -0.5f, 0.0f, 1.0f };
+		constexpr glm::vec4 basePos3 = {  0.5f,  0.5f, 0.0f, 1.0f };
+		constexpr glm::vec4 basePos4 = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+		glm::mat4 rotation(1.0f);
+
+		if (((int32_t)quad.Rotation % 360) != 0) {
+			rotation = glm::rotate(glm::mat4(1.0f), glm::radians(quad.Rotation), { 0.0f, 0.0f, 1.0f });
+		}
+
+		glm::mat4 transform =
+			glm::translate(glm::mat4(1.0f), { quad.Position.x, quad.Position.y, quad.SortingOrder }) *
+			rotation *
+			glm::scale(glm::mat4(1.0f), { quad.Size.x, quad.Size.y, 1.0f });
+
+		s_RenderData->VertexDataPtr->Position = transform * basePos1;
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = { 0.0f, 0.0f };
-		s_RenderData->VertexDataPtr->TexIndex = 0.0f; //Use the default texture
+		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
-		s_RenderData->VertexDataPtr->Position = { quad.Position.x + quad.Size.x, quad.Position.y, quad.SortingOrder };
+		s_RenderData->VertexDataPtr->Position = transform * basePos2;
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = { 1.0f, 0.0f };
-		s_RenderData->VertexDataPtr->TexIndex = 0.0f; //Use the default texture
+		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
-		s_RenderData->VertexDataPtr->Position = { quad.Position.x + quad.Size.x, quad.Position.y + quad.Size.y, quad.SortingOrder };
+		s_RenderData->VertexDataPtr->Position = transform * basePos3;
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = { 1.0f, 1.0f };
-		s_RenderData->VertexDataPtr->TexIndex = 0.0f; //Use the default texture
+		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
-		s_RenderData->VertexDataPtr->Position = { quad.Position.x, quad.Position.y + quad.Size.y, quad.SortingOrder };
+		s_RenderData->VertexDataPtr->Position = transform * basePos4;
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = { 0.0f, 1.0f };
-		s_RenderData->VertexDataPtr->TexIndex = 0.0f; //Use the default texture
+		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->IndexCount += 6;
@@ -131,18 +166,23 @@ namespace TriEngine {
 
 	void Renderer2D::SubmitQuad(const TexturedQuad& quad)
 	{
-		float texIndex = 0.0f;
+		if (s_RenderData->IndexCount >= s_RenderData->MaxIndices) {
+			Flush();
+			NewBatch();
+		}
+
+		uint32_t texIndex = 0;
 
 		for (uint32_t i = 1; i < s_RenderData->TextureSlotIndex; i++) {
 			if (s_RenderData->TextureSlots[i]->GetID() == quad.Texture->GetID()) {
-				texIndex = (float)i;
+				texIndex = i;
 				break;
 			}
 		}
 
-		if (texIndex == 0.0f) {
+		if (texIndex == 0) {
 			s_RenderData->TextureSlots[s_RenderData->TextureSlotIndex] = quad.Texture;
-			texIndex = (float)s_RenderData->TextureSlotIndex;
+			texIndex = s_RenderData->TextureSlotIndex;
 			s_RenderData->TextureSlotIndex++;
 		}
 
@@ -173,48 +213,9 @@ namespace TriEngine {
 		s_RenderData->IndexCount += 6;
 	}
 
-	void Renderer2D::DrawQuad(const TexturedQuad& quad)
+	Renderer2D::RenderStats Renderer2D::GetStats()
 	{
-		quad.Texture->Bind(0);
-
-		glm::mat4 rotation(1.0f);
-		if (quad.Rotation != 0.0f) {
-			rotation = glm::rotate(glm::mat4(1.0f), glm::radians(quad.Rotation), {0.0f, 0.0f, 1.0f});
-		}
-
-		glm::mat4 transform = 
-			glm::translate(glm::mat4(1.0f), { quad.Position.x, quad.Position.y, quad.SortingOrder }) * 
-			rotation *
-			glm::scale(glm::mat4(1.0f), {quad.Size.x, quad.Size.y, 1.0f});
-
-		s_RenderData->MainShader->SetMat4("u_Model", transform);
-		s_RenderData->MainShader->SetFloat4("u_Tint", quad.Tint);
-		s_RenderData->MainShader->SetFloat("u_TilingFactor", quad.TilingFactor);
-
-		s_RenderData->VertexArray->Bind();
-		RenderCommand::DrawElements(s_RenderData->VertexArray);
-	}
-
-	void Renderer2D::DrawQuad(const ColoredQuad& quad)
-	{
-		s_RenderData->DefaultTexture->Bind(0);
-
-		glm::mat4 rotation(1.0f);
-		if (quad.Rotation != 0.0f) {
-			rotation = glm::rotate(glm::mat4(1.0f), glm::radians(quad.Rotation), { 0.0f, 0.0f, 1.0f });
-		}
-
-		glm::mat4 transform =
-			glm::translate(glm::mat4(1.0f), { quad.Position.x, quad.Position.y, quad.SortingOrder }) *
-			rotation *
-			glm::scale(glm::mat4(1.0f), { quad.Size.x, quad.Size.y, 1.0f });
-
-		s_RenderData->MainShader->SetMat4("u_Model", transform);
-		s_RenderData->MainShader->SetFloat4("u_Tint", quad.Color);
-		s_RenderData->MainShader->SetFloat("u_TilingFactor", quad.TilingFactor);
-
-		s_RenderData->VertexArray->Bind();
-		RenderCommand::DrawElements(s_RenderData->VertexArray);
+		return s_RenderData->Stats;
 	}
 
 }

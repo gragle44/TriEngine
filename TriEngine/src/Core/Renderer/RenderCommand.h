@@ -29,6 +29,10 @@ namespace TriEngine {
 			s_RendererAPI->ClearColor(color);
 		}
 
+		static uint32_t GetMaxTextureSlots() {
+			return s_RendererAPI->GetMaxTextureSlots();
+		}
+
 	private:
 		static RendererAPI* s_RendererAPI;
 	};

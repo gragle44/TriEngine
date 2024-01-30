@@ -14,8 +14,8 @@ void Example2D::OnAttach()
 	m_Texture2 = TriEngine::Texture2D::Create("assets/test2.png");
 	m_Texture3 = TriEngine::Texture2D::Create({ 0.1f, 0.25f, 0.65f, 1.0f }, 1);
 
-	for (int y = 0; y < 59; y++) {
-		for (int x = 0; x < 59; x++) {
+	for (int y = 0; y < 100; y++) {
+		for (int x = 0; x < 100; x++) {
 			m_Quads.push_back({ {0.11f * x, 0.11f * y}, {0.1, 0.1}, {0.2f, 0.3f, 0.65f, 1.0f} });
 		}
 	}
@@ -27,6 +27,7 @@ void Example2D::OnDetach()
 
 void Example2D::OnUpdate(float deltaTime)
 {
+	TRI_TRACE(deltaTime * 1000.0f);
 	m_CameraController.OnUpdate(deltaTime);
 	TriEngine::TexturedQuad quad2 = TriEngine::TexturedQuad({ -1.25f, -1.25f }, { 1.0f, 1.0f }, m_Texture, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, 0.1f);
 	TriEngine::TexturedQuad quad3 = TriEngine::TexturedQuad({ -2.5f, -2.5f }, { 1.0f, 1.0f }, m_Texture2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, 0.0f);

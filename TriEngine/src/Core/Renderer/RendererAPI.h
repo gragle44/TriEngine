@@ -23,6 +23,8 @@ namespace TriEngine {
 
 		virtual void DrawElements(const Reference<VertexArray>& vertexArray, uint32_t count = 0) const = 0;
 
+		virtual uint32_t GetMaxTextureSlots() const = 0;
+
 		static API GetApi() { return s_API; }
 	private:
 		static API s_API;

@@ -17,5 +17,7 @@ namespace TriEngine {
 
 		virtual void DrawElements(const Reference<VertexArray>& vertexArray, uint32_t count = 0) const final;
 
+		virtual uint32_t GetMaxTextureSlots() const final;
+
 	};
 }

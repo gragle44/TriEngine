@@ -43,6 +43,7 @@ namespace TriEngine {
 
 	class Renderer2D {
 	public:
+
 		static void Init();
 		static void ShutDown();
 
@@ -53,8 +54,23 @@ namespace TriEngine {
 		static void SubmitQuad(const ColoredQuad& quad);
 		static void SubmitQuad(const TexturedQuad& quad);
 
-		static void DrawQuad(const TexturedQuad& quad);
-		static void DrawQuad(const ColoredQuad& quad);
+		struct RenderStats {
+			uint32_t DrawCount = 0;
+			uint32_t QuadCount = 0;
+
+			uint32_t VertexCount() { return QuadCount * 4; }
+			uint32_t IndexCount() { return QuadCount * 6; }
+
+			void Reset() {
+				DrawCount = 0;
+				QuadCount = 0;
+			}
+		};
+
+		static RenderStats GetStats();
+	private:
+		static void NewBatch();
+
 	private:
 		struct QuadVertex
 		{
@@ -62,15 +78,17 @@ namespace TriEngine {
 			glm::vec4 Color;
 			glm::vec2 TexCoord;
 
-			float TexIndex;
+			uint32_t TexIndex;
 		};
 
 		struct RenderData {
-			const uint32_t MaxBatchSize = 10000;
+			const uint32_t MaxBatchSize = 10'000;
 			const uint32_t MaxVertices = MaxBatchSize * 4;
 			const uint32_t MaxIndices = MaxBatchSize * 6;
-			static const uint32_t MaxTextureSlots = 32;
+			uint32_t MaxTextureSlots;
 
+			RenderStats Stats;
+			
 			Reference<Shader> MainShader;
 			Reference<VertexArray> VertexArray;
 			Reference<VertexBuffer> VertexBuffer;
@@ -78,11 +96,9 @@ namespace TriEngine {
 
 			std::vector<QuadVertex> VertexData;
 			std::vector<QuadVertex>::iterator VertexDataPtr;
-			std::array<Reference<Texture2D>, MaxTextureSlots> TextureSlots;
+			std::vector<Reference<Texture2D>> TextureSlots;
 			uint32_t TextureSlotIndex = 1;
-
-			uint32_t QuadCount = 0;
-			uint32_t DrawCount = 0;
+			
 			uint32_t IndexCount = 0;
 		};
 
