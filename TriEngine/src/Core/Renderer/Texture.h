@@ -37,5 +37,6 @@ namespace TriEngine {
 	public:
 		static Reference<Texture2D> Create(const std::string& filePath);
 		static Reference<Texture2D> Create(const glm::vec4& color, uint32_t size);
+		static Reference<Texture2D> Create(const glm::vec4& color, const glm::vec4& endColor, uint32_t size);
 	};
 }

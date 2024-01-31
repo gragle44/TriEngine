@@ -19,6 +19,8 @@ private:
 	TriEngine::Reference<TriEngine::Texture2D> m_Texture;
 	TriEngine::Reference<TriEngine::Texture2D> m_Texture2;
 	TriEngine::Reference<TriEngine::Texture2D> m_Texture3;
+	TriEngine::Reference<TriEngine::Texture2D> m_GradientTexture;
+	TriEngine::Reference<TriEngine::Texture2D> m_CheckerBoard;
 
-	std::vector<TriEngine::ColoredQuad> m_Quads;
+	std::vector<TriEngine::TexturedQuad> m_Quads;
 };

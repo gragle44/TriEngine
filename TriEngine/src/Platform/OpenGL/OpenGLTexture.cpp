@@ -98,6 +98,47 @@ namespace TriEngine {
         GLenum openGLFormat = GL_RGBA8;
         GLenum dataFormat = GL_RGBA;
 
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
+
+        GLenum filter = FilterModeToOpenGLEnum(filterMode);
+        GLenum wrap = WrapModeToOpenGLEnum(wrapMode);
+
+        glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filter);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filter);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, wrap);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
+
+        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
+        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, m_Buffer.data());
+
+    }
+
+    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, TextureFilter filterMode, TextureWrapMode wrapMode)
+        :m_FilterMode(filterMode), m_WrapMode(wrapMode), m_Width(size), m_Height(size)
+    {
+        m_Buffer.resize(m_Width * m_Height * sizeof(uint8_t) * 4);
+        
+        auto* iterator = m_Buffer.data();
+
+        for (uint32_t y = 0; y < size; y++)
+        {
+            glm::vec4 rowColor = glm::mix(startColor, endColor, static_cast<float>(y) / static_cast<float>(size));
+
+            uint8_t colourBytes[] = {
+                static_cast<uint8_t>(rowColor.r * 0xff),
+                static_cast<uint8_t>(rowColor.g * 0xff),
+                static_cast<uint8_t>(rowColor.b * 0xff),
+                static_cast<uint8_t>(rowColor.a * 0xff) };
+
+            for (uint32_t x = 0; x < size; ++x)
+            {
+                memcpy(iterator, colourBytes, sizeof(colourBytes));
+                iterator += 4;
+            }
+        }
+
+        GLenum openGLFormat = GL_RGBA8;
+        GLenum dataFormat = GL_RGBA;
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
 

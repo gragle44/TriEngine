@@ -77,6 +77,7 @@ namespace TriEngine {
 			glm::vec2 TexCoord;
 
 			uint32_t TexIndex;
+			float TilingFactor;
 		};
 
 		struct BatchSettings {

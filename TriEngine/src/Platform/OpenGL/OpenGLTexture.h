@@ -9,6 +9,7 @@ namespace TriEngine {
 	public:
 		OpenGLTexture2D(const std::string& filePath, TextureFilter filterMode = TextureFilter::Nearest, TextureWrapMode wrapMode = TextureWrapMode::Repeat);
 		OpenGLTexture2D(const glm::vec4& color, uint32_t size, TextureFilter filterMode = TextureFilter::Nearest, TextureWrapMode wrapMode = TextureWrapMode::Repeat);
+		OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, TextureFilter filterMode = TextureFilter::Nearest, TextureWrapMode wrapMode = TextureWrapMode::Repeat);
 		virtual ~OpenGLTexture2D() final;
 
 		virtual void Bind(uint32_t slot) const final;
