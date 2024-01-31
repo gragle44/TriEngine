@@ -43,7 +43,6 @@ namespace TriEngine {
 
 	class Renderer2D {
 	public:
-
 		static void Init();
 		static void ShutDown();
 
@@ -55,15 +54,14 @@ namespace TriEngine {
 		static void SubmitQuad(const TexturedQuad& quad);
 
 		struct RenderStats {
-			uint32_t DrawCount = 0;
+			uint32_t DrawCalls = 0;
 			uint32_t QuadCount = 0;
 
 			uint32_t VertexCount() { return QuadCount * 4; }
 			uint32_t IndexCount() { return QuadCount * 6; }
 
 			void Reset() {
-				DrawCount = 0;
-				QuadCount = 0;
+				memset(this, 0, sizeof(RenderStats));
 			}
 		};
 
@@ -81,12 +79,14 @@ namespace TriEngine {
 			uint32_t TexIndex;
 		};
 
-		struct RenderData {
-			const uint32_t MaxBatchSize = 10'000;
-			const uint32_t MaxVertices = MaxBatchSize * 4;
-			const uint32_t MaxIndices = MaxBatchSize * 6;
-			uint32_t MaxTextureSlots;
+		struct BatchSettings {
+			static const uint32_t MaxBatchSize = 15'000;
+			static const uint32_t MaxVertices = MaxBatchSize * 4;
+			static const uint32_t MaxIndices = MaxBatchSize * 6;
+			static uint32_t MaxTextureSlots;
+		};
 
+		struct RenderData {
 			RenderStats Stats;
 			
 			Reference<Shader> MainShader;

@@ -60,8 +60,8 @@ public:
 
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), { 0.1f, 0.1f, 1.0f });
 
-        for (int y = 0; y < 50; y++) {
-            for (int x = 0; x < 50; x++) {
+        for (int y = 0; y < 200; y++) {
+            for (int x = 0; x < 200; x++) {
                 glm::vec3 pos(0.11f * x, 0.11f * y, 0.0f);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), pos) * scale;
                 m_Texture->Bind(0);

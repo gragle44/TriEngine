@@ -2,17 +2,34 @@
 #include "Random.h"
 
 namespace TriEngine {
-    std::mt19937 Random::s_Engine;
-    std::uniform_int_distribution<uint32_t> Random::s_UintDist;
+    thread_local std::random_device Random::s_Device;
 
-
-    void Random::Init()
+    template<class T>
+    T::result_type Random::Generate(T distribution)
     {
-        s_Engine.seed(std::random_device()());
+        std::mt19937 engine(s_Device());
+        return distribution(engine);
     }
 
-    float Random::Float()
+    float Random::Float(float min, float max)
     {
-        return (float)s_UintDist(s_Engine) / (float)std::numeric_limits<uint32_t>::max();
+        return Generate(std::uniform_real_distribution<float>(min, max));
     }
+
+    int32_t Random::Int(int32_t min, int32_t max)
+    {
+        return Generate(std::uniform_int_distribution<>(min, max));
+    }
+
+    uint32_t Random::Uint(uint32_t min, uint32_t max)
+    {
+        return Generate(std::uniform_int_distribution<uint32_t>(min, max));
+
+    }
+
+    bool Random::Bool()
+    {
+        return Generate(std::bernoulli_distribution());
+    }
+
 }

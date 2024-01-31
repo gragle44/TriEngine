@@ -2,7 +2,6 @@
 #include "Application.h"
 #include "Core.h"
 #include "Assert.h"
-#include "Random.h"
 
 #include "Renderer/Renderer.h"
 #include "Renderer/Renderer2D.h"
@@ -20,8 +19,6 @@ namespace TriEngine {
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(TRI_BIND_EVENT_FN(Application::OnEvent));
-
-		Random::Init();
 
 		InitRenderer();
 

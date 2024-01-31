@@ -6,18 +6,21 @@
 
 namespace TriEngine {
 	Renderer2D::RenderData* Renderer2D::s_RenderData = new RenderData();
+	uint32_t Renderer2D::BatchSettings::MaxTextureSlots;
+
+	static constexpr glm::vec4 baseQuadPosition[4] = { { -0.5f, -0.5f, 0.0f, 1.0f }, { 0.5f, -0.5f, 0.0f, 1.0f }, { 0.5f,  0.5f, 0.0f, 1.0f }, { -0.5f,  0.5f, 0.0f, 1.0f }};
 
 	void Renderer2D::Init()
 	{
-		s_RenderData->MaxTextureSlots = RenderCommand::GetMaxTextureSlots();
-		s_RenderData->TextureSlots.resize(s_RenderData->MaxTextureSlots);
+		BatchSettings::MaxTextureSlots = RenderCommand::GetMaxTextureSlots();
+		s_RenderData->TextureSlots.resize(BatchSettings::MaxTextureSlots);
 
 		s_RenderData->VertexArray = VertexArray::Create();
 
-		s_RenderData->VertexData.resize(s_RenderData->MaxVertices);
+		s_RenderData->VertexData.resize(BatchSettings::MaxVertices);
 		s_RenderData->VertexDataPtr = s_RenderData->VertexData.begin();
 
-		s_RenderData->VertexBuffer = VertexBuffer::Create(s_RenderData->MaxVertices * sizeof(QuadVertex));
+		s_RenderData->VertexBuffer = VertexBuffer::Create(BatchSettings::MaxVertices * sizeof(QuadVertex));
 
 		{
 			TriEngine::BufferLayout layout = {
@@ -30,10 +33,10 @@ namespace TriEngine {
 			s_RenderData->VertexBuffer->SetLayout(layout);
 		}	
 
-		uint32_t* quadIndices = new uint32_t[s_RenderData->MaxIndices];
+		uint32_t* quadIndices = new uint32_t[BatchSettings::MaxIndices];
 
 		uint32_t offset = 0;
-		for (uint32_t i = 0; i < s_RenderData->MaxIndices; i += 6)
+		for (uint32_t i = 0; i < BatchSettings::MaxIndices; i += 6)
 		{
 			quadIndices[i + 0] = offset + 0;
 			quadIndices[i + 1] = offset + 1;
@@ -46,22 +49,22 @@ namespace TriEngine {
 			offset += 4;
 		}
 
-		Reference<IndexBuffer> indexBuffer = IndexBuffer::Create(quadIndices, s_RenderData->MaxIndices);
+		Reference<IndexBuffer> indexBuffer = IndexBuffer::Create(quadIndices, BatchSettings::MaxIndices);
 
 		s_RenderData->VertexArray->AddVertexAndIndexBuffers(s_RenderData->VertexBuffer, indexBuffer);
 
 		delete[] quadIndices;
 
-		int* samplers = new int[s_RenderData->MaxTextureSlots];
+		int* samplers = new int[BatchSettings::MaxTextureSlots];
 
-		for (uint32_t i = 0; i < s_RenderData->MaxTextureSlots; i++)
+		for (uint32_t i = 0; i < BatchSettings::MaxTextureSlots; i++)
 			samplers[i] = i;
 
 
 		s_RenderData->MainShader = Shader::Create("TextureShader", "src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl");
 
 		s_RenderData->MainShader->Bind();
-		s_RenderData->MainShader->SetIntArray("u_Samplers", samplers, s_RenderData->MaxTextureSlots);
+		s_RenderData->MainShader->SetIntArray("u_Samplers", samplers, BatchSettings::MaxTextureSlots);
 
 		delete[] samplers;
 
@@ -86,22 +89,24 @@ namespace TriEngine {
 
 	void Renderer2D::End()
 	{
-		uint32_t size = (uint32_t)std::distance(s_RenderData->VertexData.begin(), s_RenderData->VertexDataPtr);
-
-		s_RenderData->VertexBuffer->SetData(s_RenderData->VertexData.data(), size * sizeof(QuadVertex));
-
 		Flush();
 	}
 
 	void Renderer2D::Flush()
 	{
+		//Update Vertex Buffer
+		uint32_t size = (uint32_t)std::distance(s_RenderData->VertexData.begin(), s_RenderData->VertexDataPtr);
+		s_RenderData->VertexBuffer->SetData(s_RenderData->VertexData.data(), size * sizeof(QuadVertex));
+
+		//Update bound textures
 		for (uint32_t i = 0; i < s_RenderData->TextureSlotIndex; i++) {
 			s_RenderData->TextureSlots[i]->Bind(i);
 		}
 
+		//Draw
 		s_RenderData->VertexArray->Bind();
 		RenderCommand::DrawElements(s_RenderData->VertexArray, s_RenderData->IndexCount);
-		s_RenderData->Stats.DrawCount++;
+		s_RenderData->Stats.DrawCalls++;
 	}
 
 	void Renderer2D::NewBatch()
@@ -116,19 +121,14 @@ namespace TriEngine {
 
 	void Renderer2D::SubmitQuad(const ColoredQuad& quad)
 	{
-		if (s_RenderData->IndexCount >= s_RenderData->MaxIndices) {
-			End();
+		if (s_RenderData->IndexCount >= BatchSettings::MaxIndices) {
+			Flush();
 			NewBatch();
 		}
 
-		constexpr glm::vec4 basePos1 = { -0.5f, -0.5f, 0.0f, 1.0f };
-		constexpr glm::vec4 basePos2 = {  0.5f, -0.5f, 0.0f, 1.0f };
-		constexpr glm::vec4 basePos3 = {  0.5f,  0.5f, 0.0f, 1.0f };
-		constexpr glm::vec4 basePos4 = { -0.5f,  0.5f, 0.0f, 1.0f };
-
 		glm::mat4 rotation(1.0f);
 
-		if (((int32_t)quad.Rotation % 360) != 0) {
+		if ((int32_t)quad.Rotation % 360 != 0) {
 			rotation = glm::rotate(glm::mat4(1.0f), glm::radians(quad.Rotation), { 0.0f, 0.0f, 1.0f });
 		}
 
@@ -137,25 +137,25 @@ namespace TriEngine {
 			rotation *
 			glm::scale(glm::mat4(1.0f), { quad.Size.x, quad.Size.y, 1.0f });
 
-		s_RenderData->VertexDataPtr->Position = transform * basePos1;
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[0];
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = { 0.0f, 0.0f };
 		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
-		s_RenderData->VertexDataPtr->Position = transform * basePos2;
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[1];
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = { 1.0f, 0.0f };
 		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
-		s_RenderData->VertexDataPtr->Position = transform * basePos3;
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[2];
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = { 1.0f, 1.0f };
 		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
-		s_RenderData->VertexDataPtr->Position = transform * basePos4;
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[3];
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = { 0.0f, 1.0f };
 		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
@@ -166,7 +166,7 @@ namespace TriEngine {
 
 	void Renderer2D::SubmitQuad(const TexturedQuad& quad)
 	{
-		if (s_RenderData->IndexCount >= s_RenderData->MaxIndices) {
+		if (s_RenderData->IndexCount >= BatchSettings::MaxIndices) {
 			Flush();
 			NewBatch();
 		}
@@ -181,33 +181,49 @@ namespace TriEngine {
 		}
 
 		if (texIndex == 0) {
+			if (s_RenderData->TextureSlotIndex >= BatchSettings::MaxTextureSlots) {
+				Flush();
+				NewBatch();
+			}
+
 			s_RenderData->TextureSlots[s_RenderData->TextureSlotIndex] = quad.Texture;
 			texIndex = s_RenderData->TextureSlotIndex;
 			s_RenderData->TextureSlotIndex++;
 		}
 
-		s_RenderData->VertexDataPtr->Position = { quad.Position.x, quad.Position.y, quad.SortingOrder };
+		glm::mat4 rotation(1.0f);
+
+		if ((int32_t)quad.Rotation % 360 != 0) {
+			rotation = glm::rotate(glm::mat4(1.0f), glm::radians(quad.Rotation), { 0.0f, 0.0f, 1.0f });
+		}
+
+		glm::mat4 transform =
+			glm::translate(glm::mat4(1.0f), { quad.Position.x, quad.Position.y, quad.SortingOrder }) *
+			rotation *
+			glm::scale(glm::mat4(1.0f), { quad.Size.x, quad.Size.y, 1.0f });
+
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[0];
 		s_RenderData->VertexDataPtr->Color = quad.Tint;
 		s_RenderData->VertexDataPtr->TexCoord = { 0.0f, 0.0f };
-		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TexIndex = texIndex; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
-		s_RenderData->VertexDataPtr->Position = { quad.Position.x + quad.Size.x, quad.Position.y, quad.SortingOrder };
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[1];
 		s_RenderData->VertexDataPtr->Color = quad.Tint;
 		s_RenderData->VertexDataPtr->TexCoord = { 1.0f, 0.0f };
-		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TexIndex = texIndex; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
-		s_RenderData->VertexDataPtr->Position = { quad.Position.x + quad.Size.x, quad.Position.y + quad.Size.y, quad.SortingOrder };
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[2];
 		s_RenderData->VertexDataPtr->Color = quad.Tint;
 		s_RenderData->VertexDataPtr->TexCoord = { 1.0f, 1.0f };
-		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TexIndex = texIndex; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
-		s_RenderData->VertexDataPtr->Position = { quad.Position.x, quad.Position.y + quad.Size.y, quad.SortingOrder };
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[3];
 		s_RenderData->VertexDataPtr->Color = quad.Tint;
 		s_RenderData->VertexDataPtr->TexCoord = { 0.0f, 1.0f };
-		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TexIndex = texIndex; //Use the default texture
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->IndexCount += 6;
