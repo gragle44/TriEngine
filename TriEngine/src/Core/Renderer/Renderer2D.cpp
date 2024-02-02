@@ -64,7 +64,6 @@ namespace TriEngine {
 
 		s_RenderData->MainShader = Shader::Create("TextureShader", "src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl");
 
-		s_RenderData->MainShader->Bind();
 		s_RenderData->MainShader->SetIntArray("u_Samplers", samplers, BatchSettings::MaxTextureSlots);
 
 		delete[] samplers;
@@ -95,6 +94,11 @@ namespace TriEngine {
 
 	void Renderer2D::Flush()
 	{
+		if (s_RenderData->IndexCount == 0) {
+			TRI_CORE_WARN("Attempted to draw without valid quads");
+			return;
+		}
+
 		//Update Vertex Buffer
 		uint32_t size = (uint32_t)std::distance(s_RenderData->VertexData.begin(), s_RenderData->VertexDataPtr);
 		s_RenderData->VertexBuffer->SetData(s_RenderData->VertexData.data(), size * sizeof(QuadVertex));

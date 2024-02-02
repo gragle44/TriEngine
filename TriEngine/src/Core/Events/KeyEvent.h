@@ -9,7 +9,7 @@ namespace TriEngine {
 	class  KeyEvent : public Event
 	{
 	public:
-		inline int GetKeyCode() const { return m_KeyCode; }
+		int GetKeyCode() const { return m_KeyCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
 	protected:
@@ -25,7 +25,7 @@ namespace TriEngine {
 		KeyPressedEvent(int keycode, int repeatCount)
 			: KeyEvent(keycode), m_RepeatCount(repeatCount) {}
 
-		inline int GetRepeatCount() const { return m_RepeatCount; }
+		int GetRepeatCount() const { return m_RepeatCount; }
 
 		std::string ToString() const override
 		{

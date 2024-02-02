@@ -31,7 +31,7 @@ namespace TriEngine {
 
 		virtual uint32_t GetID() const final { return m_BufferID; }
 
-		virtual inline uint32_t GetCount() const final { return m_Count; }
+		virtual uint32_t GetCount() const final { return m_Count; }
 	private:
 		uint32_t m_Count;
 		uint32_t m_BufferID;

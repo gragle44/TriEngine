@@ -130,47 +130,47 @@ namespace TriEngine {
 
 	void OpenGLShader::SetInt(const std::string& name, int value)
 	{
-		glUniform1i(GetUniformLocation(name), value);
+		glProgramUniform1i(m_ShaderID, GetUniformLocation(name), value);
 	}
 
 	void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)
 	{
-		glUniform1iv(GetUniformLocation(name), count, value);
+		glProgramUniform1iv(m_ShaderID, GetUniformLocation(name), count, value);
 	}
 
 	void OpenGLShader::SetFloat(const std::string& name, float value)
 	{
-		glUniform1f(GetUniformLocation(name), value);
+		glProgramUniform1f(m_ShaderID, GetUniformLocation(name), value);
 	}
 
 	void OpenGLShader::SetFloat2(const std::string& name, const glm::vec2& value)
 	{
-		glUniform2f(GetUniformLocation(name), value.x, value.y);
+		glProgramUniform2f(m_ShaderID, GetUniformLocation(name), value.x, value.y);
 	}
 
 	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
 	{
-		glUniform3f(GetUniformLocation(name), value.x, value.y, value.z);
+		glProgramUniform3f(m_ShaderID, GetUniformLocation(name), value.x, value.y, value.z);
 	}
 
 	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
 	{
-		glUniform4f(GetUniformLocation(name), value.x, value.y, value.z, value.w);
+		glProgramUniform4f(m_ShaderID, GetUniformLocation(name), value.x, value.y, value.z, value.w);
 	}
 
 	void OpenGLShader::SetMat3(const std::string& name, const glm::mat3& value)
 	{
-		glUniformMatrix3fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value));
+		glProgramUniformMatrix3fv(m_ShaderID, GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value));
 	}
 
 	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
 	{
-		glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value));
+		glProgramUniformMatrix4fv(m_ShaderID, GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value));
 	}
 
 	void OpenGLShader::SetBool(const std::string& name, bool value)
 	{
-		glUniform1i(GetUniformLocation(name), (int)value);
+		glProgramUniform1i(m_ShaderID, GetUniformLocation(name), (int)value);
 	}
 
 	int OpenGLShader::GetUniformLocation(const std::string& name)

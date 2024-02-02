@@ -90,6 +90,7 @@ project "TriEngine"
 
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
+		optimize "debug"
 		symbols "on"
 		runtime "Debug"
 
@@ -100,8 +101,13 @@ project "TriEngine"
 
 	filter "configurations:Dist"
 		defines "TRI_DIST"
-		optimize "on"
+		optimize "speed"
+		symbols "off"
 		runtime "Release"
+
+		flags {
+			"LinkTimeOptimization"
+		}
 
 
 project "Sandbox"
@@ -153,5 +159,6 @@ project "Sandbox"
 
 	filter "configurations:Dist"
 		defines "TRI_DIST"
-		optimize "on"
+		optimize "speed"
+		symbols "off"
 		runtime "Release"
