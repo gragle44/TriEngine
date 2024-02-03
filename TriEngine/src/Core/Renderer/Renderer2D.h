@@ -12,6 +12,7 @@ namespace TriEngine {
 		glm::vec2 Position;
 		glm::vec2 Size;
 		Reference<Texture2D> Texture;
+		glm::ivec2 AtlasIndex = glm::ivec2(-1);
 		glm::vec4 Tint = glm::vec4(1.0f);
 		float Rotation = 0.0f;
 		float SortingOrder = 0.0f;
@@ -20,9 +21,9 @@ namespace TriEngine {
 		TexturedQuad() = default;
 
 		TexturedQuad(const glm::vec2& position, const glm::vec2& size,
-			const Reference<Texture2D>& texture, const glm::vec4& tint = glm::vec4(1.0f),
+			const Reference<Texture2D>& texture, const glm::vec2& atlasIndex = glm::ivec2(-1), const glm::vec4& tint = glm::vec4(1.0f),
 			float rotation = 0.0f, float sortingOrder = 0.0f, float tilingFactor = 1.0f)
-			: Position(position), Size(size), Texture(texture), Tint(tint),
+			: Position(position), Size(size), Texture(texture), AtlasIndex(atlasIndex), Tint(tint),
 			Rotation(rotation), SortingOrder(sortingOrder), TilingFactor(tilingFactor) {}
 	};
 

@@ -6,7 +6,7 @@
 namespace TriEngine {
 	class RendererAPI {
 	public:
-		enum class API {
+		enum class API : uint8_t {
 			None = 0,
 			OpenGL = 1
 		};

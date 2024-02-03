@@ -5,7 +5,7 @@
 
 namespace TriEngine {
 
-	enum class EventType {
+	enum class EventType : uint8_t {
 		None = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
 		AppTick, AppUpdate, AppRender,
