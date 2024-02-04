@@ -18,59 +18,51 @@ namespace TriEngine {
 		const char* source = tempSource.c_str();
 
 		glShaderSource(vertexShader, 1, &source, 0);
-
-		// Compile the vertex shader
 		glCompileShader(vertexShader);
 
-		int isCompiled = 0;
+		int maxLength, isCompiled;
+		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
-		if (!isCompiled)
-		{
-			int maxLength = 0;
-			glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
 
-			// The maxLength includes the NULL character
+		if (maxLength != 0) {
 			std::vector<char> infoLog(maxLength);
 			glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &infoLog[0]);
 
-			// We don't need the shader anymore.
-			glDeleteShader(vertexShader);
+			if (!isCompiled) {
+				glDeleteShader(vertexShader);
 
-			TRI_CORE_ERROR("{0}", infoLog.data());
-			TRI_CORE_ASSERT(false, "Vertex shader compilation failure!");
-			return;
+				TRI_CORE_ERROR("Vertex Shader compilation {0}", infoLog.data());
+				TRI_CORE_ASSERT(false, "Vertex shader compilation failure!");
+				return;
+			}
+			else 
+				TRI_CORE_WARN("Vertex Shader compilation {0}", infoLog.data());
 		}
 
-		// Create an empty fragment shader handle
 		uint32_t fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-		// Send the fragment shader source code to GL
-		// Note that std::string's .c_str is NULL character terminated.
 		tempSource = FileManager::ReadFromFile(fragmentPath);
 		source = tempSource.c_str();
-		glShaderSource(fragmentShader, 1, &source, 0);
 
-		// Compile the fragment shader
+		glShaderSource(fragmentShader, 1, &source, 0);
 		glCompileShader(fragmentShader);
 
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
-		if (!isCompiled)
-		{
-			int maxLength = 0;
-			glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &maxLength);
+		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
+		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
 
-			// The maxLength includes the NULL character
+		if (maxLength != 0) {
 			std::vector<char> infoLog(maxLength);
-			glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &infoLog[0]);
+			glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &infoLog[0]);
 
-			// We don't need the shader anymore.
-			glDeleteShader(fragmentShader);
-			// Either of them. Don't leak shaders.
-			glDeleteShader(vertexShader);
+			if (!isCompiled) {
+				glDeleteShader(vertexShader);
 
-			TRI_CORE_ERROR("{0}", infoLog.data());
-			TRI_CORE_ASSERT(false, "Fragment shader compilation failure!");
-			return;
+				TRI_CORE_ERROR("Vertex Shader compilation {0}", infoLog.data());
+				TRI_CORE_ASSERT(false, "Vertex shader compilation failure!");
+				return;
+			}
+			else
+				TRI_CORE_WARN("Vertex Shader compilation {0}", infoLog.data());
 		}
 
 		// Vertex and fragment shaders are successfully compiled.

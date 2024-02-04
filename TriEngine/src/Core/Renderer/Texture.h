@@ -10,7 +10,7 @@ namespace TriEngine {
 		Linear, Nearest
 	};
 
-	enum class TextureWrapMode : uint8_t {
+	enum class TextureWrap : uint8_t {
 		None = 0,
 		Repeat, MirroredRepeat,
 		ClampEdge, ClampBorder
@@ -24,17 +24,18 @@ namespace TriEngine {
 		virtual void UnBind(uint32_t slot) const = 0;
 
 		virtual TextureFilter GetFilterMode() const = 0;
-		virtual TextureWrapMode GetWrapMode() const = 0;
+		virtual TextureWrap GetWrapMode() const = 0;
 
 		virtual ByteBuffer& GetData() = 0;
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
-		virtual uint32_t GetID() const = 0;
+		virtual RID GetID() const = 0;
 	};
 
 	class Texture2D : public Texture {
 	public:
+		static Reference<Texture2D> Create(TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
 		static Reference<Texture2D> Create(const std::string& filePath);
 		static Reference<Texture2D> Create(const glm::vec4& color, uint32_t size);
 		static Reference<Texture2D> Create(const glm::vec4& color, const glm::vec4& endColor, uint32_t size);

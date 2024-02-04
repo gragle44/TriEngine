@@ -7,6 +7,21 @@
 #include "Platform/OpenGL/OpenGLTexture.h"
 
 namespace TriEngine {
+	Reference<Texture2D> Texture2D::Create(TextureFilter filterMode, TextureWrap wrapMode)
+	{
+		switch (Renderer::GetCurrentAPI())
+		{
+		case RendererAPI::API::None:
+			TRI_CORE_ASSERT(false, "Renderer type 'None' is not currently supported");
+			return nullptr;
+		case RendererAPI::API::OpenGL:
+			return std::make_shared<OpenGLTexture2D>(filterMode, wrapMode);
+
+			TRI_CORE_ASSERT(false, "Invalid renderer type!");
+			return nullptr;
+		}
+	}
+
 	Reference<Texture2D> Texture2D::Create(const std::string& filePath)
 	{
 		switch (Renderer::GetCurrentAPI())

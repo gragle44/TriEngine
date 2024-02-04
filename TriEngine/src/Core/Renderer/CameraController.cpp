@@ -28,6 +28,13 @@ namespace TriEngine {
 		else if (Input::IsKeyPressed(TRI_KEY_E))
 			m_Camera.SetRotation(m_Camera.GetRotation() - m_Settings.RotationSpeed * deltaTime);
 
+		if (Input::IsKeyPressed(TRI_KEY_UP)) {
+			m_Camera.SetZoom(m_Camera.GetZoom() - 5.0f * deltaTime);
+		}
+		else if (Input::IsKeyPressed(TRI_KEY_DOWN)) {
+			m_Camera.SetZoom(m_Camera.GetZoom() + 5.0f * deltaTime);
+		}
+
 	}
 
 	void OrthographicCameraController::OnEvent(Event& e)

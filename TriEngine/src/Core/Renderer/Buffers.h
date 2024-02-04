@@ -48,7 +48,7 @@ namespace TriEngine {
 		std::string Name;
 		ShaderDataType DataType;
 		uint32_t Size;
-		size_t Offset;
+		uint32_t Offset;
 		bool Normalized;
 
 		BufferElement() = default;

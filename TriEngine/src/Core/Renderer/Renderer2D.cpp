@@ -147,28 +147,28 @@ namespace TriEngine {
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = baseTexCoord[0];
 		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
-		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor; //Use the default texture
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[1];
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = baseTexCoord[1];
 		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
-		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor; //Use the default texture
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[2];
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = baseTexCoord[2];
 		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
-		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor; //Use the default texture
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[3];
 		s_RenderData->VertexDataPtr->Color = quad.Color;
 		s_RenderData->VertexDataPtr->TexCoord = baseTexCoord[3];
 		s_RenderData->VertexDataPtr->TexIndex = 0; //Use the default texture
-		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor; //Use the default texture
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->IndexCount += 6;
@@ -215,29 +215,100 @@ namespace TriEngine {
 		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[0];
 		s_RenderData->VertexDataPtr->Color = quad.Tint;
 		s_RenderData->VertexDataPtr->TexCoord = baseTexCoord[0];
-		s_RenderData->VertexDataPtr->TexIndex = texIndex; //Use the default texture
-		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor; //Use the default texture
+		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[1];
 		s_RenderData->VertexDataPtr->Color = quad.Tint;
 		s_RenderData->VertexDataPtr->TexCoord = baseTexCoord[1];
-		s_RenderData->VertexDataPtr->TexIndex = texIndex; //Use the default texture
-		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor; //Use the default texture
+		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[2];
 		s_RenderData->VertexDataPtr->Color = quad.Tint;
 		s_RenderData->VertexDataPtr->TexCoord = baseTexCoord[2];
-		s_RenderData->VertexDataPtr->TexIndex = texIndex; //Use the default texture
-		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor; //Use the default texture
+		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[3];
 		s_RenderData->VertexDataPtr->Color = quad.Tint;
 		s_RenderData->VertexDataPtr->TexCoord = baseTexCoord[3];
-		s_RenderData->VertexDataPtr->TexIndex = texIndex; //Use the default texture
-		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor; //Use the default texture
+		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
+		s_RenderData->VertexDataPtr++;
+
+		s_RenderData->IndexCount += 6;
+	}
+
+	void Renderer2D::SubmitQuad(const SubTexturedQuad& quad)
+	{
+		if (s_RenderData->IndexCount >= BatchSettings::MaxIndices) {
+			Flush();
+			NewBatch();
+		}
+
+		uint32_t texIndex = 0;
+
+		for (uint32_t i = 1; i < s_RenderData->TextureSlotIndex; i++) {
+			if (s_RenderData->TextureSlots[i]->GetID() == quad.Texture->GetAtlas()->GetID()) {
+				texIndex = i;
+				break;
+			}
+		}
+
+		if (texIndex == 0) {
+			if (s_RenderData->TextureSlotIndex >= BatchSettings::MaxTextureSlots) {
+				Flush();
+				NewBatch();
+			}
+
+			s_RenderData->TextureSlots[s_RenderData->TextureSlotIndex] = quad.Texture->GetAtlas()->GetTexture();
+			texIndex = s_RenderData->TextureSlotIndex;
+			s_RenderData->TextureSlotIndex++;
+		}
+
+		glm::mat4 rotation(1.0f);
+
+		if ((int32_t)quad.Rotation % 360 != 0) {
+			rotation = glm::rotate(glm::mat4(1.0f), glm::radians(quad.Rotation), { 0.0f, 0.0f, 1.0f });
+		}
+
+		glm::mat4 transform =
+			glm::translate(glm::mat4(1.0f), { quad.Position.x, quad.Position.y, quad.SortingOrder }) *
+			rotation *
+			glm::scale(glm::mat4(1.0f), { quad.Size.x, quad.Size.y, 1.0f });
+
+
+		const glm::vec2* texCoords = quad.Texture->GetTexCoords();
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[0];
+		s_RenderData->VertexDataPtr->Color = quad.Tint;
+		s_RenderData->VertexDataPtr->TexCoord = texCoords[0];
+		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
+		s_RenderData->VertexDataPtr++;
+
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[1];
+		s_RenderData->VertexDataPtr->Color = quad.Tint;
+		s_RenderData->VertexDataPtr->TexCoord = texCoords[1];
+		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
+		s_RenderData->VertexDataPtr++;
+
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[2];
+		s_RenderData->VertexDataPtr->Color = quad.Tint;
+		s_RenderData->VertexDataPtr->TexCoord = texCoords[2];
+		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
+		s_RenderData->VertexDataPtr++;
+
+		s_RenderData->VertexDataPtr->Position = transform * baseQuadPosition[3];
+		s_RenderData->VertexDataPtr->Color = quad.Tint;
+		s_RenderData->VertexDataPtr->TexCoord = texCoords[3];
+		s_RenderData->VertexDataPtr->TexIndex = texIndex;
+		s_RenderData->VertexDataPtr->TilingFactor = quad.TilingFactor;
 		s_RenderData->VertexDataPtr++;
 
 		s_RenderData->IndexCount += 6;

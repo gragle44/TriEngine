@@ -17,27 +17,52 @@ namespace TriEngine {
             return GL_LINEAR;
         case TriEngine::TextureFilter::Nearest:
             return GL_NEAREST;
+        default:
+            TRI_CORE_ASSERT(false, "Invalid TextureFilter!");
+            return GL_NONE;
         }
     }
 
-    static GLenum WrapModeToOpenGLEnum(TextureWrapMode wrap) {
+    static GLenum WrapModeToOpenGLEnum(TextureWrap wrap) {
         switch (wrap)
         {
-        case TriEngine::TextureWrapMode::None:
-            TRI_CORE_ASSERT(false, "TextureWrapMode was None!");
+        case TriEngine::TextureWrap::None:
+            TRI_CORE_ASSERT(false, "TextureWrap was None!");
             return GL_NONE;
-        case TriEngine::TextureWrapMode::Repeat:
+        case TriEngine::TextureWrap::Repeat:
             return GL_REPEAT;
-        case TriEngine::TextureWrapMode::MirroredRepeat:
+        case TriEngine::TextureWrap::MirroredRepeat:
             return GL_MIRRORED_REPEAT;
-        case TriEngine::TextureWrapMode::ClampEdge:
+        case TriEngine::TextureWrap::ClampEdge:
             return GL_CLAMP_TO_EDGE;
-        case TriEngine::TextureWrapMode::ClampBorder:
+        case TriEngine::TextureWrap::ClampBorder:
             return GL_CLAMP_TO_BORDER;
+        default:
+            TRI_CORE_ASSERT(false, "Invalid TextureWrap!");
+            return GL_NONE;
         }
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath, TextureFilter filterMode, TextureWrapMode wrapMode)
+    OpenGLTexture2D::OpenGLTexture2D(TextureFilter filterMode, TextureWrap wrapMode)
+    {
+        GLenum openGLFormat = GL_RGBA8;
+        GLenum dataFormat = GL_RGBA;
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
+
+        GLenum filter = FilterModeToOpenGLEnum(filterMode);
+        GLenum wrap = WrapModeToOpenGLEnum(wrapMode);
+
+        glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filter);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filter);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, wrap);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
+
+        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
+        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, nullptr);
+    }
+
+    OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath, TextureFilter filterMode, TextureWrap wrapMode)
         :m_Path(filePath), m_FilterMode(filterMode), m_WrapMode(wrapMode)
     {
         stbi_set_flip_vertically_on_load(1);
@@ -82,7 +107,7 @@ namespace TriEngine {
         stbi_image_free(data);
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& color, uint32_t size, TextureFilter filterMode, TextureWrapMode wrapMode)
+    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& color, uint32_t size, TextureFilter filterMode, TextureWrap wrapMode)
         :m_FilterMode(filterMode), m_WrapMode(wrapMode), m_Width(size), m_Height(size)
     {
         uint8_t colorBytes[] = {
@@ -113,7 +138,7 @@ namespace TriEngine {
 
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, TextureFilter filterMode, TextureWrapMode wrapMode)
+    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, TextureFilter filterMode, TextureWrap wrapMode)
         :m_FilterMode(filterMode), m_WrapMode(wrapMode), m_Width(size), m_Height(size)
     {
         m_Buffer.resize(m_Width * m_Height * sizeof(uint8_t) * 4);
@@ -167,6 +192,6 @@ namespace TriEngine {
 
     void OpenGLTexture2D::UnBind(uint32_t slot) const
     {
-        glBindTexture(slot, 0);
+        glBindTextureUnit(slot, 0);
     }
 }

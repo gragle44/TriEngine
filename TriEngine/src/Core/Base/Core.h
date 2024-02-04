@@ -22,4 +22,6 @@ namespace TriEngine {
 
 	template<typename T>
 	using Scoped = std::unique_ptr<T>;
+
+	using RID = uint32_t;
 }
