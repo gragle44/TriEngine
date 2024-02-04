@@ -51,8 +51,8 @@ namespace TriEngine {
 		TRI_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
 		uint32_t index = 0;
-		const auto& layout = vertexBuffer->GetLayout();
-		for (const auto& element : layout)
+		const BufferLayout& layout = vertexBuffer->GetLayout();
+		for (const BufferElement& element : layout)
 		{
 			glEnableVertexArrayAttrib(m_ArrayID, index + m_VertexBufferIndexOffset);
 

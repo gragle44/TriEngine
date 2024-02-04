@@ -103,7 +103,7 @@ namespace TriEngine {
 
 		void CalculateElementOffsetsAndStride() {
 			m_Stride = 0;
-			for (auto& element : m_Elements) {
+			for (BufferElement& element : m_Elements) {
 				element.Offset = m_Stride;
 				m_Stride += element.Size;
 			}
@@ -125,6 +125,8 @@ namespace TriEngine {
 
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 		virtual const BufferLayout& GetLayout() const = 0;
+		virtual const uint32_t GetSize() const = 0;
+		virtual const uint32_t GetVertexCount() const = 0;
 	};
 
 	class IndexBuffer {

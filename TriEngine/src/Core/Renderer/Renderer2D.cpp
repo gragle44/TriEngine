@@ -2,6 +2,7 @@
 #include "Renderer2D.h"
 
 #include "RenderCommand.h"
+#include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace TriEngine {
@@ -11,17 +12,44 @@ namespace TriEngine {
 	static constexpr glm::vec4 baseQuadPosition[4] = { { -0.5f, -0.5f, 0.0f, 1.0f }, { 0.5f, -0.5f, 0.0f, 1.0f }, { 0.5f,  0.5f, 0.0f, 1.0f }, { -0.5f,  0.5f, 0.0f, 1.0f }};
 	static constexpr glm::vec2 baseTexCoord[4] = { {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f} };
 
+	static constexpr float fullscreenQuadVertices[30] = {
+		// positions          // texCoords
+		-0.3f, 1.0f, 0.1f,   0.0f, 1.0f,
+		-0.3f, 0.7f, 0.1f,   0.0f, 0.0f,
+		 0.3f, 0.7f, 0.1f,   1.0f, 0.0f,
+					   
+		-0.3f, 1.0f, 0.1f,   0.0f, 1.0f,
+		 0.3f, 0.7f, 0.1f,   1.0f, 0.0f,
+		 0.3f, 1.0f, 0.1f,   1.0f, 1.0f
+	};
+
 	void Renderer2D::Init()
 	{
 		BatchSettings::MaxTextureSlots = RenderCommand::GetMaxTextureSlots();
 		s_RenderData->TextureSlots.resize(BatchSettings::MaxTextureSlots);
 
-		s_RenderData->VertexArray = VertexArray::Create();
+		s_RenderData->ScreenVertexArray = VertexArray::Create();
+		s_RenderData->ScreenVertexBuffer = VertexBuffer::Create(sizeof(fullscreenQuadVertices));
+
+		{
+			TriEngine::BufferLayout layout = {
+				{ "a_Position", TriEngine::ShaderDataType::Float3 },
+				{ "a_TexCoord", TriEngine::ShaderDataType::Float2 },
+			};
+
+			s_RenderData->ScreenVertexBuffer->SetLayout(layout);
+		}
+
+		s_RenderData->ScreenVertexArray->AddVertexBuffer(s_RenderData->ScreenVertexBuffer);
+
+		s_RenderData->ScreenShader = Shader::Create("ScreenShader", "src/Shaders/screenvert.glsl", "src/Shaders/screenfrag.glsl");
+
+		s_RenderData->QuadVertexArray = VertexArray::Create();
 
 		s_RenderData->VertexData.resize(BatchSettings::MaxVertices);
 		s_RenderData->VertexDataPtr = s_RenderData->VertexData.begin();
 
-		s_RenderData->VertexBuffer = VertexBuffer::Create(BatchSettings::MaxVertices * sizeof(QuadVertex));
+		s_RenderData->QuadVertexBuffer = VertexBuffer::Create(BatchSettings::MaxVertices * sizeof(QuadVertex));
 
 		{
 			TriEngine::BufferLayout layout = {
@@ -32,7 +60,7 @@ namespace TriEngine {
 				{ "a_TilingFactor", TriEngine::ShaderDataType::Float}
 			};
 
-			s_RenderData->VertexBuffer->SetLayout(layout);
+			s_RenderData->QuadVertexBuffer->SetLayout(layout);
 		}	
 
 		uint32_t* quadIndices = new uint32_t[BatchSettings::MaxIndices];
@@ -53,7 +81,7 @@ namespace TriEngine {
 
 		Reference<IndexBuffer> indexBuffer = IndexBuffer::Create(quadIndices, BatchSettings::MaxIndices);
 
-		s_RenderData->VertexArray->AddVertexAndIndexBuffers(s_RenderData->VertexBuffer, indexBuffer);
+		s_RenderData->QuadVertexArray->AddVertexAndIndexBuffers(s_RenderData->QuadVertexBuffer, indexBuffer);
 
 		delete[] quadIndices;
 
@@ -78,8 +106,23 @@ namespace TriEngine {
 		delete s_RenderData;
 	}
 
-	void Renderer2D::Begin(const OrthographicCamera& camera)
+	void Renderer2D::Begin(const OrthographicCamera& camera, const Reference<FrameBuffer>& frameBuffer)
 	{
+		if (frameBuffer) {
+			//Make a static unbind function so this isnt needed
+			if (!s_RenderData->m_ScreenFrameBuffer)
+				s_RenderData->m_ScreenFrameBuffer = frameBuffer;
+			//
+
+			frameBuffer->Bind();
+			TriEngine::RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
+			RenderCommand::Clear();
+			glEnable(GL_DEPTH_TEST);
+			s_RenderData->FrameBufferBound = true;
+		}
+		else {
+			s_RenderData->FrameBufferBound = false;
+		}
 
 		s_RenderData->Stats.Reset();
 		s_RenderData->MainShader->Bind();
@@ -91,6 +134,22 @@ namespace TriEngine {
 	void Renderer2D::End()
 	{
 		Flush();
+
+		if (s_RenderData->FrameBufferBound) {
+			s_RenderData->m_ScreenFrameBuffer->UnBind();
+			RenderCommand::SetClearColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+			RenderCommand::Clear();
+			glDisable(GL_DEPTH_TEST);
+
+
+			TRI_TRACE(s_RenderData->m_ScreenFrameBuffer->GetColorTextureID());
+			glBindTextureUnit(0, s_RenderData->m_ScreenFrameBuffer->GetColorTextureID());
+			s_RenderData->ScreenShader->SetInt("u_ScreenTexture", s_RenderData->m_ScreenFrameBuffer->GetColorTextureID());
+			s_RenderData->ScreenShader->Bind();
+
+			RenderCommand::DrawArrays(s_RenderData->ScreenVertexArray);
+			//TODO: draw from the custom fb instead of default one
+		}
 	}
 
 	void Renderer2D::Flush()
@@ -102,7 +161,7 @@ namespace TriEngine {
 
 		//Update Vertex Buffer
 		uint32_t size = (uint32_t)std::distance(s_RenderData->VertexData.begin(), s_RenderData->VertexDataPtr);
-		s_RenderData->VertexBuffer->SetData(s_RenderData->VertexData.data(), size * sizeof(QuadVertex));
+		s_RenderData->QuadVertexBuffer->SetData(s_RenderData->VertexData.data(), size * sizeof(QuadVertex));
 
 		//Update bound textures
 		for (uint32_t i = 0; i < s_RenderData->TextureSlotIndex; i++) {
@@ -110,8 +169,7 @@ namespace TriEngine {
 		}
 
 		//Draw
-		s_RenderData->VertexArray->Bind();
-		RenderCommand::DrawElements(s_RenderData->VertexArray, s_RenderData->IndexCount);
+		RenderCommand::DrawElements(s_RenderData->QuadVertexArray, s_RenderData->IndexCount);
 		s_RenderData->Stats.DrawCalls++;
 	}
 

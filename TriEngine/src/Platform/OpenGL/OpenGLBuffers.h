@@ -17,7 +17,10 @@ namespace TriEngine {
 
 		virtual void SetLayout(const BufferLayout& layout) final { m_Layout = layout; };
 		virtual const BufferLayout& GetLayout() const final { return m_Layout; };
+		virtual const uint32_t GetVertexCount() const final { return m_Size / m_Layout.GetStride(); }
+		virtual const uint32_t GetSize() const final { return m_Size; }
 	private:
+		uint32_t m_Size;
 		BufferLayout m_Layout;
 		uint32_t m_BufferID;
 	};

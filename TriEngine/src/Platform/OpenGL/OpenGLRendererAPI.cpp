@@ -41,8 +41,22 @@ namespace TriEngine {
 
 	void TriEngine::OpenGLRendererAPI::DrawElements(const Reference<VertexArray>& vertexArray, uint32_t elementCount) const
 	{
+		vertexArray->Bind();
 		uint32_t count = elementCount ? elementCount : vertexArray->GetIndexBuffer()->GetCount();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+	}
+
+	void OpenGLRendererAPI::DrawArrays(const Reference<VertexArray>& vertexArray, uint32_t vertexBufferIndex, uint32_t vertexCount) const
+	{
+		vertexArray->Bind();
+		uint32_t count = vertexCount ? vertexCount : vertexArray->GetVertexBuffers()[vertexBufferIndex]->GetVertexCount();
+
+		uint32_t vbOffset = 0;
+		for (int32_t x = 0; x > vertexBufferIndex; x++) {
+			vbOffset += vertexArray->GetVertexBuffers()[x]->GetSize();
+		}
+
+		glDrawArrays(GL_TRIANGLES, vbOffset, count);
 	}
 
 	uint32_t OpenGLRendererAPI::GetMaxTextureSlots() const

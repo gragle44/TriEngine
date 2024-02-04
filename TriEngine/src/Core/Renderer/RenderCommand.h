@@ -13,6 +13,11 @@ namespace TriEngine {
 			s_RendererAPI->DrawElements(vertexArray, count);
 		}
 
+		static void DrawArrays(const Reference<VertexArray>& vertexArray, uint32_t vertexBufferIndex = 0, uint32_t vertexCount = 0) {
+			s_RendererAPI->DrawArrays(vertexArray, vertexBufferIndex, vertexCount);
+		}
+
+
 		static void SetViewPort(const glm::ivec4& dimensions) {
 			s_RendererAPI->SetViewPort(dimensions);
 		}

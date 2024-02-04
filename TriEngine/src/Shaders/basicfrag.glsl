@@ -1,6 +1,6 @@
 #version 450 core
 			
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec4 FragColor;
 in vec2 v_TexCoord;
 in vec4 v_Color;
 in flat int v_TexIndex;
@@ -47,6 +47,5 @@ void main()
 		case 31: texColor = texture(u_Samplers[31], v_TexCoord * v_TilingFactor); break;
 	}
 
-	color = texColor * v_Color;
-	//color = vec4(v_TexCoord, 1.0, 1.0);
+	FragColor = texColor * v_Color;
 }

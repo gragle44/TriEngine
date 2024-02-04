@@ -7,12 +7,14 @@
 namespace TriEngine {
 	//Vertex Buffer
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
+		:m_Size(size)
 	{
 		glCreateBuffers(1, &m_BufferID);
 		glNamedBufferStorage(m_BufferID, size , vertices, GL_DYNAMIC_STORAGE_BIT);
 	}
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
+		:m_Size(size)
 	{
 		glCreateBuffers(1, &m_BufferID);
 		glNamedBufferStorage(m_BufferID, size, nullptr, GL_DYNAMIC_STORAGE_BIT);

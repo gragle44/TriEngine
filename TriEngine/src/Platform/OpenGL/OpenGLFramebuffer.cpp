@@ -35,23 +35,20 @@ namespace TriEngine {
         glTextureParameteri(m_ColorTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTextureParameteri(m_ColorTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTextureParameteri(m_ColorTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTextureParameteri(m_ColorTexture, GL_TEXTURE_MAG_FILTER, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(m_ColorTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         glTextureStorage2D(m_ColorTexture, 1, GL_RGBA8, m_Settings.Width, m_Settings.Height);
         glTextureSubImage2D(m_ColorTexture, 0, 0, 0, m_Settings.Width, m_Settings.Height, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTexture, 0);
+        glNamedFramebufferTexture(m_BufferID, GL_COLOR_ATTACHMENT0, m_ColorTexture, 0);
 
-        glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthTexture);
-
-        glTextureStorage2D(m_ColorTexture, 1, GL_DEPTH24_STENCIL8, m_Settings.Width, m_Settings.Height);
-        //glTextureSubImage2D(m_ColorTexture, 0, 0, 0, m_Settings.Width, m_Settings.Height, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
+        glCreateRenderbuffers(1, &m_RenderBuffer);
+        glNamedRenderbufferStorage(m_RenderBuffer, GL_DEPTH24_STENCIL8, m_Settings.Width, m_Settings.Height);
+        glNamedFramebufferRenderbuffer(m_BufferID, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderBuffer);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             TRI_CORE_ERROR("Incomplete FrameBuffer!");
-            TRI_CORE_ASSERT(false);
+            TRI_CORE_ASSERT(false, "");
         }
     }
 }

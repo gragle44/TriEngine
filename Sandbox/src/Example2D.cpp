@@ -1,7 +1,7 @@
 #include "Example2D.h"
 
-#include "imgui.h"
-#include "glm/glm.hpp"
+#include <imgui.h>
+#include <glm/glm.hpp>
 
 Example2D::Example2D()
 	:m_CameraController(TriEngine::OrthographicCamera(1280, 720))
@@ -10,6 +10,12 @@ Example2D::Example2D()
 
 void Example2D::OnAttach()
 {
+	TriEngine::FrameBufferSettings fbSettings;
+	fbSettings.Width = 1280;
+	fbSettings.Height = 720;
+
+	m_FrameBuffer = TriEngine::FrameBuffer::Create(fbSettings);
+
 	m_Texture = TriEngine::Texture2D::Create("assets/chest.png");
 	m_Texture2 = TriEngine::Texture2D::Create("assets/test2.png");
 	m_CheckerBoard = TriEngine::Texture2D::Create("assets/test.png");
@@ -43,7 +49,7 @@ void Example2D::OnUpdate(float deltaTime)
 	TriEngine::RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
 	TriEngine::RenderCommand::Clear();
 
-	TriEngine::Renderer2D::Begin(m_CameraController.GetCamera());
+	TriEngine::Renderer2D::Begin(m_CameraController.GetCamera(), m_FrameBuffer);
 
 	TriEngine::Renderer2D::SubmitQuad(checkerQuad);
 	TriEngine::Renderer2D::SubmitQuad(quad2);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TriEngine.h"
+#include <TriEngine.h>
 
 class Example2D : public TriEngine::Layer
 {
@@ -16,6 +16,8 @@ public:
 	void OnEvent(TriEngine::Event& e) override;
 private:
 	TriEngine::OrthographicCameraController m_CameraController;
+	TriEngine::Reference<TriEngine::FrameBuffer> m_FrameBuffer;
+
 	TriEngine::Reference<TriEngine::Texture2D> m_Texture;
 	TriEngine::Reference<TriEngine::Texture2D> m_Texture2;
 	TriEngine::Reference<TriEngine::Texture2D> m_Texture3;

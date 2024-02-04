@@ -16,6 +16,8 @@ namespace TriEngine {
 		virtual void Bind() = 0;
 		virtual void UnBind() = 0;
 
+		virtual RID GetColorTextureID() const = 0;
+
 		static Reference<FrameBuffer> Create(const FrameBufferSettings& settings);
 	};
 }

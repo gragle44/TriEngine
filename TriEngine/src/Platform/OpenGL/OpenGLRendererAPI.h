@@ -16,6 +16,7 @@ namespace TriEngine {
 		virtual void SetViewPort(const glm::ivec4& dimensions) const final;
 
 		virtual void DrawElements(const Reference<VertexArray>& vertexArray, uint32_t count = 0) const final;
+		virtual void DrawArrays(const Reference<VertexArray>& vertexArray, uint32_t vertexBufferIndex = 0, uint32_t vertexCount = 0) const final;
 
 		virtual uint32_t GetMaxTextureSlots() const final;
 

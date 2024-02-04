@@ -11,6 +11,7 @@
 #include "Utils/PlatformUtils.h"
 
 //Graphics
+#include "Core/Renderer/Framebuffer.h"
 #include "Core/Renderer/OrthographicCamera.h"
 #include "Core/Renderer/CameraController.h"
 #include "Core/Renderer/Renderer.h"

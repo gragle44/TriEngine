@@ -5,10 +5,12 @@
 
 #ifdef TRI_DEBUG
 	#define TRI_ENABLE_ASSERTS
-	#ifdef TRI_PLATFORM_WINDOWS
-		#define TRI_DEBUG_GL
-	#endif
 #endif
+
+#ifndef TRI_DIST
+	#define TRI_DEBUG_GL
+#endif
+
 
 #define BIT(x) (1 << x)
 
