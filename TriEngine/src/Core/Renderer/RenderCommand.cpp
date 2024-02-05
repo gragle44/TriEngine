@@ -4,5 +4,5 @@
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
 
 namespace TriEngine {
-	RendererAPI* RenderCommand::s_RendererAPI = new OpenGLRendererAPI();
+	std::unique_ptr<RendererAPI> RenderCommand::s_RendererAPI(new OpenGLRendererAPI());
 }

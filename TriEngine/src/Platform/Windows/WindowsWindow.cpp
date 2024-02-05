@@ -13,7 +13,7 @@
 
 namespace TriEngine {
 
-	static bool s_GLFWInitialized = false;
+	static uint8_t s_GLFWWindowCount = 0;
 
 	static void GLFWErrorCallback(int error, const char* description) 
 	{
@@ -43,13 +43,11 @@ namespace TriEngine {
 
 		TRI_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
-		if (!s_GLFWInitialized)
+		if (s_GLFWWindowCount == 0)
 		{
-			// TODO: glfwTerminate on system shutdown
 			int success = glfwInit();
 			TRI_CORE_ASSERT(success, "Could not intialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
-			s_GLFWInitialized = true;
 		}
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -61,12 +59,13 @@ namespace TriEngine {
 		#endif
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		s_GLFWWindowCount += 1;
 
 		m_Context = new OpenGLContext(m_Window);
 		m_Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
-		SetVSync(VsyncMode::On);
+		SetVSync(VsyncMode::Adaptive);
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
@@ -162,7 +161,12 @@ namespace TriEngine {
 	void WindowsWindow::Shutdown()
 	{
 		glfwDestroyWindow(m_Window);
-		delete m_Context;
+		s_GLFWWindowCount -= 1;
+
+		if (s_GLFWWindowCount == 0) {
+			delete m_Context;
+			glfwTerminate();
+		}
 	}
 
 	void WindowsWindow::OnUpdate()
@@ -183,7 +187,7 @@ namespace TriEngine {
 			break;
 		case VsyncMode::Adaptive:
 			// Set adaptive vsync if supported, otherwise, fallback to regular vsync
-			glfwSwapInterval(glfwExtensionSupported("GLX_EXT_swap_control_tear") ? -1 : 1);
+			glfwSwapInterval(glfwExtensionSupported("WGL_EXT_swap_control_tear") ? -1 : 1);
 			break;
 		}
 	}

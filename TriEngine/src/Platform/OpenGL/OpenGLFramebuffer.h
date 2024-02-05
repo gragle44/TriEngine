@@ -18,9 +18,9 @@ namespace TriEngine {
 
 		void Recreate();
 	private:
-		RID m_BufferID;
+		RID m_BufferID = 0;
 
-		RID m_RenderBuffer;
+		RID m_RenderBuffer = 0;
 
 		Reference<Texture2D> m_ColorTarget, m_DepthTarget;
 

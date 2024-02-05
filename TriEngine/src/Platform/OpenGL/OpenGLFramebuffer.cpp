@@ -14,6 +14,7 @@ namespace TriEngine {
 
     OpenGLFrameBuffer::~OpenGLFrameBuffer()
     {
+        //Texture atachments will be deleted automatically
         glDeleteFramebuffers(1, &m_BufferID);
         glDeleteRenderbuffers(1, &m_RenderBuffer);
     }
@@ -50,6 +51,13 @@ namespace TriEngine {
 
     void OpenGLFrameBuffer::Recreate()
     {
+        if (m_BufferID) {
+            glDeleteFramebuffers(1, &m_BufferID);
+            
+            m_ColorTarget.reset();
+
+            glDeleteRenderbuffers(1, &m_RenderBuffer);
+        }
         glCreateFramebuffers(1, &m_BufferID);
 
         m_ColorTarget = Texture2D::Create(glm::ivec2(m_Settings.Width, m_Settings.Height), TextureUsage::Image, TextureFilter::Linear, TextureWrap::ClampEdge);

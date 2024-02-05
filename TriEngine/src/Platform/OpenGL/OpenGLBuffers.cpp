@@ -41,7 +41,7 @@ namespace TriEngine {
 		:m_Count(count)
 	{
 		glCreateBuffers(1, &m_BufferID);
-		glNamedBufferStorage(m_BufferID, count*sizeof(uint32_t), indices, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(m_BufferID, count * sizeof(uint32_t), indices, GL_DYNAMIC_STORAGE_BIT);
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
