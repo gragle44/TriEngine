@@ -15,8 +15,8 @@ namespace TriEngine {
 
 		void OnUpdate() override;
 
-		virtual unsigned int GetWidth() const final { return m_Data.Width; }
-		virtual unsigned int GetHeight() const final { return m_Data.Height; }
+		virtual uint32_t GetWidth() const final { return m_Data.Width; }
+		virtual uint32_t GetHeight() const final { return m_Data.Height; }
 
 		// Window attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) final { m_Data.EventCallback = callback; }
@@ -34,7 +34,7 @@ namespace TriEngine {
 		struct WindowData
 		{
 			std::string Title;
-			unsigned int Width, Height;
+			uint32_t Width, Height;
 			VsyncMode VSyncMode;
 
 			EventCallbackFn EventCallback;

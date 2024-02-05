@@ -5,7 +5,9 @@
 
 class Sandbox : public TriEngine::Application {
 public:
-    Sandbox() {
+    Sandbox()
+        :Application("Example2D")
+    {
         PushLayer(new Example2D());
     }
 

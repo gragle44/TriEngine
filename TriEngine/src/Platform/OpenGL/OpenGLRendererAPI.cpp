@@ -10,6 +10,9 @@ namespace TriEngine {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glEnable(GL_DEPTH_TEST);
+
+		//Can be overriden in client
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
 	void OpenGLRendererAPI::EnableWireframes(bool enabled) const
@@ -22,6 +25,14 @@ namespace TriEngine {
 			glPolygonMode(GL_FRONT, GL_FILL);
 			glPolygonMode(GL_BACK, GL_FILL);
 		}
+	}
+
+	void OpenGLRendererAPI::DepthTest(bool enable) const
+	{
+		if (enable)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
 	}
 
 	void TriEngine::OpenGLRendererAPI::ClearColor(const glm::vec4& color) const

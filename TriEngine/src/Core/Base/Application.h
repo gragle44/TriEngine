@@ -18,7 +18,7 @@ namespace TriEngine {
 	class Application
 	{
 	public:
-		Application();
+		Application(const std::string& name);
 		virtual ~Application() = default;
 
 		void OnEvent(Event& e);

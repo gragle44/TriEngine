@@ -110,6 +110,60 @@ project "TriEngine"
 		}
 
 
+project "TriEditor"
+	location "TriEditor"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++20"
+	staticruntime "on"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"%{prj.name}/src/**.h",
+		"%{prj.name}/src/**.cpp",
+	}
+
+	includedirs
+	{
+		"TriEngine/vendor/spdlog/include",
+		"TriEngine/vendor/imgui",
+		"%{IncludeDir.glm}",
+		"TriEngine/src"
+	}
+
+	links
+	{
+		"TriEngine"
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"TRI_PLATFORM_WINDOWS"
+		}
+
+	filter "configurations:Debug"
+		defines "TRI_DEBUG"
+		symbols "on"
+		runtime "Debug"
+
+	filter "configurations:Release"
+		defines "TRI_RELEASE"
+		optimize "on"
+		runtime "Release"
+
+	filter "configurations:Dist"
+		defines "TRI_DIST"
+		optimize "speed"
+		symbols "off"
+		runtime "Release"
+	
+
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"

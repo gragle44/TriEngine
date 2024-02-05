@@ -8,12 +8,13 @@ public:
 	Example2D();
 	virtual ~Example2D() = default;
 
-	virtual void OnAttach() override;
-	virtual void OnDetach() override;
+	virtual void OnAttach() final;
+	virtual void OnDetach() final;
 
-	void OnUpdate(float deltaTime) override;
-	virtual void OnImGuiRender() override;
-	void OnEvent(TriEngine::Event& e) override;
+	void OnUpdate(float deltaTime) final;
+	virtual void OnImGuiRender() final;
+	void OnEvent(TriEngine::Event& e) final;
+	bool OnWindowResized(TriEngine::WindowResizeEvent& e);
 private:
 	TriEngine::OrthographicCameraController m_CameraController;
 	TriEngine::Reference<TriEngine::FrameBuffer> m_FrameBuffer;

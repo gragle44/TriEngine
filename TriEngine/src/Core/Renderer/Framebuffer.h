@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Base/Core.h"
+#include "Core/Events/ApplicationEvent.h"
 
 namespace TriEngine {
 	struct FrameBufferSettings {
@@ -16,7 +17,9 @@ namespace TriEngine {
 		virtual void Bind() = 0;
 		virtual void UnBind() = 0;
 
-		virtual RID GetColorTextureID() const = 0;
+		virtual bool OnWindowResize(WindowResizeEvent& e) = 0;
+
+		virtual void BindColorAttachment() = 0;
 
 		static Reference<FrameBuffer> Create(const FrameBufferSettings& settings);
 	};

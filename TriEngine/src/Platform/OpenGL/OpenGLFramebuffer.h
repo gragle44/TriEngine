@@ -12,14 +12,17 @@ namespace TriEngine {
 		virtual void Bind() final;
 		virtual void UnBind() final;
 
-		virtual RID GetColorTextureID() const final { return m_ColorTexture; };
+		virtual bool OnWindowResize(WindowResizeEvent& e) final;
+
+		virtual void BindColorAttachment() final;
 
 		void Recreate();
 	private:
 		RID m_BufferID;
 
 		RID m_RenderBuffer;
-		RID m_ColorTexture, m_DepthTexture, m_StencilTexture;
+
+		Reference<Texture2D> m_ColorTarget, m_DepthTarget;
 
 		FrameBufferSettings m_Settings;
 	};

@@ -2,9 +2,14 @@
 
 #include "Core/Base/Core.h"
 #include <string>
-#include <glm/vec4.hpp>
+#include <glm/glm.hpp>
 
 namespace TriEngine {
+	enum class TextureUsage : uint8_t {
+		Image,
+		Depth
+	};
+
 	enum class TextureFilter : uint8_t {
 		None = 0,
 		Linear, Nearest
@@ -35,9 +40,16 @@ namespace TriEngine {
 
 	class Texture2D : public Texture {
 	public:
-		static Reference<Texture2D> Create(TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
-		static Reference<Texture2D> Create(const std::string& filePath);
-		static Reference<Texture2D> Create(const glm::vec4& color, uint32_t size);
-		static Reference<Texture2D> Create(const glm::vec4& color, const glm::vec4& endColor, uint32_t size);
+		static Reference<Texture2D> Create(const glm::ivec2& size,
+			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+
+		static Reference<Texture2D> Create(const std::string& filePath, 
+			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+
+		static Reference<Texture2D> Create(const glm::vec4& color, uint32_t size, 
+			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+
+		static Reference<Texture2D> Create(const glm::vec4& color, const glm::vec4& endColor, uint32_t size,
+			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
 	};
 }

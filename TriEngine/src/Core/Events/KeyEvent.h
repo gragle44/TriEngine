@@ -58,7 +58,7 @@ namespace TriEngine {
 	class  KeyTypedEvent : public KeyEvent
 	{
 	public:
-		KeyTypedEvent(unsigned int keycode)
+		KeyTypedEvent(uint32_t keycode)
 			: KeyEvent(keycode) {}
 
 		std::string ToString() const override

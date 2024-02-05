@@ -3,7 +3,8 @@
 
 #include "Base/Assert.h"
 
-#include "stb_image.h"
+#include <stb_image.h>
+#include <glm/vec2.hpp>
 #include <glad/glad.h>
 
 namespace TriEngine {
@@ -43,10 +44,22 @@ namespace TriEngine {
         }
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(TextureFilter filterMode, TextureWrap wrapMode)
+    OpenGLTexture2D::OpenGLTexture2D(const glm::ivec2& size, TextureUsage usage, TextureFilter filterMode, TextureWrap wrapMode)
+        :m_Width(size.x), m_Height(size.y)
     {
-        GLenum openGLFormat = GL_RGBA8;
-        GLenum dataFormat = GL_RGBA;
+        GLenum openGLFormat = 0, dataFormat = 0;
+
+        switch (usage)
+        {
+        case TriEngine::TextureUsage::Depth: 
+            openGLFormat = GL_DEPTH24_STENCIL8; 
+            dataFormat = GL_DEPTH_STENCIL; 
+            break;
+        case TriEngine::TextureUsage::Image: 
+            openGLFormat = GL_RGBA8; 
+            dataFormat = GL_RGBA; 
+            break;
+        }
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
 
@@ -59,10 +72,9 @@ namespace TriEngine {
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
 
         glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
-        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, nullptr);
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath, TextureFilter filterMode, TextureWrap wrapMode)
+    OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath, TextureUsage usage, TextureFilter filterMode, TextureWrap wrapMode)
         :m_Path(filePath), m_FilterMode(filterMode), m_WrapMode(wrapMode)
     {
         stbi_set_flip_vertically_on_load(1);
@@ -107,7 +119,7 @@ namespace TriEngine {
         stbi_image_free(data);
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& color, uint32_t size, TextureFilter filterMode, TextureWrap wrapMode)
+    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& color, uint32_t size, TextureUsage usage, TextureFilter filterMode, TextureWrap wrapMode)
         :m_FilterMode(filterMode), m_WrapMode(wrapMode), m_Width(size), m_Height(size)
     {
         uint8_t colorBytes[] = {
@@ -138,7 +150,7 @@ namespace TriEngine {
 
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, TextureFilter filterMode, TextureWrap wrapMode)
+    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, TextureUsage usage, TextureFilter filterMode, TextureWrap wrapMode)
         :m_FilterMode(filterMode), m_WrapMode(wrapMode), m_Width(size), m_Height(size)
     {
         m_Buffer.resize(m_Width * m_Height * sizeof(uint8_t) * 4);

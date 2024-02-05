@@ -17,6 +17,8 @@ namespace TriEngine {
 
 		virtual void EnableWireframes(bool enabled) const = 0;
 
+		virtual void DepthTest(bool enable) const = 0;
+
 		virtual void ClearColor(const glm::vec4& color) const = 0;
 
 		virtual void Clear() const = 0;

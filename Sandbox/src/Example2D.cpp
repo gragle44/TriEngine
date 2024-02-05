@@ -25,11 +25,13 @@ void Example2D::OnAttach()
 	m_ChestAtlas = std::make_shared<TriEngine::TextureAtlas>(m_Texture, 16);
 	m_Chest1 = m_ChestAtlas->CreateSubTexture(0, 0);
 
-	for (int y = 0; y < 100; y++) {
-		for (int x = 0; x < 100; x++) {
+	for (int32_t y = 0; y < 100; y++) {
+		for (int32_t x = 0; x < 100; x++) {
 			m_Quads.push_back({ {0.11f * x, 0.11f * y}, {0.1, 0.1}, m_GradientTexture, glm::ivec2(-1), {TriEngine::Random::Float(), TriEngine::Random::Float(), TriEngine::Random::Float(), 1.0f}, TriEngine::Random::Float(0.0f, 360.0f) });
 		}
 	}
+
+	TriEngine::RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
 }
 
 void Example2D::OnDetach()
@@ -46,9 +48,6 @@ void Example2D::OnUpdate(float deltaTime)
 
 	quad3.Rotation += -100.0f * deltaTime;
 
-	TriEngine::RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
-	TriEngine::RenderCommand::Clear();
-
 	TriEngine::Renderer2D::Begin(m_CameraController.GetCamera(), m_FrameBuffer);
 
 	TriEngine::Renderer2D::SubmitQuad(checkerQuad);
@@ -57,7 +56,7 @@ void Example2D::OnUpdate(float deltaTime)
 
 	for (const auto& quad : m_Quads) {
 		TriEngine::Renderer2D::SubmitQuad(quad);
-	} 
+	}
 
 	TriEngine::Renderer2D::End();
 }
@@ -68,5 +67,14 @@ void Example2D::OnImGuiRender()
 
 void Example2D::OnEvent(TriEngine::Event& e)
 {
+	TriEngine::EventDispatcher dispatcher(e);
+	dispatcher.Dispatch<TriEngine::WindowResizeEvent>(TRI_BIND_EVENT_FN(Example2D::OnWindowResized));
+
 	m_CameraController.OnEvent(e);
+}
+
+bool Example2D::OnWindowResized(TriEngine::WindowResizeEvent& e) {
+	m_FrameBuffer->OnWindowResize(e);
+
+	return false;
 }

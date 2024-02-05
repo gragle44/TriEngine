@@ -7,10 +7,13 @@
 namespace TriEngine {
 	class OpenGLTexture2D : public Texture2D {
 	public:
-		OpenGLTexture2D(TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
-		OpenGLTexture2D(const std::string& filePath, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
-		OpenGLTexture2D(const glm::vec4& color, uint32_t size, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
-		OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+		OpenGLTexture2D(const glm::ivec2& size, TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+		OpenGLTexture2D(const std::string& filePath, 
+			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+		OpenGLTexture2D(const glm::vec4& color, uint32_t size, 
+			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+		OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, 
+			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
 		virtual ~OpenGLTexture2D() final;
 
 		virtual void Bind(uint32_t slot) const final;

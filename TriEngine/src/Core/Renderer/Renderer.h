@@ -12,7 +12,5 @@ namespace TriEngine {
 		static void Init();
 
 		static RendererAPI::API GetCurrentAPI() { return RendererAPI::GetApi(); }
-	private:
-		static glm::mat4 s_ViewProjectionMatrix;
 	};
 }
