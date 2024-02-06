@@ -86,7 +86,7 @@ namespace TriEngine {
 
 		delete[] quadIndices;
 
-		int* samplers = new int[BatchSettings::MaxTextureSlots];
+		int32_t* samplers = (int32_t*)alloca(BatchSettings::MaxTextureSlots * sizeof(int32_t));
 
 		for (uint32_t i = 0; i < BatchSettings::MaxTextureSlots; i++)
 			samplers[i] = i;
@@ -95,8 +95,6 @@ namespace TriEngine {
 		s_RenderData->MainShader = Shader::Create("TextureShader", "src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl");
 
 		s_RenderData->MainShader->SetIntArray("u_Samplers", samplers, BatchSettings::MaxTextureSlots);
-
-		delete[] samplers;
 
 		s_RenderData->DefaultTexture = Texture2D::Create(glm::vec4(1.0f), 1);
 		s_RenderData->TextureSlots[0] = s_RenderData->DefaultTexture;

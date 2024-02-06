@@ -155,11 +155,11 @@ namespace TriEngine {
     {
         m_Buffer.resize(m_Width * m_Height * sizeof(uint8_t) * 4);
         
-        auto* iterator = m_Buffer.data();
+        auto iterator = m_Buffer.begin();
 
         for (uint32_t y = 0; y < size; y++)
         {
-            glm::vec4 rowColor = glm::mix(startColor, endColor, static_cast<float>(y) / static_cast<float>(size));
+            glm::vec4 rowColor = glm::mix(startColor, endColor, (float)y / (float)size);
 
             uint8_t colourBytes[] = {
                 static_cast<uint8_t>(rowColor.r * 0xff),
@@ -169,7 +169,7 @@ namespace TriEngine {
 
             for (uint32_t x = 0; x < size; ++x)
             {
-                memcpy(iterator, colourBytes, sizeof(colourBytes));
+                memcpy(&*iterator, colourBytes, sizeof(colourBytes));
                 iterator += 4;
             }
         }

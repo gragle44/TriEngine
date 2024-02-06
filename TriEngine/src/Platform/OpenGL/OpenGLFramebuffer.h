@@ -15,6 +15,7 @@ namespace TriEngine {
 		virtual bool OnWindowResize(WindowResizeEvent& e) final;
 
 		virtual void BindColorAttachment() final;
+		virtual const Reference<Texture2D>& GetColorAttachment() final { return m_ColorTarget; }
 
 		void Recreate();
 	private:

@@ -109,6 +109,7 @@ namespace TriEngine {
 
 			std::vector<QuadVertex> VertexData;
 			std::vector<QuadVertex>::iterator VertexDataPtr;
+
 			std::vector<Reference<Texture2D>> TextureSlots;
 			uint32_t TextureSlotIndex = 1;
 			

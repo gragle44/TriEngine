@@ -20,7 +20,7 @@ void Example2D::OnAttach()
 	m_Texture2 = TriEngine::Texture2D::Create("assets/test2.png");
 	m_CheckerBoard = TriEngine::Texture2D::Create("assets/test.png");
 	m_Texture3 = TriEngine::Texture2D::Create({ 0.1f, 0.25f, 0.65f, 1.0f }, 1);
-	m_GradientTexture = TriEngine::Texture2D::Create({ 0.8f, 0.8f, 0.8f, 0.65f }, {0.15f, 0.15f, 0.15f, 0.65f}, 64);
+	m_GradientTexture = TriEngine::Texture2D::Create({ 0.8f, 0.8f, 0.8f, 0.65f }, {0.15f, 0.15f, 0.15f, 0.65f}, 128);
 
 	m_ChestAtlas = std::make_shared<TriEngine::TextureAtlas>(m_Texture, 16);
 	m_Chest1 = m_ChestAtlas->CreateSubTexture(0, 0);

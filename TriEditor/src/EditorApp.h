@@ -17,5 +17,8 @@ public:
 	virtual void OnImGuiRender() final;
 	void OnEvent(Event& e) final;
 private:
+	Reference<FrameBuffer> m_FrameBuffer;
+
+	OrthographicCameraController m_CameraController;
 
 };

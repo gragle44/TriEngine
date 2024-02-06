@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "Renderer/Texture.h"
+#include "Core/Renderer/Texture.h"
 #include "Core/Base/Core.h"
 
 namespace TriEngine {

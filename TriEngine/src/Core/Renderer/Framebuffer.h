@@ -3,6 +3,8 @@
 #include "Core/Base/Core.h"
 #include "Core/Events/ApplicationEvent.h"
 
+#include "Platform/OpenGL/OpenGLTexture.h"
+
 namespace TriEngine {
 	struct FrameBufferSettings {
 		uint32_t Width, Height;
@@ -20,6 +22,7 @@ namespace TriEngine {
 		virtual bool OnWindowResize(WindowResizeEvent& e) = 0;
 
 		virtual void BindColorAttachment() = 0;
+		virtual const Reference<Texture2D>& GetColorAttachment() = 0;
 
 		static Reference<FrameBuffer> Create(const FrameBufferSettings& settings);
 	};
