@@ -11,13 +11,15 @@ public:
 	virtual ~EditorLayer() = default;
 
 	virtual void OnAttach() final;
-	virtual void OnDetach() final;
+	virtual void OnDetach() final; 
 
 	void OnUpdate(float deltaTime) final;
 	virtual void OnImGuiRender() final;
 	void OnEvent(Event& e) final;
 private:
+	Reference<Texture2D> m_Texture;
 	Reference<FrameBuffer> m_FrameBuffer;
+	glm::vec2 m_ViewPortSize;
 
 	OrthographicCameraController m_CameraController;
 

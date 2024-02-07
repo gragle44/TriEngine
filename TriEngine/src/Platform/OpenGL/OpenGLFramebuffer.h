@@ -12,6 +12,11 @@ namespace TriEngine {
 		virtual void Bind() final;
 		virtual void UnBind() final;
 
+		virtual uint32_t GetWidth() final { return m_Settings.Width; }
+		virtual uint32_t GetHeight() final { return m_Settings.Height; }
+
+		virtual void ReSize(uint32_t width, uint32_t height) final;
+
 		virtual bool OnWindowResize(WindowResizeEvent& e) final;
 
 		virtual void BindColorAttachment() final;

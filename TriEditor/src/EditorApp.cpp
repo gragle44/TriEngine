@@ -16,6 +16,8 @@ void EditorLayer::OnAttach()
 	fbSettings.Height = 720;
 
 	m_FrameBuffer = FrameBuffer::Create(fbSettings);
+
+	m_Texture = Texture2D::Create("assets/test2.png");
 }
 
 void EditorLayer::OnDetach()
@@ -24,11 +26,17 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float deltaTime)
 {
+	if (m_FrameBuffer->GetWidth() != m_ViewPortSize.x || m_FrameBuffer->GetHeight() != m_ViewPortSize.y) {
+		//TODO: resize camera
+		m_FrameBuffer->ReSize(m_ViewPortSize.x, m_ViewPortSize.y);
+	}
+
 	m_CameraController.OnUpdate(deltaTime);
 	static const ColoredQuad quad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+	static const TexturedQuad quad2({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_Texture);
 
 	Renderer2D::Begin(m_CameraController.GetCamera(), m_FrameBuffer);
-	Renderer2D::SubmitQuad(quad);
+	Renderer2D::SubmitQuad(quad2);
 	Renderer2D::End();
 }
 
@@ -91,25 +99,37 @@ void EditorLayer::OnImGuiRender()
 			// which we can't undo at the moment without finer window depth/z control.
 			//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
 
-			//if (ImGui::MenuItem("Exit")) Application::Get().Close();
+			if (ImGui::MenuItem("Exit")) Application::Get().Close();
 			ImGui::EndMenu();
 		}
 
 		ImGui::EndMenuBar();
 	}
 
-	ImGui::Begin("Settings");
+	{
+		ImGui::Begin("Settings");
+		auto stats = Renderer2D::GetStats();
+		ImGui::Text("Renderer2D Stats:");
+		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+		ImGui::Text("Quads: %d", stats.QuadCount);
+		ImGui::Text("Vertices: %d", stats.VertexCount());
+		ImGui::Text("Indices: %d", stats.IndexCount());
 
-	auto stats = Renderer2D::GetStats();
-	ImGui::Text("Renderer2D Stats:");
-	ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-	ImGui::Text("Quads: %d", stats.QuadCount);
-	ImGui::Text("Vertices: %d", stats.VertexCount());
-	ImGui::Text("Indices: %d", stats.IndexCount());
+		ImGui::End();
+	}
 
-	const Reference<Texture2D>& frameBufferTexture = m_FrameBuffer->GetColorAttachment();
-	ImGui::Image((void*)frameBufferTexture->GetID(), ImVec2{1280, 720}, ImVec2{0, 1}, ImVec2{1, 0});
-	ImGui::End();
+	{
+		ImGui::Begin("SceneView");
+
+		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+		
+		m_ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
+
+		const Reference<Texture2D>& frameBufferTexture = m_FrameBuffer->GetColorAttachment();
+		ImGui::Image((void*)frameBufferTexture->GetID(), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+		ImGui::End();
+	}
 
 	ImGui::End();
 }

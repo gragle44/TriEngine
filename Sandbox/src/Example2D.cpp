@@ -27,7 +27,7 @@ void Example2D::OnAttach()
 
 	for (int32_t y = 0; y < 100; y++) {
 		for (int32_t x = 0; x < 100; x++) {
-			m_Quads.push_back({ {0.11f * x, 0.11f * y}, {0.1, 0.1}, m_GradientTexture, glm::ivec2(-1), {TriEngine::Random::Float(), TriEngine::Random::Float(), TriEngine::Random::Float(), 1.0f}, TriEngine::Random::Float(0.0f, 360.0f) });
+			m_Quads.push_back({ {0.11f * x, 0.11f * y}, {0.1, 0.1}, m_GradientTexture, {TriEngine::Random::Float(), TriEngine::Random::Float(), TriEngine::Random::Float(), 1.0f}, TriEngine::Random::Float(0.0f, 360.0f) });
 		}
 	}
 
@@ -44,7 +44,7 @@ void Example2D::OnUpdate(float deltaTime)
 	m_CameraController.OnUpdate(deltaTime);
 	static TriEngine::TexturedQuad checkerQuad = {.Size = {30.0f, 30.0f}, .Texture = m_CheckerBoard, .SortingOrder = -0.5f, .TilingFactor = 20.0f};
 	static TriEngine::SubTexturedQuad quad2 = TriEngine::SubTexturedQuad({ -1.25f, -1.25f }, { 1.0f, 1.0f }, m_Chest1, glm::ivec2(-1), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	static TriEngine::TexturedQuad quad3 = TriEngine::TexturedQuad({ -2.5f, -2.5f }, { 1.0f, 1.0f }, m_Texture2, glm::ivec2(-1), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	static TriEngine::TexturedQuad quad3 = TriEngine::TexturedQuad({ -2.5f, -2.5f }, { 1.0f, 1.0f }, m_Texture2, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	quad3.Rotation += -100.0f * deltaTime;
 

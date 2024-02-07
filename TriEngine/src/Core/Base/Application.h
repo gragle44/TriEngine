@@ -21,6 +21,8 @@ namespace TriEngine {
 		Application(const std::string& name);
 		virtual ~Application() = default;
 
+		void Close() { m_Running = false; }
+
 		void OnEvent(Event& e);
 
 		void PushLayer(Layer* layer);

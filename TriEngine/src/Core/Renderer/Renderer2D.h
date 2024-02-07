@@ -14,7 +14,6 @@ namespace TriEngine {
 		glm::vec2 Position = glm::vec2(0.0f);
 		glm::vec2 Size = glm::vec2(1.0f);
 		Reference<Texture2D> Texture;
-		glm::ivec2 AtlasIndex = glm::ivec2(-1);
 		glm::vec4 Tint = glm::vec4(1.0f);
 		float Rotation = 0.0f;
 		float SortingOrder = 0.0f;
@@ -25,7 +24,7 @@ namespace TriEngine {
 		glm::vec2 Position = glm::vec2(0.0f);
 		glm::vec2 Size = glm::vec2(1.0f);
 		Reference<SubTexture2D> Texture;
-		glm::ivec2 AtlasIndex = glm::ivec2(-1);
+		glm::ivec2 AtlasIndex = glm::ivec2(0);
 		glm::vec4 Tint = glm::vec4(1.0f);
 		float Rotation = 0.0f;
 		float SortingOrder = 0.0f;

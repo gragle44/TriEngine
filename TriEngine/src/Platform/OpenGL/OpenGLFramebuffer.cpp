@@ -21,8 +21,8 @@ namespace TriEngine {
 
     void OpenGLFrameBuffer::Bind()
     {
-        glViewport(0, 0, m_Settings.Width, m_Settings.Height);
         glBindFramebuffer(GL_FRAMEBUFFER, m_BufferID);
+        glViewport(0, 0, m_Settings.Width, m_Settings.Height);
     }
 
     void OpenGLFrameBuffer::UnBind()
@@ -30,16 +30,20 @@ namespace TriEngine {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    void OpenGLFrameBuffer::ReSize(uint32_t width, uint32_t height)
+    {
+        if (width == 0 || height == 0)
+            return;
+
+        m_Settings.Width = width;
+        m_Settings.Height = height;
+
+        Recreate();
+    }
+
     bool OpenGLFrameBuffer::OnWindowResize(WindowResizeEvent& e)
     {
-        if (e.GetWidth() == 0 || e.GetHeight() == 0)
-            return false;
-
-        m_Settings.Width = e.GetWidth();
-        m_Settings.Height = e.GetHeight();
-
-        glDeleteFramebuffers(1, &m_BufferID);
-        Recreate();
+        ReSize(e.GetWidth(), e.GetHeight());
 
         return false;
     }
@@ -58,6 +62,7 @@ namespace TriEngine {
 
             glDeleteRenderbuffers(1, &m_RenderBuffer);
         }
+
         glCreateFramebuffers(1, &m_BufferID);
 
         m_ColorTarget = Texture2D::Create(glm::ivec2(m_Settings.Width, m_Settings.Height), TextureUsage::Image, TextureFilter::Linear, TextureWrap::ClampEdge);
