@@ -89,6 +89,9 @@ void TriEngine::ImGuiLayer::OnDetach()
 
 void TriEngine::ImGuiLayer::OnImGuiRender()
 {
-	//static bool show = true;
-	//ImGui::ShowDemoWindow(&show);
+}
+
+void TriEngine::ImGuiLayer::OnEvent(Event& e)
+{
+	ImGuiIO& io = ImGui::GetIO();
 }

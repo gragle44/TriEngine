@@ -44,6 +44,11 @@ namespace TriEngine {
 		dispatcher.Dispatch<WindowResizeEvent>(TRI_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
 	}
 
+	void OrthographicCameraController::Resize(uint32_t width, uint32_t height)
+	{
+		m_Camera.SetProjection(width, height);
+	}
+
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
 		m_Camera.SetZoom(m_Camera.GetZoom() - e.GetYOffset() * 0.5f);
@@ -52,7 +57,7 @@ namespace TriEngine {
 
 	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
 	{
-		m_Camera.SetProjection(e.GetWidth(), e.GetHeight());
+		Resize(e.GetWidth(), e.GetHeight());
 		return true;
 	}
 }

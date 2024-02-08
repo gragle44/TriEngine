@@ -23,6 +23,9 @@ namespace TriEngine {
 
 		void Close() { m_Running = false; }
 
+		void Pause() { m_Paused = true; }
+		void UnPause() { m_Paused = false; }
+
 		void OnEvent(Event& e);
 
 		void PushLayer(Layer* layer);
@@ -43,6 +46,7 @@ namespace TriEngine {
 		LayerStack m_LayerStack;
 		ImGuiLayer* m_ImGuiLayer;
 		DeltaTime m_DeltaTime;
+		bool m_Paused;
 		bool m_Running;
 		bool m_Minimized;
 

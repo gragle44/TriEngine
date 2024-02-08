@@ -32,7 +32,7 @@ namespace TriEngine {
 
     void OpenGLFrameBuffer::ReSize(uint32_t width, uint32_t height)
     {
-        if (width == 0 || height == 0)
+        if (width <= 0 || height <= 0)
             return;
 
         m_Settings.Width = width;

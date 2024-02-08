@@ -18,6 +18,8 @@ namespace TriEngine {
 		void OnUpdate(float deltaTime);
 		void OnEvent(Event& e);
 
+		void Resize(uint32_t width, uint32_t height);
+
 		const OrthographicCamera& GetCamera() const { return m_Camera; }
 		OrthographicCamera& GetCamera() { return m_Camera; }
 

@@ -12,7 +12,7 @@ namespace TriEngine {
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application(const std::string& name)
-		:m_Running(true), m_Minimized(false)
+		:m_Paused(false), m_Running(true), m_Minimized(false)
 	{
 		TRI_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
@@ -31,7 +31,7 @@ namespace TriEngine {
 	{
 		while (m_Running)
 		{
-			if (!m_Minimized) {
+			if (!m_Paused) {
 				m_DeltaTime.Update();
 
 				for (Layer* layer : m_LayerStack)
@@ -50,15 +50,17 @@ namespace TriEngine {
 
 	void Application::OnEvent(Event& e)
 	{
+		m_ImGuiLayer->OnEvent(e);
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(TRI_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(TRI_BIND_EVENT_FN(Application::OnWindowResize));
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
 		{
-			(*--it)->OnEvent(e);
 			if (e.Handled)
 				break;
+			(*--it)->OnEvent(e);
 		}
 	}
 
@@ -81,12 +83,12 @@ namespace TriEngine {
 	bool Application::OnWindowResize(WindowResizeEvent& e) {
 		if (e.GetWidth() == 0 || e.GetHeight() == 0)
 		{
-			m_Minimized = true;
+			m_Paused = true;
 			return false;
 		}
 
 		RenderCommand::SetViewPort({ 0, 0, e.GetWidth(), e.GetHeight() });
-		m_Minimized = false;
+		m_Paused = false;
 		return false;
 
 	}

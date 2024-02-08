@@ -12,9 +12,10 @@ namespace TriEngine {
 		ImGuiLayer();
 		~ImGuiLayer();
 
-		virtual void OnAttach() override;
-		virtual void OnDetach() override;
-		virtual void OnImGuiRender() override;
+		virtual void OnAttach() final;
+		virtual void OnDetach() final;
+		virtual void OnImGuiRender() final;
+		virtual void OnEvent(Event& e) final;
 
 		void Begin();
 		void End();
