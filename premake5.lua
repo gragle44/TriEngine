@@ -142,11 +142,6 @@ project "TriEditor"
 	filter "system:windows"
 		systemversion "latest"
 
-		defines
-		{
-			"TRI_PLATFORM_WINDOWS"
-		}
-
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
 		symbols "on"
@@ -162,6 +157,7 @@ project "TriEditor"
 		optimize "speed"
 		symbols "off"
 		runtime "Release"
+		flags "LinkTimeOptimization"
 	
 
 project "Sandbox"
@@ -196,11 +192,6 @@ project "Sandbox"
 	filter "system:windows"
 		systemversion "latest"
 
-		defines
-		{
-			"TRI_PLATFORM_WINDOWS"
-		}
-
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
 		symbols "on"
@@ -216,3 +207,4 @@ project "Sandbox"
 		optimize "speed"
 		symbols "off"
 		runtime "Release"
+		flags "LinkTimeOptimization"

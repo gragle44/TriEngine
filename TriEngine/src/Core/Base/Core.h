@@ -3,6 +3,26 @@
 #include <memory>
 #include <vector>
 
+#ifdef _WIN64
+	#define TRI_PLATFORM_WINDOWS
+
+#elif _WIN32
+	#error "Only 64 bit Windows is supported"
+
+#elif defined(__APPLE__) || defined(__MACH__)
+	#error "Apple is not supported"
+
+#elif defined(__linux__)
+	#error "Linux is not currently supported"
+
+#elif defined (__ANDROID__)
+	#error "Android is not currently supported"
+
+#else
+	#error "Could not detect platform"
+
+#endif
+
 #ifdef TRI_DEBUG
 	#define TRI_ENABLE_ASSERTS
 #endif
