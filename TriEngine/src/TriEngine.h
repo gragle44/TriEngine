@@ -6,6 +6,7 @@
 #include "Core/Base/Random.h"
 #include "Core/Base/Log.h"
 #include "Core/Base/Assert.h"
+#include "Core/Base/Profiler.h"
 #include "Core/Base/AssetLibrary.h"
 
 #include "Utils/PlatformUtils.h"

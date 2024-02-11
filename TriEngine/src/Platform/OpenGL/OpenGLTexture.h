@@ -7,20 +7,17 @@
 namespace TriEngine {
 	class OpenGLTexture2D : public Texture2D {
 	public:
-		OpenGLTexture2D(const glm::ivec2& size, TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
-		OpenGLTexture2D(const std::string& filePath, 
-			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
-		OpenGLTexture2D(const glm::vec4& color, uint32_t size, 
-			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
-		OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, 
-			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+		OpenGLTexture2D(const glm::ivec2& size, const TextureSettings& settings);
+		OpenGLTexture2D(const std::string& filePath, const TextureSettings& settings);
+		OpenGLTexture2D(const glm::vec4& color, uint32_t size, const TextureSettings& settings);
+		OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, const TextureSettings& settings);
 		virtual ~OpenGLTexture2D() final;
 
 		virtual void Bind(uint32_t slot) const final;
 		virtual void UnBind(uint32_t slot) const final;
 
-		virtual TextureFilter GetFilterMode() const final { return m_FilterMode; }
-		virtual TextureWrap GetWrapMode() const final { return m_WrapMode; }
+		virtual TextureFilter GetFilterMode() const final { return m_Settings.Filter; }
+		virtual TextureWrap GetWrapMode() const final { return m_Settings.Wrap; }
 
 		virtual ByteBuffer& GetData() final { return m_Buffer; };
 		virtual uint32_t GetWidth() const final { return m_Width; };
@@ -28,10 +25,9 @@ namespace TriEngine {
 
 		virtual RID GetID() const final { return m_TextureID; };
 	private:
-		uint32_t m_TextureID;
+		RID m_TextureID;
 		
-		TextureFilter m_FilterMode;
-		TextureWrap m_WrapMode;
+		TextureSettings m_Settings;
 
 		ByteBuffer m_Buffer;
 		uint32_t m_Width, m_Height;

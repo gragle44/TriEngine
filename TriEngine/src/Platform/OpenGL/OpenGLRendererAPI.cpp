@@ -63,7 +63,7 @@ namespace TriEngine {
 		uint32_t count = vertexCount ? vertexCount : vertexArray->GetVertexBuffers()[vertexBufferIndex]->GetVertexCount();
 
 		uint32_t vbOffset = 0;
-		for (int32_t x = 0; x > vertexBufferIndex; x++) {
+		for (uint32_t x = 0; x > vertexBufferIndex; x++) {
 			vbOffset += vertexArray->GetVertexBuffers()[x]->GetSize();
 		}
 

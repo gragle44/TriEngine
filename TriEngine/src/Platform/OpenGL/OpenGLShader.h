@@ -24,7 +24,7 @@ namespace TriEngine {
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) final;
 		virtual void SetBool(const std::string& name, bool value) final;
 	private:
-		int GetUniformLocation(const std::string& name);
+		int32_t GetUniformLocation(const std::string& name);
 
 		std::string m_Name;
 		uint32_t m_ShaderID;

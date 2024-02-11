@@ -63,8 +63,8 @@ namespace TriEngine {
 			uint32_t DrawCalls = 0;
 			uint32_t QuadCount = 0;
 
-			uint32_t VertexCount() { return QuadCount * 4; }
-			uint32_t IndexCount() { return QuadCount * 6; }
+			uint32_t VertexCount() const { return QuadCount * 4; }
+			uint32_t IndexCount() const { return QuadCount * 6; }
 
 			void Reset() {
 				memset(this, 0, sizeof(RenderStats));
@@ -83,7 +83,6 @@ namespace TriEngine {
 			glm::vec2 TexCoord;
 
 			uint32_t TexIndex;
-			float TilingFactor;
 		};
 
 		struct BatchSettings {
@@ -116,6 +115,6 @@ namespace TriEngine {
 			uint32_t IndexCount = 0;
 		};
 
-		static RenderData* s_RenderData;
+		static RenderData s_RenderData;
 	};
 }

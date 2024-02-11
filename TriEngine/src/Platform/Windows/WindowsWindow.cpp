@@ -186,8 +186,9 @@ namespace TriEngine {
 			glfwSwapInterval(1);
 			break;
 		case VsyncMode::Adaptive:
-			// Set adaptive vsync if supported, otherwise, fallback to regular vsync
-			glfwSwapInterval(glfwExtensionSupported("WGL_EXT_swap_control_tear") ? -1 : 1);
+			// Set adaptive vsync if supported, otherwise fallback to regular vsync
+			int supported = glfwExtensionSupported("WGL_EXT_swap_control_tear") | glfwExtensionSupported("GLX_EXT_swap_control_tear");
+			glfwSwapInterval(supported ? -1 : 1);
 			break;
 		}
 	}

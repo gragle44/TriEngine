@@ -29,11 +29,11 @@ namespace TriEngine {
 
 		void Clear() { m_Assets.clear(); }
 
-		std::unordered_map<std::string, Reference<T>> GetAll() const { return m_Assets; };
+		const std::unordered_map<std::string, Reference<T>>& GetAll() const { return m_Assets; };
 
 		Reference<T> Get(const std::string& name) const {
 			if (Exists(name)) {
-				return m_Assets[name];
+				return m_Assets.at(name);
 			}
 			else {
 				TRI_CORE_ERROR("Could not find asset {0}", name);
@@ -42,7 +42,7 @@ namespace TriEngine {
 		}
 
 		bool Exists(const std::string& name) const {
-			return m_Assets.find(name) != m_Assets.end();
+			return m_Assets.contains(name);
 		}
 
 	private:

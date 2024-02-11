@@ -24,7 +24,6 @@ namespace TriEngine {
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
-		
 	}
 
 	void Application::Run()
@@ -45,6 +44,12 @@ namespace TriEngine {
 
 			m_Window->OnUpdate();
 		}
+		Shutdown();
+	}
+
+	void Application::Shutdown()
+	{
+		Renderer2D::ShutDown();
 		TRI_CORE_INFO("Shutting Down!");
 	}
 

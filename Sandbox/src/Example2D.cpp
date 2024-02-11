@@ -40,7 +40,6 @@ void Example2D::OnDetach()
 
 void Example2D::OnUpdate(float deltaTime)
 {
-	TRI_TRACE(deltaTime * 1000.0f);
 	m_CameraController.OnUpdate(deltaTime);
 	static TriEngine::TexturedQuad checkerQuad = {.Size = {30.0f, 30.0f}, .Texture = m_CheckerBoard, .SortingOrder = -0.5f, .TilingFactor = 20.0f};
 	static TriEngine::SubTexturedQuad quad2 = TriEngine::SubTexturedQuad({ -1.25f, -1.25f }, { 1.0f, 1.0f }, m_Chest1, glm::ivec2(-1), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));

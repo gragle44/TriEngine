@@ -4,7 +4,7 @@
 #include "Base/Input.h"
 
 namespace TriEngine {
-	OrthographicCameraController::OrthographicCameraController(OrthographicCamera camera, CameraSettings settings)
+	OrthographicCameraController::OrthographicCameraController(OrthographicCamera camera, const CameraSettings& settings)
 		:m_Camera(camera), m_Settings(settings), m_Position(0.0f, 0.0f, 0.0f)
 	{
 	}
@@ -41,7 +41,6 @@ namespace TriEngine {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseScrolledEvent>(TRI_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
-		dispatcher.Dispatch<WindowResizeEvent>(TRI_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
 	}
 
 	void OrthographicCameraController::Resize(uint32_t width, uint32_t height)
@@ -52,12 +51,6 @@ namespace TriEngine {
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
 		m_Camera.SetZoom(m_Camera.GetZoom() - e.GetYOffset() * 0.5f);
-		return true;
-	}
-
-	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
-	{
-		Resize(e.GetWidth(), e.GetHeight());
 		return true;
 	}
 }

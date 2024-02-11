@@ -44,12 +44,12 @@ namespace TriEngine {
         }
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const glm::ivec2& size, TextureUsage usage, TextureFilter filterMode, TextureWrap wrapMode)
-        :m_Width(size.x), m_Height(size.y)
+    OpenGLTexture2D::OpenGLTexture2D(const glm::ivec2& size, const TextureSettings& settings)
+        :m_Width(size.x), m_Height(size.y), m_Settings(settings)
     {
         GLenum openGLFormat = 0, dataFormat = 0;
 
-        switch (usage)
+        switch (settings.Usage)
         {
         case TriEngine::TextureUsage::Depth: 
             openGLFormat = GL_DEPTH24_STENCIL8; 
@@ -63,19 +63,24 @@ namespace TriEngine {
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
 
-        GLenum filter = FilterModeToOpenGLEnum(filterMode);
-        GLenum wrap = WrapModeToOpenGLEnum(wrapMode);
+        GLenum filter = FilterModeToOpenGLEnum(settings.Filter);
+        GLenum wrap = WrapModeToOpenGLEnum(settings.Wrap);
 
         glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filter);
         glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filter);
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, wrap);
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
 
-        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
+        if (settings.Samples > 1) {
+            glTextureStorage2DMultisample(m_TextureID, settings.Samples, openGLFormat, m_Width, m_Height, GL_TRUE);
+        }
+        else {
+            glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
+        }
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath, TextureUsage usage, TextureFilter filterMode, TextureWrap wrapMode)
-        :m_Path(filePath), m_FilterMode(filterMode), m_WrapMode(wrapMode)
+    OpenGLTexture2D::OpenGLTexture2D(const std::string& filePath, const TextureSettings& settings)
+        :m_Path(filePath), m_Settings(settings)
     {
         stbi_set_flip_vertically_on_load(1);
 
@@ -105,8 +110,8 @@ namespace TriEngine {
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
 
-        GLenum filter = FilterModeToOpenGLEnum(filterMode);
-        GLenum wrap = WrapModeToOpenGLEnum(wrapMode);
+        GLenum filter = FilterModeToOpenGLEnum(settings.Filter);
+        GLenum wrap = WrapModeToOpenGLEnum(settings.Wrap);
 
         glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filter);
         glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filter);
@@ -119,14 +124,14 @@ namespace TriEngine {
         stbi_image_free(data);
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& color, uint32_t size, TextureUsage usage, TextureFilter filterMode, TextureWrap wrapMode)
-        :m_FilterMode(filterMode), m_WrapMode(wrapMode), m_Width(size), m_Height(size)
+    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& color, uint32_t size, const TextureSettings& settings)
+        :m_Settings(settings), m_Width(size), m_Height(size)
     {
         uint8_t colorBytes[] = {
-            color.r * 0xff,
-            color.g * 0xff,
-            color.b * 0xff,
-            color.a * 0xff 
+            static_cast<uint8_t>(color.r) * 0xff,
+            static_cast<uint8_t>(color.g) * 0xff,
+            static_cast<uint8_t>(color.b) * 0xff,
+            static_cast<uint8_t>(color.a) * 0xff 
         };
 
         m_Buffer.resize(m_Width * m_Height * sizeof(colorBytes));
@@ -137,8 +142,8 @@ namespace TriEngine {
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
 
-        GLenum filter = FilterModeToOpenGLEnum(filterMode);
-        GLenum wrap = WrapModeToOpenGLEnum(wrapMode);
+        GLenum filter = FilterModeToOpenGLEnum(settings.Filter);
+        GLenum wrap = WrapModeToOpenGLEnum(settings.Wrap);
 
         glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filter);
         glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filter);
@@ -150,8 +155,8 @@ namespace TriEngine {
 
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, TextureUsage usage, TextureFilter filterMode, TextureWrap wrapMode)
-        :m_FilterMode(filterMode), m_WrapMode(wrapMode), m_Width(size), m_Height(size)
+    OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, const TextureSettings& settings)
+        :m_Settings(settings), m_Width(size), m_Height(size)
     {
         m_Buffer.resize(m_Width * m_Height * sizeof(uint8_t) * 4);
         
@@ -179,8 +184,8 @@ namespace TriEngine {
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
 
-        GLenum filter = FilterModeToOpenGLEnum(filterMode);
-        GLenum wrap = WrapModeToOpenGLEnum(wrapMode);
+        GLenum filter = FilterModeToOpenGLEnum(settings.Filter);
+        GLenum wrap = WrapModeToOpenGLEnum(settings.Wrap);
 
         glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filter);
         glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filter);

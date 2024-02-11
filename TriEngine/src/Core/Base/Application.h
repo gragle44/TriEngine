@@ -36,6 +36,7 @@ namespace TriEngine {
 		static Application& Get() { return *s_Instance; }
 
 	private:
+		void Shutdown();
 		void Run();
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);

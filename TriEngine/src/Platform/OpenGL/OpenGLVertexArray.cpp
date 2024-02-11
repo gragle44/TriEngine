@@ -76,7 +76,7 @@ namespace TriEngine {
 		}
 
 		m_VertexBuffers.push_back(vertexBuffer);
-		m_VertexBufferIndexOffset += layout.GetElements().size();
+		m_VertexBufferIndexOffset += (uint32_t)layout.GetElements().size();
 	}
 
 	void OpenGLVertexArray::SetIndexBuffer(const Reference<IndexBuffer>& indexBuffer)

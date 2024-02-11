@@ -127,9 +127,9 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float deltaTime)
 {
-	if (m_FrameBuffer->GetWidth() != m_ViewPortSize.x || m_FrameBuffer->GetHeight() != m_ViewPortSize.y) {
-		m_FrameBuffer->ReSize(m_ViewPortSize.x, m_ViewPortSize.y);
-		m_CameraController.Resize(m_ViewPortSize.x, m_ViewPortSize.y);
+	if (m_FrameBuffer->GetWidth() != m_ViewPortSize.x || m_FrameBuffer->GetHeight() != m_ViewPortSize.y && m_ViewPortSize.x > 0 && m_ViewPortSize.y > 0) {
+		m_FrameBuffer->ReSize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+		m_CameraController.Resize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
 	}
 
 	if (!m_SceneViewPaused)
@@ -238,7 +238,7 @@ void EditorLayer::OnImGuiRender()
 		m_ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
 
 		const Reference<Texture2D>& frameBufferTexture = m_FrameBuffer->GetColorAttachment();
-		ImGui::Image((void*)frameBufferTexture->GetID(), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+		ImGui::Image((void*)(intptr_t)frameBufferTexture->GetID(), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 	}
 	ImGui::End();

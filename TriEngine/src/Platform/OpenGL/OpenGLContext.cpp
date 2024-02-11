@@ -46,7 +46,7 @@ namespace TriEngine {
 
         switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH:
-            TRI_CORE_ERROR("OpenGL({1}) {0}: {2}", _type, _source, message);
+			TRI_CORE_ERROR("OpenGL({1}) {0}: {2}", _type, _source, message);
             break;
 
         case GL_DEBUG_SEVERITY_MEDIUM:
@@ -85,7 +85,6 @@ namespace TriEngine {
 			glGetIntegerv(GL_CONTEXT_FLAGS, &context_flags);
 
 			if (context_flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-				TRI_CORE_INFO("OpenGL Debug Context created!");
 				glEnable(GL_DEBUG_OUTPUT);
 				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 				glDebugMessageCallback(glDebugOutput, nullptr);
@@ -94,14 +93,15 @@ namespace TriEngine {
 					GL_DONT_CARE,
 					GL_DONT_CARE,
 					0,
-					nullptr,
+					NULL,
 					GL_TRUE
 				);
+				TRI_CORE_INFO("OpenGL Debugging enabled");
 			}
 		#endif
 
 		#ifdef TRI_ENABLE_ASSERTS
-			TRI_CORE_ASSERT(GLVersion.major > 4 || (GLVersion.major == 4 && GLVersion.minor >= 5), "Invalid OpenGL Version! 4.5 or greater is required.");
+			TRI_CORE_ASSERT(GLVersion.major > 4 || (GLVersion.major == 4 && GLVersion.minor >= 5), "Invalid OpenGL Version! 4.5 or greater is required");
 		#endif
 
 	}

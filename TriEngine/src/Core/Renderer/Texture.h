@@ -21,6 +21,13 @@ namespace TriEngine {
 		ClampEdge, ClampBorder
 	};
 
+	struct TextureSettings {
+		TextureUsage Usage = TextureUsage::Image;
+		TextureFilter Filter = TextureFilter::Nearest;
+		TextureWrap Wrap = TextureWrap::Repeat;
+		uint32_t Samples = 1;
+	};
+
 	class Texture {
 	public:
 		virtual ~Texture() = default;
@@ -40,16 +47,12 @@ namespace TriEngine {
 
 	class Texture2D : public Texture {
 	public:
-		static Reference<Texture2D> Create(const glm::ivec2& size,
-			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+		static Reference<Texture2D> Create(const glm::ivec2& size, const TextureSettings& settings = TextureSettings());
 
-		static Reference<Texture2D> Create(const std::string& filePath, 
-			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+		static Reference<Texture2D> Create(const std::string& filePath, const TextureSettings& settings = TextureSettings());
 
-		static Reference<Texture2D> Create(const glm::vec4& color, uint32_t size, 
-			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+		static Reference<Texture2D> Create(const glm::vec4& color, uint32_t size, const TextureSettings& settings = TextureSettings());
 
-		static Reference<Texture2D> Create(const glm::vec4& color, const glm::vec4& endColor, uint32_t size,
-			TextureUsage usage = TextureUsage::Image, TextureFilter filterMode = TextureFilter::Nearest, TextureWrap wrapMode = TextureWrap::Repeat);
+		static Reference<Texture2D> Create(const glm::vec4& color, const glm::vec4& endColor, uint32_t size, const TextureSettings& settings = TextureSettings());
 	};
 }

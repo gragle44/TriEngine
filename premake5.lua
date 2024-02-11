@@ -9,10 +9,7 @@ workspace "TriEngine"
 		"Dist"
 	}
 
-	flags
-	{
-		"MultiProcessorCompile"
-	}
+	flags "MultiProcessorCompile"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
@@ -84,7 +81,6 @@ project "TriEngine"
 
 		defines 
 		{
-			"TRI_PLATFORM_WINDOWS",
 			"GLFW_INCLUDE_NONE"
 		}
 

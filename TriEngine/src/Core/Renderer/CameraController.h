@@ -9,11 +9,13 @@ namespace TriEngine {
 		float Speed = 1.0f;
 		float RotationSpeed = 90.0f;
 		float ZoomSpeed = 5.0f;
+		float DampingX = 0.0f;
+		float DampingY = 0.0f;
 	};
 
 	class OrthographicCameraController {
 	public:
-		OrthographicCameraController(OrthographicCamera camera, CameraSettings settings = CameraSettings());
+		OrthographicCameraController(OrthographicCamera camera, const CameraSettings& settings = CameraSettings());
 
 		void OnUpdate(float deltaTime);
 		void OnEvent(Event& e);
@@ -27,7 +29,6 @@ namespace TriEngine {
 		void SetSettings(CameraSettings settings) { m_Settings = settings; };
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
-		bool OnWindowResized(WindowResizeEvent& e);
 
 		OrthographicCamera m_Camera;
 		CameraSettings m_Settings;

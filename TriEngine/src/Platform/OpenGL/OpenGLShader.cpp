@@ -65,34 +65,26 @@ namespace TriEngine {
 				TRI_CORE_WARN("Vertex Shader compilation {0}", infoLog.data());
 		}
 
-		// Vertex and fragment shaders are successfully compiled.
-		// Now time to link them together into a program.
-		// Get a program object.
 		m_ShaderID = glCreateProgram();
-		int program = m_ShaderID;
+		uint32_t program = m_ShaderID;
 
-		// Attach our shaders to our program
 		glAttachShader(program, vertexShader);
 		glAttachShader(program, fragmentShader);
 
-		// Link our program
 		glLinkProgram(program);
 
 		// Note the different functions here: glGetProgram* instead of glGetShader*.
-		int isLinked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
-		if (isLinked == GL_FALSE)
+		int32_t isLinked = 0;
+		glGetProgramiv(program, GL_LINK_STATUS, (int32_t*)&isLinked);
+		if (!isLinked)
 		{
-			int maxLength = 0;
+			int32_t maxLength = 0;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
-			// The maxLength includes the NULL character
 			std::vector<char> infoLog(maxLength);
 			glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
 
-			// We don't need the program anymore.
 			glDeleteProgram(program);
-			// Don't leak shaders either.
 			glDeleteShader(vertexShader);
 			glDeleteShader(fragmentShader);
 
@@ -101,7 +93,6 @@ namespace TriEngine {
 			return;
 		}
 
-		// Always detach shaders after a successful link.
 		glDetachShader(program, vertexShader);
 		glDeleteShader(vertexShader);
 		glDetachShader(program, fragmentShader);
@@ -165,12 +156,12 @@ namespace TriEngine {
 		glProgramUniform1i(m_ShaderID, GetUniformLocation(name), (int)value);
 	}
 
-	int OpenGLShader::GetUniformLocation(const std::string& name)
+	int32_t OpenGLShader::GetUniformLocation(const std::string& name)
 	{
-		if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
-			return m_UniformLocationCache[name];
+		if (m_UniformLocationCache.contains(name))
+			return m_UniformLocationCache.at(name);
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
 
 		if (location == -1) {
 			TRI_CORE_ERROR("Could not find uniform {0}!", name);
