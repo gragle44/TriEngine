@@ -4,8 +4,23 @@
 #include <glad/glad.h>
 
 namespace TriEngine {
+	struct OpenGLRenderData {
+		RendererCapabilities RenderCaps;
+	};
+
+	OpenGLRenderData* s_RenderData;
+
 	void OpenGLRendererAPI::Init()
 	{
+		s_RenderData = new OpenGLRenderData();
+		RendererCapabilities& caps = s_RenderData->RenderCaps;
+		caps.Vendor = (const char*)glGetString(GL_VENDOR);
+		caps.Device = (const char*)glGetString(GL_RENDERER);
+		caps.Version = (const char*)glGetString(GL_VERSION);
+
+		glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &caps.MaxFramebufferSize);
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &caps.MaxSamplers);
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -13,6 +28,11 @@ namespace TriEngine {
 
 		//Can be overriden in client
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	void OpenGLRendererAPI::Shutdown()
+	{
+		delete s_RenderData;
 	}
 
 	void OpenGLRendererAPI::EnableWireframes(bool enabled) const
@@ -75,6 +95,11 @@ namespace TriEngine {
 		int32_t maxTextureUnits;
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
 		return maxTextureUnits;
+	}
+
+	const RendererCapabilities& OpenGLRendererAPI::GetRendererCaps() const
+	{
+		return s_RenderData->RenderCaps;
 	}
 
 }

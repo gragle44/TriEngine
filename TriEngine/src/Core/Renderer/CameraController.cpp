@@ -4,7 +4,7 @@
 #include "Base/Input.h"
 
 namespace TriEngine {
-	OrthographicCameraController::OrthographicCameraController(OrthographicCamera camera, const CameraSettings& settings)
+	OrthographicCameraController::OrthographicCameraController(OrthographicCameraOld camera, const CameraSettings& settings)
 		:m_Camera(camera), m_Settings(settings), m_Position(0.0f, 0.0f, 0.0f)
 	{
 	}

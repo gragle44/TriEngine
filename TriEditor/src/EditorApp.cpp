@@ -3,7 +3,7 @@
 #include <imgui.h>
 
 EditorLayer::EditorLayer()
-	:m_CameraController(TriEngine::OrthographicCamera(1280, 720))
+	:m_CameraController(TriEngine::OrthographicCameraOld(1280, 720))
 {
 }
 
@@ -57,8 +57,8 @@ void EditorLayer::SetupImGuiStyle()
 	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.1176470592617989f, 0.1333333402872086f, 0.1490196138620377f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.1568627506494522f, 0.168627455830574f, 0.1921568661928177f, 1.0f);
 	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.2352941185235977f, 0.2156862765550613f, 0.5960784554481506f, 1.0f);
-	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.0470588244497776f, 0.05490196123719215f, 0.07058823853731155f, 1.0f);
-	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.0050588244497776f, 0.00490196123719215f, 0.00658823853731155f, 1.0f);
+	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.0490588244497776f, 0.05690196123719215f, 0.07258823853731155f, 1.0f);
+	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.0784313753247261f, 0.08627451211214066f, 0.1019607856869698f, 1.0f);
 	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.09803921729326248f, 0.105882354080677f, 0.1215686276555061f, 1.0f);
 	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.0470588244497776f, 0.05490196123719215f, 0.07058823853731155f, 1.0f);
@@ -106,41 +106,43 @@ void EditorLayer::OnAttach()
 {
 	RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
 
-	FrameBufferSettings fbSettings;
-	fbSettings.Width = 1280;
-	fbSettings.Height = 720;
-
 	m_ViewPortSize = { 1280, 720 };
-
-	m_FrameBuffer = FrameBuffer::Create(fbSettings);
 
 	m_Texture = Texture2D::Create("assets/test2.png");
 
-	ImGuiStyle& style = ImGui::GetStyle();
+	m_ActiveScene = new Scene();
+
+	m_ActiveScene->CreateSceneCamera();
+
+	auto sus = m_ActiveScene->CreateGameObject("sus");
+	sus.AddComponent<TransformComponent>();
+	sus.AddComponent<Sprite2DComponent>(m_Texture);
 
 	SetupImGuiStyle();
 }
 
 void EditorLayer::OnDetach()
 {
+	delete m_ActiveScene;
 }
 
 void EditorLayer::OnUpdate(float deltaTime)
 {
-	if (m_FrameBuffer->GetWidth() != m_ViewPortSize.x || m_FrameBuffer->GetHeight() != m_ViewPortSize.y && m_ViewPortSize.x > 0 && m_ViewPortSize.y > 0) {
-		m_FrameBuffer->ReSize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+	if (m_PrevViewPortSize.x != m_ViewPortSize.x || m_PrevViewPortSize.y != m_ViewPortSize.y && m_ViewPortSize.x > 0 && m_ViewPortSize.y > 0) {
+		m_PrevViewPortSize = m_ViewPortSize;
+		m_ActiveScene->OnViewportResized((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
 		m_CameraController.Resize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
 	}
 
 	if (!m_SceneViewPaused)
 		m_CameraController.OnUpdate(deltaTime);
-
-	static const ColoredQuad quad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-	static const TexturedQuad quad2({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_Texture);
-
-	Renderer2D::Begin(m_CameraController.GetCamera(), m_FrameBuffer);
-	Renderer2D::SubmitQuad(quad2);
-	Renderer2D::End();
+		m_ActiveScene->OnUpdate(deltaTime);
+		//static const ColoredQuad quad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+		//static const TexturedQuad quad2({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_Texture);
+		//
+		//Renderer2D::Begin(m_CameraController.GetCamera(), m_FrameBuffer);
+		//Renderer2D::SubmitQuad(quad2);
+		//Renderer2D::End(false);
 }
 
 void EditorLayer::OnEvent(Event& e)
@@ -233,12 +235,17 @@ void EditorLayer::OnImGuiRender()
 		ImGui::CaptureMouseFromApp(m_SceneViewPaused);
 		ImGui::CaptureKeyboardFromApp(m_SceneViewPaused);
 
+		//Consider moving to scene
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-		
 		m_ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
+		//
 
+
+		/*
 		const Reference<Texture2D>& frameBufferTexture = m_FrameBuffer->GetColorAttachment();
 		ImGui::Image((void*)(intptr_t)frameBufferTexture->GetID(), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+		*/
+		m_ActiveScene->OnEditorRender();
 
 	}
 	ImGui::End();

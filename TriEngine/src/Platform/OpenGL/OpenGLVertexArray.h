@@ -23,6 +23,6 @@ namespace TriEngine {
 		Reference<IndexBuffer> m_IndexBuffer;
 
 		uint32_t m_VertexBufferIndexOffset = 0;
-		uint32_t m_ArrayID;
+		RID m_ArrayID;
 	};
 }

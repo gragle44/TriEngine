@@ -20,6 +20,7 @@ IncludeDir["GLFW"] = "TriEngine/vendor/GLFW/include"
 IncludeDir["Glad"] = "TriEngine/vendor/Glad/include"
 IncludeDir["ImGui"] = "TriEngine/vendor/imgui"
 IncludeDir["glm"] = "TriEngine/vendor/glm"
+IncludeDir["entt"] = "TriEngine/vendor/entt"
 
 group "Dependancies"
 	include "TriEngine/vendor/GLFW"
@@ -66,7 +67,8 @@ project "TriEngine"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}"
 	}
 
 	links
@@ -82,6 +84,11 @@ project "TriEngine"
 		defines 
 		{
 			"GLFW_INCLUDE_NONE"
+		}
+
+		links 
+		{
+			"dwmapi.lib"
 		}
 
 	filter "configurations:Debug"
@@ -127,6 +134,7 @@ project "TriEditor"
 		"TriEngine/vendor/spdlog/include",
 		"TriEngine/vendor/imgui",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}",
 		"TriEngine/src"
 	}
 
@@ -177,6 +185,7 @@ project "Sandbox"
 		"TriEngine/vendor/spdlog/include",
 		"TriEngine/vendor/imgui",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}",
 		"TriEngine/src"
 	}
 

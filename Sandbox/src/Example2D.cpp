@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 Example2D::Example2D()
-	:m_CameraController(TriEngine::OrthographicCamera(1280, 720))
+	:m_CameraController(TriEngine::OrthographicCameraOld(1280, 720))
 {
 }
 

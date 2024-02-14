@@ -119,7 +119,7 @@ namespace TriEngine {
 
 		virtual void BindToVertexArray(uint32_t arrayID) const = 0;
 
-		virtual uint32_t GetID() const = 0;
+		virtual RID GetID() const = 0;
 
 		virtual void SetData(const void* data, uint32_t size) = 0;
 
@@ -137,7 +137,7 @@ namespace TriEngine {
 
 		virtual void BindToVertexArray(uint32_t arrayID) const = 0;
 
-		virtual uint32_t GetID() const = 0;
+		virtual RID GetID() const = 0;
 
 		virtual uint32_t GetCount() const = 0;
 

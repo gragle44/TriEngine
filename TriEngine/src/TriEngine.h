@@ -11,6 +11,11 @@
 
 #include "Utils/PlatformUtils.h"
 
+//ECS
+#include "Core/GameObjects/GameObject.h"
+#include "Core/GameObjects/Scene.h"
+#include "Core/GameObjects/Components.h"
+
 //Graphics
 #include "Core/Renderer/Framebuffer.h"
 #include "Core/Renderer/OrthographicCamera.h"

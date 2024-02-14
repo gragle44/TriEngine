@@ -28,19 +28,24 @@
 #endif
 
 #ifndef TRI_DIST
-	#define TRI_DEBUG_GL
+	#define TRI_DEBUG_GL 1
+#else
+	#define TRI_DEBUG_GL 0 
 #endif
 
 
 #define BIT(x) (1 << x)
 
-#define TRI_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+#define TRI_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 namespace TriEngine {
 	using ByteBuffer = std::vector<uint8_t>;
 
 	template<typename T>
 	using Reference = std::shared_ptr<T>;
+
+	template<typename T>
+	using WeakRef = std::weak_ptr<T>;
 
 	template<typename T>
 	using Scoped = std::unique_ptr<T>;

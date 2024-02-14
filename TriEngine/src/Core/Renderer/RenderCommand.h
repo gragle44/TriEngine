@@ -41,6 +41,10 @@ namespace TriEngine {
 			return s_RendererAPI->GetMaxTextureSlots();
 		}
 
+		static const RendererCapabilities& GetCapabilities() {
+			return s_RendererAPI->GetRendererCaps();
+		}
+
 	private:
 		static std::unique_ptr<RendererAPI> s_RendererAPI;
 	};

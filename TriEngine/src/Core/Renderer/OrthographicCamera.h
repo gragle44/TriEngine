@@ -1,14 +1,31 @@
 #pragma once
 
+#include "Camera.h"
 #include <glm/glm.hpp>
 
 namespace TriEngine {
-	class OrthographicCamera{
+	class OrthographicCamera : Camera {
 	public:
-		OrthographicCamera(float left, float right, float bottom, float top, float zoom = 1.0f);
-		OrthographicCamera(uint32_t width, uint32_t height, float zoom = 1.0f);
+		OrthographicCamera();
+		virtual ~OrthographicCamera() override = default;
 
-		~OrthographicCamera() = default;
+		void SetSize(float size, float nearClip = -1.0f, float farClip = 1.0f);
+		void SetViewportSize(uint32_t width, uint32_t height);
+
+	private:
+		void RecalculateProjection();
+
+		float m_Size = 1.0f;
+		float m_AspectRaio = 0.0f;
+		float m_NearClip = -1.0f, m_FarClip = 1.0f;
+	};
+
+	class OrthographicCameraOld{
+	public:
+		OrthographicCameraOld(float left, float right, float bottom, float top, float zoom = 1.0f);
+		OrthographicCameraOld(uint32_t width, uint32_t height, float zoom = 1.0f);
+
+		~OrthographicCameraOld() = default;
 
 		glm::mat4 GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
 

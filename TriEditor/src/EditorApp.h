@@ -22,11 +22,12 @@ private:
 	void SetupImGuiStyle();
 
 	Reference<Texture2D> m_Texture;
-	Reference<FrameBuffer> m_FrameBuffer;
 	glm::vec2 m_ViewPortSize;
+	glm::vec2 m_PrevViewPortSize;
 
 	OrthographicCameraController m_CameraController;
 
+	Scene* m_ActiveScene;
 	ImFont* m_EditorFont;
 	bool m_SceneViewPaused = false;
 

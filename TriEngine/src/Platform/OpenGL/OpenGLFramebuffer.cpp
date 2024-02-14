@@ -2,6 +2,7 @@
 #include "OpenGLFramebuffer.h"
 #include "Base/Assert.h"
 #include "Base/Application.h"
+#include "Core/Renderer/RenderCommand.h"
 
 #include <glad/glad.h>
 
@@ -32,9 +33,8 @@ namespace TriEngine {
 
     void OpenGLFrameBuffer::ReSize(uint32_t width, uint32_t height)
     {
-        //TODO: Move  RenderCommand
-        int32_t maxSize;
-        glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &maxSize); 
+        //TODO: Move to RenderCommand
+        int32_t maxSize = RenderCommand::GetCapabilities().MaxFramebufferSize;
 
         if (width <= 0 || height <= 0)
             return;

@@ -3,7 +3,7 @@
 #include "OrthographicCamera.h"
 #include "Texture.h"
 #include "TextureAtlas.h"
-#include "Framebuffer.h"
+#include "RenderPass.h"
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Core/Base/Core.h"
@@ -18,6 +18,13 @@ namespace TriEngine {
 		float Rotation = 0.0f;
 		float SortingOrder = 0.0f;
 		float TilingFactor = 1.0f;
+	};
+
+	struct TexturedQuadn {
+		glm::mat4 Transform;
+		Reference<Texture2D> Texture;
+		float TilingFactor = 1.0f;
+		glm::vec4 Tint = glm::vec4(1.0f);
 	};
 
 	struct SubTexturedQuad {
@@ -51,12 +58,14 @@ namespace TriEngine {
 		static void Init();
 		static void ShutDown();
 
-		static void Begin(const OrthographicCamera& camera, const Reference<FrameBuffer>& = nullptr);
+		static void Begin(const OrthographicCameraOld& camera, const Reference<FrameBuffer>& frameBuffer);
+		static void Begin(const glm::mat4 cameraProjection, const glm::mat4& cameraTransform, const Reference<Renderpass>& renderPass);
 		static void End();
 		static void Flush();
 
 		static void SubmitQuad(const ColoredQuad& quad);
 		static void SubmitQuad(const TexturedQuad& quad);
+		static void SubmitQuad(const TexturedQuadn& quad);
 		static void SubmitQuad(const SubTexturedQuad& quad);
 
 		struct RenderStats {
@@ -100,7 +109,8 @@ namespace TriEngine {
 			Reference<VertexBuffer> QuadVertexBuffer;
 			Reference<Texture2D> DefaultTexture;
 
-			Reference<FrameBuffer> m_ScreenFrameBuffer;
+			Reference<Renderpass> CurrentPass;
+			Reference<FrameBuffer> ScreenFrameBuffer;
 			Reference<VertexArray> ScreenVertexArray;
 			Reference<VertexBuffer> ScreenVertexBuffer;
 			Reference<Shader> ScreenShader;
@@ -111,7 +121,6 @@ namespace TriEngine {
 			std::vector<Reference<Texture2D>> TextureSlots;
 			uint32_t TextureSlotIndex = 1;
 			
-			bool FrameBufferBound = false;
 			uint32_t IndexCount = 0;
 		};
 

@@ -79,8 +79,9 @@ namespace TriEngine {
 		TRI_CORE_INFO("  Vendor: {0}", (const char*)glGetString(GL_VENDOR));
 		TRI_CORE_INFO("  Rendering device: {0}", (const char*)glGetString(GL_RENDERER));
 		TRI_CORE_INFO("  Version: {0}", (const char*)glGetString(GL_VERSION));
+		TRI_CORE_INFO("  Debug Context: {0}", TRI_DEBUG_GL ? "Yes" : "No");
 
-		#ifdef TRI_DEBUG_GL
+		#if TRI_DEBUG_GL
 			int context_flags = 0;
 			glGetIntegerv(GL_CONTEXT_FLAGS, &context_flags);
 
@@ -96,7 +97,6 @@ namespace TriEngine {
 					NULL,
 					GL_TRUE
 				);
-				TRI_CORE_INFO("OpenGL Debugging enabled");
 			}
 		#endif
 

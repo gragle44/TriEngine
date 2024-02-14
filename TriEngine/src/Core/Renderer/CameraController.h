@@ -15,22 +15,22 @@ namespace TriEngine {
 
 	class OrthographicCameraController {
 	public:
-		OrthographicCameraController(OrthographicCamera camera, const CameraSettings& settings = CameraSettings());
+		OrthographicCameraController(OrthographicCameraOld camera, const CameraSettings& settings = CameraSettings());
 
 		void OnUpdate(float deltaTime);
 		void OnEvent(Event& e);
 
 		void Resize(uint32_t width, uint32_t height);
 
-		const OrthographicCamera& GetCamera() const { return m_Camera; }
-		OrthographicCamera& GetCamera() { return m_Camera; }
+		const OrthographicCameraOld& GetCamera() const { return m_Camera; }
+		OrthographicCameraOld& GetCamera() { return m_Camera; }
 
 		const CameraSettings& GetSettings() const { return m_Settings; }
 		void SetSettings(CameraSettings settings) { m_Settings = settings; };
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 
-		OrthographicCamera m_Camera;
+		OrthographicCameraOld m_Camera;
 		CameraSettings m_Settings;
 		glm::vec3 m_Position;
 	};

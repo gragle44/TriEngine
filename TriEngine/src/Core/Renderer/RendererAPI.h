@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include "VertexArray.h"
+#include "RendererCapabilities.h"
 
 namespace TriEngine {
 	class RendererAPI {
@@ -12,6 +13,8 @@ namespace TriEngine {
 		};
 
 		virtual void Init() = 0;
+
+		virtual void Shutdown() = 0;
 
 		virtual void SetViewPort(const glm::ivec4& dimensions) const = 0;
 
@@ -28,6 +31,7 @@ namespace TriEngine {
 		virtual void DrawArrays(const Reference<VertexArray>& vertexArray, uint32_t vertexBufferIndex = 0, uint32_t vertexCount = 0) const = 0;
 
 		virtual uint32_t GetMaxTextureSlots() const = 0;
+		virtual const RendererCapabilities& GetRendererCaps() const = 0;
 
 		static API GetApi() { return s_API; }
 	private:
