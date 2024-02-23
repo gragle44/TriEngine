@@ -16,9 +16,6 @@ public:
 	void OnEvent(TriEngine::Event& e) final;
 	bool OnWindowResized(TriEngine::WindowResizeEvent& e);
 private:
-	TriEngine::OrthographicCameraController m_CameraController;
-	TriEngine::Reference<TriEngine::FrameBuffer> m_FrameBuffer;
-
 	TriEngine::Reference<TriEngine::Texture2D> m_Texture;
 	TriEngine::Reference<TriEngine::Texture2D> m_Texture2;
 	TriEngine::Reference<TriEngine::Texture2D> m_Texture3;
@@ -27,5 +24,7 @@ private:
 	TriEngine::Reference<TriEngine::TextureAtlas> m_ChestAtlas;
 	TriEngine::Reference<TriEngine::SubTexture2D> m_Chest1;
 
-	std::vector<TriEngine::TexturedQuad> m_Quads;
+	TriEngine::Scene* m_Scene;
+	TriEngine::GameObject m_Chest;
+	TriEngine::GameObject m_Character;
 };

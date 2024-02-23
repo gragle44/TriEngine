@@ -74,7 +74,7 @@ void TriEngine::ImGuiLayer::OnAttach()
 
 	// Setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 460");
+	ImGui_ImplOpenGL3_Init("#version 450");
 
 	io.SetClipboardTextFn = [](void*, const char* text) { glfwSetClipboardString(static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow()), text); };
 	io.GetClipboardTextFn = [](void*) -> const char* { return glfwGetClipboardString(static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow())); };

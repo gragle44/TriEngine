@@ -161,7 +161,7 @@ namespace TriEngine {
 	void WindowsWindow::Shutdown()
 	{
 		glfwDestroyWindow(m_Window);
-		s_GLFWWindowCount -= 1;
+		s_GLFWWindowCount--;
 
 		if (s_GLFWWindowCount == 0) {
 			delete m_Context;
@@ -187,8 +187,8 @@ namespace TriEngine {
 			break;
 		case VsyncMode::Adaptive:
 			// Set adaptive vsync if supported, otherwise fallback to regular vsync
-			int supported = glfwExtensionSupported("WGL_EXT_swap_control_tear") | glfwExtensionSupported("GLX_EXT_swap_control_tear");
-			glfwSwapInterval(supported ? -1 : 1);
+			int32_t adaptiveSupported = glfwExtensionSupported("WGL_EXT_swap_control_tear") | glfwExtensionSupported("GLX_EXT_swap_control_tear");
+			glfwSwapInterval(adaptiveSupported ? -1 : 1);
 			break;
 		}
 	}
