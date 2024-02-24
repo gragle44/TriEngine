@@ -14,10 +14,10 @@ namespace TriEngine {
 		~Scene();
 
 		void OnUpdate(float deltaTime);
-		void OnEditorRender();
+		void OnEditorViewportRender();
 		void OnViewportResized(uint32_t width, uint32_t height);
 
-		void SetMainCamera(GameObject camera);
+		void SetMainCamera(GameObject& camera);
 		GameObject& CreateSceneCamera(const std::string& tag = "Camera");
 		GameObject CreateGameObject(const std::string& tag = std::string());
 

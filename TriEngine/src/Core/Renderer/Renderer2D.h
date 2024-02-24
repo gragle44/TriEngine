@@ -7,7 +7,6 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Core/Base/Core.h"
-#include <glm/glm.hpp>
 
 namespace TriEngine {
 	struct TexturedQuad {

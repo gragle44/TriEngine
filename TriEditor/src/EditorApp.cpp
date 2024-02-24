@@ -245,7 +245,7 @@ void EditorLayer::OnImGuiRender()
 		const Reference<Texture2D>& frameBufferTexture = m_FrameBuffer->GetColorAttachment();
 		ImGui::Image((void*)(intptr_t)frameBufferTexture->GetID(), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		*/
-		m_ActiveScene->OnEditorRender();
+		m_ActiveScene->OnEditorViewportRender();
 
 	}
 	ImGui::End();

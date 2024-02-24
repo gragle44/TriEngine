@@ -13,7 +13,6 @@
 
 
 TriEngine::ImGuiLayer::ImGuiLayer()
-	: Layer("ImGuiLayer")
 {
 }
 

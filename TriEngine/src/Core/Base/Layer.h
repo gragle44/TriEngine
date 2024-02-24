@@ -4,10 +4,10 @@
 #include "Core/Events/Event.h"
 
 namespace TriEngine {
-	class  Layer 
+	class Layer 
 	{
 	public:
-		Layer(const std::string& debugName = "Layer");
+		Layer() = default;
 		virtual ~Layer() = default;
 
 		virtual void OnAttach() {}
@@ -15,10 +15,5 @@ namespace TriEngine {
 		virtual void OnUpdate(float deltaTime) {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
-
-		const std::string& GetName() const { return m_DebugName; }
-
-	protected:
-		std::string m_DebugName;
 	};
 }

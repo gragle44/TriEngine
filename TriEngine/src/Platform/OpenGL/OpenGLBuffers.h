@@ -20,9 +20,9 @@ namespace TriEngine {
 		virtual const uint32_t GetVertexCount() const final { return m_Size / m_Layout.GetStride(); }
 		virtual const uint32_t GetSize() const final { return m_Size; }
 	private:
+		RID m_BufferID;
 		uint32_t m_Size;
 		BufferLayout m_Layout;
-		uint32_t m_BufferID;
 	};
 
 	class OpenGLIndexBuffer : public IndexBuffer {
@@ -37,6 +37,6 @@ namespace TriEngine {
 		virtual uint32_t GetCount() const final { return m_Count; }
 	private:
 		uint32_t m_Count;
-		uint32_t m_BufferID;
+		RID m_BufferID;
 	};
 }
