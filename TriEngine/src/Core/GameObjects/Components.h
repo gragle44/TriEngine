@@ -7,8 +7,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-//TODO: Is this define really needed?
-//#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 namespace TriEngine {
@@ -39,6 +37,20 @@ namespace TriEngine {
 		}
 
 	};
+
+	class Script;
+
+	struct ScriptComponent {
+		std::unique_ptr<Script> ScriptInstance;
+
+		std::unique_ptr<Script>(*InstantiateScript)();
+
+		template<typename T>
+		void Bind() {
+			InstantiateScript = []() -> std::unique_ptr<Script> {return std::make_unique<T>(); };
+		}
+	};
+
 
 	struct Camera2DComponent {
 		OrthographicCamera Camera;

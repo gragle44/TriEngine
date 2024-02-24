@@ -13,6 +13,8 @@ namespace TriEngine {
 			:m_Handle(handle), m_Scene(scene) {};
 		GameObject(const GameObject& other) = default;
 
+		~GameObject() = default;
+
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args) {
 			return m_Scene->m_Registry.emplace<T>(m_Handle, std::forward<Args>(args)...);

@@ -13,6 +13,7 @@
 
 //ECS
 #include "Core/GameObjects/GameObject.h"
+#include "Core/GameObjects/Script.h"
 #include "Core/GameObjects/Scene.h"
 #include "Core/GameObjects/Components.h"
 

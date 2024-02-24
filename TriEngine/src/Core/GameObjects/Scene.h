@@ -23,6 +23,7 @@ namespace TriEngine {
 
 	private:
 		friend class GameObject;
+		friend class SceneModule;
 
 		void InitRender();
 		void OnRender(float deltaTime);

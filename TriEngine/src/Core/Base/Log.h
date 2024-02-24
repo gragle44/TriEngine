@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Core.h"
+
+#pragma warning(push, 0)
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
+#pragma warning(pop)
 
 namespace TriEngine {
-
 	class Log
 	{
 	public:
@@ -17,7 +19,6 @@ namespace TriEngine {
 		static std::shared_ptr<spdlog::logger> s_CoreLogger;
 		static std::shared_ptr<spdlog::logger> s_ClientLogger;
 	};
-
 }
 
 #define TRI_CORE_CRITICAL(...) ::TriEngine::Log::GetCoreLogger()->critical(__VA_ARGS__)

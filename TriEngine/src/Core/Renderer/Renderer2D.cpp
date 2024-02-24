@@ -145,15 +145,17 @@ namespace TriEngine {
 
 		if (s_RenderData.CurrentPass->Target != nullptr) {
 			s_RenderData.CurrentPass->Target->UnBind();
+			RenderCommand::Clear();
+			RenderCommand::DepthTest(false);
+
+			s_RenderData.ScreenShader->Bind();
+			s_RenderData.CurrentPass->Target->BindColorAttachment();
+
+			RenderCommand::DrawArrays(s_RenderData.ScreenVertexArray);
 		}
 		else {
 			RenderCommand::Clear();
 			RenderCommand::DepthTest(false);
-
-			s_RenderData.ScreenFrameBuffer->BindColorAttachment();
-			s_RenderData.ScreenShader->Bind();
-
-			RenderCommand::DrawArrays(s_RenderData.ScreenVertexArray);
 		}
 	}
 

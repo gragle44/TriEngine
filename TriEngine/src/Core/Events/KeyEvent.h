@@ -22,21 +22,21 @@ namespace TriEngine {
 	class KeyPressedEvent : public KeyEvent
 	{
 	public:
-		KeyPressedEvent(int keycode, int repeatCount)
-			: KeyEvent(keycode), m_RepeatCount(repeatCount) {}
+		KeyPressedEvent(int keycode, bool repeating)
+			: KeyEvent(keycode), m_Repeating(repeating) {}
 
-		int GetRepeatCount() const { return m_RepeatCount; }
+		bool GetRepeatCount() const { return m_Repeating; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
+			ss << "KeyPressedEvent: " << m_KeyCode << " (repeating: " << m_Repeating << ")";
 			return ss.str();
 		}
 
 		EVENT_CLASS_TYPE(KeyPressed)
 	private:
-		int m_RepeatCount;
+		bool m_Repeating;
 	};
 
 	class KeyReleasedEvent : public KeyEvent

@@ -128,10 +128,10 @@ namespace TriEngine {
         :m_Settings(settings), m_Width(size), m_Height(size)
     {
         uint8_t colorBytes[] = {
-            static_cast<uint8_t>(color.r) * 0xff,
-            static_cast<uint8_t>(color.g) * 0xff,
-            static_cast<uint8_t>(color.b) * 0xff,
-            static_cast<uint8_t>(color.a) * 0xff 
+            (uint8_t)(color.r * 0xffu),
+            (uint8_t)(color.g * 0xffu),
+            (uint8_t)(color.b * 0xffu),
+            (uint8_t)(color.a * 0xffu) 
         };
 
         m_Buffer.resize(m_Width * m_Height * sizeof(colorBytes));
@@ -167,10 +167,11 @@ namespace TriEngine {
             glm::vec4 rowColor = glm::mix(startColor, endColor, (float)y / (float)size);
 
             uint8_t colourBytes[] = {
-                static_cast<uint8_t>(rowColor.r * 0xff),
-                static_cast<uint8_t>(rowColor.g * 0xff),
-                static_cast<uint8_t>(rowColor.b * 0xff),
-                static_cast<uint8_t>(rowColor.a * 0xff) };
+                (uint8_t)(rowColor.r * 0xffu),
+                (uint8_t)(rowColor.g * 0xffu),
+                (uint8_t)(rowColor.b * 0xffu),
+                (uint8_t)(rowColor.a * 0xffu) 
+            };
 
             for (uint32_t x = 0; x < size; ++x)
             {

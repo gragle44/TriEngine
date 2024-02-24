@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "Components.h"
 #include "GameObject.h"
+#include "Script.h"
 
 #include "Renderer/Renderer2D.h"
 
@@ -19,6 +20,17 @@ namespace TriEngine {
 
 	void Scene::OnUpdate(float deltaTime)
 	{
+		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
+		{
+			if (!sc.ScriptInstance)
+			{
+				sc.ScriptInstance = sc.InstantiateScript();
+				sc.ScriptInstance->m_Object = GameObject(entity, this);
+			}
+			sc.ScriptInstance->OnUpdate(deltaTime);
+		}
+
+
 		OnRender(deltaTime);
 	}
 
@@ -51,6 +63,7 @@ namespace TriEngine {
 
 	void Scene::OnRender(float deltaTime)
 	{
+		//2D rendering
 		Camera* camera = nullptr;
 		glm::mat4 cameraTransform;
 
@@ -65,13 +78,15 @@ namespace TriEngine {
 			auto group = m_Registry.group<TransformComponent>(entt::get<Sprite2DComponent>);
 
 			for (auto entity : group) {
-				const auto& [transform, sprite] = group.get<TransformComponent, Sprite2DComponent>(entity);
+				auto [transform, sprite] = group.get<TransformComponent, Sprite2DComponent>(entity);
 
 				Renderer2D::SubmitQuad({ .Transform = transform.GetTransform(), .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor, .Tint = sprite.Tint });
 			}
 
 			Renderer2D::End();
 		}
+
+		//TODO: Postprocess
 	}
 
 	void Scene::OnEditorViewportRender()

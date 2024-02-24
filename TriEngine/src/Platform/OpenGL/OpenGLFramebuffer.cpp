@@ -34,7 +34,7 @@ namespace TriEngine {
     void OpenGLFrameBuffer::ReSize(uint32_t width, uint32_t height)
     {
         //TODO: Move to RenderCommand
-        int32_t maxSize = RenderCommand::GetCapabilities().MaxFramebufferSize;
+        uint32_t maxSize = RenderCommand::GetCapabilities().MaxFramebufferSize;
 
         if (width <= 0 || height <= 0)
             return;

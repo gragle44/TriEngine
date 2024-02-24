@@ -1,9 +1,6 @@
 #include "EditorApp.h"
 
-#include <imgui.h>
-
 EditorLayer::EditorLayer()
-	:m_CameraController(TriEngine::OrthographicCameraOld(1280, 720))
 {
 }
 
@@ -12,9 +9,10 @@ void EditorLayer::SetupImGuiStyle()
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuiStyle& style = ImGui::GetStyle();
 
-	//io.Fonts->AddFontDefault();
-	//m_EditorFont = io.Fonts->AddFontFromFileTTF("assets/TriEditor.ttf", 24.0f);
-	//TRI_CORE_ASSERT(m_EditorFont != NULL, "Default TriEditor font was NULL!");
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/droidsans/DroidSans.ttf", 18.0f);
+	TRI_CORE_ASSERT(io.FontDefault != NULL, "Default TriEditor font was null!");
+
+	SetFont<FontType::Bold>(io.Fonts->AddFontFromFileTTF("assets/fonts/droidsans/DroidSans-Bold.ttf", 18.0f));
 
 	style.Alpha = 1.0f;
 	style.DisabledAlpha = 1.0f;
@@ -111,6 +109,8 @@ void EditorLayer::OnAttach()
 	m_Texture = Texture2D::Create("assets/test2.png");
 
 	m_ActiveScene = new Scene();
+	m_SceneModule = SceneModule();
+	m_SceneModule.SetScene(std::shared_ptr<Scene>(m_ActiveScene));
 
 	m_ActiveScene->CreateSceneCamera();
 
@@ -131,24 +131,15 @@ void EditorLayer::OnUpdate(float deltaTime)
 	if (m_PrevViewPortSize.x != m_ViewPortSize.x || m_PrevViewPortSize.y != m_ViewPortSize.y && m_ViewPortSize.x > 0 && m_ViewPortSize.y > 0) {
 		m_PrevViewPortSize = m_ViewPortSize;
 		m_ActiveScene->OnViewportResized((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-		m_CameraController.Resize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-	}
 
-	if (!m_SceneViewPaused)
-		m_CameraController.OnUpdate(deltaTime);
 		m_ActiveScene->OnUpdate(deltaTime);
-		//static const ColoredQuad quad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-		//static const TexturedQuad quad2({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_Texture);
-		//
-		//Renderer2D::Begin(m_CameraController.GetCamera(), m_FrameBuffer);
-		//Renderer2D::SubmitQuad(quad2);
-		//Renderer2D::End(false);
+	}
+	else if (!m_SceneViewPaused)
+		m_ActiveScene->OnUpdate(deltaTime);
 }
 
 void EditorLayer::OnEvent(Event& e)
 {
-	if (!m_SceneViewPaused)
-		m_CameraController.OnEvent(e);
 }
 
 void EditorLayer::OnImGuiRender()
@@ -212,6 +203,10 @@ void EditorLayer::OnImGuiRender()
 		ImGui::EndMenuBar();
 	}
 
+	// Render modukles
+	m_SceneModule.OnImGuiRender();
+	m_DebugModule.OnImGuiRender();
+
 	if (ImGui::Begin("Settings")) {
 		auto stats = Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
@@ -238,14 +233,8 @@ void EditorLayer::OnImGuiRender()
 		//Consider moving to scene
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
-		//
 
-
-		/*
-		const Reference<Texture2D>& frameBufferTexture = m_FrameBuffer->GetColorAttachment();
-		ImGui::Image((void*)(intptr_t)frameBufferTexture->GetID(), ImVec2{ m_ViewPortSize.x, m_ViewPortSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-		*/
-		m_ActiveScene->OnEditorViewportRender();
+		m_ActiveScene->OnEditorRender();
 
 	}
 	ImGui::End();
