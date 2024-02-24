@@ -6,7 +6,7 @@
 
 namespace TriEngine {
 
-	class KeyEvent : public Event
+	class  KeyEvent : public Event
 	{
 	public:
 		int GetKeyCode() const { return m_KeyCode; }
@@ -19,7 +19,7 @@ namespace TriEngine {
 		int m_KeyCode;
 	};
 
-	class KeyPressedEvent : public KeyEvent
+	class  KeyPressedEvent : public KeyEvent
 	{
 	public:
 		KeyPressedEvent(int keycode, bool repeating)
@@ -39,7 +39,7 @@ namespace TriEngine {
 		bool m_Repeating;
 	};
 
-	class KeyReleasedEvent : public KeyEvent
+	class  KeyReleasedEvent : public KeyEvent
 	{
 	public:
 		KeyReleasedEvent(int keycode)
@@ -55,7 +55,7 @@ namespace TriEngine {
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
-	class KeyTypedEvent : public KeyEvent
+	class  KeyTypedEvent : public KeyEvent
 	{
 	public:
 		KeyTypedEvent(uint32_t keycode)

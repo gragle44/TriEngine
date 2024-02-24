@@ -5,6 +5,7 @@
 
 #ifdef _WIN64
 	#define TRI_PLATFORM_WINDOWS
+
 #elif _WIN32
 	#error "Only 64 bit Windows is supported"
 
@@ -12,11 +13,9 @@
 	#error "Apple is not supported"
 
 #elif defined(__linux__)
-	#define TRI_PLATFORM_LINUX
 	#error "Linux is not currently supported"
 
 #elif defined (__ANDROID__)
-	#define TRI_PLATFORM_ANDROID
 	#error "Android is not currently supported"
 
 #else

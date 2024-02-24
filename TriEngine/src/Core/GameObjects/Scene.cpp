@@ -89,7 +89,7 @@ namespace TriEngine {
 		//TODO: Postprocess
 	}
 
-	void Scene::OnEditorViewportRender()
+	void Scene::OnEditorRender()
 	{
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 
@@ -97,7 +97,7 @@ namespace TriEngine {
 		ImGui::Image((void*)(intptr_t)frameBufferTexture->GetID(), viewportSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 	}
 
-	void Scene::SetMainCamera(GameObject& camera)
+	void Scene::SetMainCamera(GameObject camera)
 	{
 		if (!camera.HasComponent<Camera2DComponent>() || !camera.HasComponent<TransformComponent>()) {
 			TRI_CORE_ERROR("Tried to set main camera to an object without a CameraComponent or a TransformComponent!");

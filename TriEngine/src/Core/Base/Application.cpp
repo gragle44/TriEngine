@@ -1,10 +1,12 @@
 #include "tripch.h"
 #include "Application.h"
 #include "Core.h"
+#include "Assert.h"
 
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Renderer2D.h"
 
+#include "Input.h"
 
 namespace TriEngine {
 	Application* Application::s_Instance = nullptr;

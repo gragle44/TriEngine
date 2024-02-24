@@ -27,7 +27,7 @@ namespace TriEngine {
 		int32_t GetUniformLocation(const std::string& name);
 
 		std::string m_Name;
-		std::unordered_map<std::string, int> m_UniformLocationCache;
 		uint32_t m_ShaderID;
+		std::unordered_map<std::string, int> m_UniformLocationCache;
 	};
 }

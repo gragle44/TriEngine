@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace TriEngine {
-	class LayerStack {
+	class  LayerStack {
 	public:
 		LayerStack();
 		~LayerStack();

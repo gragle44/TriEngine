@@ -25,12 +25,12 @@ namespace TriEngine {
 
 		virtual RID GetID() const final { return m_TextureID; };
 	private:
+		RID m_TextureID;
+		
 		TextureSettings m_Settings;
 
 		ByteBuffer m_Buffer;
 		uint32_t m_Width, m_Height;
 		std::string m_Path;
-
-		RID m_TextureID;
 	};
 }
