@@ -18,8 +18,17 @@ namespace TriEngine {
 		RecalculateProjection();
 	}
 
-	void OrthographicCamera::SetViewportSize(uint32_t width, uint32_t height)
+	void OrthographicCamera::SetViewportSize(uint32_t width, uint32_t height, uint32_t windowHeight)
 	{
+		if (windowHeight != 0) {
+			// If there are ever problems with camera stuff this might be it
+			m_InitialYValue = (float)windowHeight;
+			m_YScale = (float)height / (float)windowHeight;
+		}
+		else {
+			m_InitialYValue = 1.0f;
+			m_YScale = 1.0f;
+		}
 		m_AspectRaio = (float)width / (float)height;
 		RecalculateProjection();
 	}
@@ -29,8 +38,8 @@ namespace TriEngine {
 		m_Projection = glm::ortho(
 			-m_Size * m_AspectRaio * 0.5f,  // Bottom
 			 m_Size * m_AspectRaio * 0.5f,  // Top
-			-m_Size * 0.5f,                 // Left
-			 m_Size * 0.5f,                 // Right
+			-m_Size * m_YScale * 0.5f,                 // Left
+			 m_Size * m_YScale * 0.5f,                 // Right
 			m_NearClip, m_FarClip
 		);
 	}

@@ -7,6 +7,7 @@
 namespace TriEngine {
 	enum class TextureUsage : uint8_t {
 		Image,
+		TextureArray,
 		Depth
 	};
 

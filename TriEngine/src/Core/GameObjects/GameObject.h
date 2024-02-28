@@ -38,6 +38,13 @@ namespace TriEngine {
 		ObjectID GetHandle() const { return m_Handle; }
 
 		operator bool() const { return m_Handle != entt::null; }
+
+		bool operator==(const GameObject & other) const {
+			return m_Handle == other.m_Handle && m_Scene == other.m_Scene;
+		}
+		bool operator!=(const GameObject& other) const {
+			return !(*this == other);
+		}
 	private:
 		entt::entity m_Handle = entt::null;
 		Scene* m_Scene = nullptr;

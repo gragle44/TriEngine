@@ -11,7 +11,7 @@ namespace TriEngine {
 
 		virtual void BindToVertexArray(uint32_t arrayID) const final;
 
-		virtual uint32_t GetID() const final { return m_BufferID; }
+		virtual RID GetID() const final { return m_BufferID; }
 
 		virtual void SetData(const void* data, uint32_t size) final;
 
@@ -22,7 +22,7 @@ namespace TriEngine {
 	private:
 		uint32_t m_Size;
 		BufferLayout m_Layout;
-		uint32_t m_BufferID;
+		RID m_BufferID;
 	};
 
 	class OpenGLIndexBuffer : public IndexBuffer {
@@ -32,11 +32,12 @@ namespace TriEngine {
 
 		virtual void BindToVertexArray(uint32_t arrayID) const final;
 
-		virtual uint32_t GetID() const final { return m_BufferID; }
+		virtual RID GetID() const final { return m_BufferID; }
 
 		virtual uint32_t GetCount() const final { return m_Count; }
 	private:
 		uint32_t m_Count;
-		uint32_t m_BufferID;
+
+		RID m_BufferID;
 	};
 }

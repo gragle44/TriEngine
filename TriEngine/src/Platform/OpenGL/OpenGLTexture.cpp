@@ -47,21 +47,28 @@ namespace TriEngine {
     OpenGLTexture2D::OpenGLTexture2D(const glm::ivec2& size, const TextureSettings& settings)
         :m_Width(size.x), m_Height(size.y), m_Settings(settings)
     {
-        GLenum openGLFormat = 0, dataFormat = 0;
+        GLenum openGLFormat = 0, dataFormat = 0, textureType = 0;
 
         switch (settings.Usage)
         {
         case TriEngine::TextureUsage::Depth: 
             openGLFormat = GL_DEPTH24_STENCIL8; 
-            dataFormat = GL_DEPTH_STENCIL; 
+            dataFormat = GL_DEPTH_STENCIL;
+            textureType = GL_TEXTURE_2D;
             break;
         case TriEngine::TextureUsage::Image: 
             openGLFormat = GL_RGBA8; 
             dataFormat = GL_RGBA; 
+            textureType = GL_TEXTURE_2D;
+            break;
+        case TriEngine::TextureUsage::TextureArray:
+            openGLFormat = GL_RGBA8;
+            dataFormat = GL_RGBA;
+            textureType = GL_TEXTURE_2D_ARRAY;
             break;
         }
 
-        glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
+        glCreateTextures(textureType, 1, &m_TextureID);
 
         GLenum filter = FilterModeToOpenGLEnum(settings.Filter);
         GLenum wrap = WrapModeToOpenGLEnum(settings.Wrap);

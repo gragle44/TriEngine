@@ -4,6 +4,7 @@
 
 #include "Modules/SceneModule.h"
 #include "Modules/DebugModule.h"
+#include "Modules/FileMenu.h"
 
 #include <imgui.h>
 
@@ -49,6 +50,7 @@ private:
 	//Editor components
 	SceneModule m_SceneModule;
 	DebugModule m_DebugModule;
+	FileMenu m_FileMenu;
 
 
 	Reference<Texture2D> m_Texture;

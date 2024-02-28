@@ -95,7 +95,7 @@ namespace TriEngine {
 		};
 
 		struct BatchSettings {
-			static const uint32_t MaxBatchSize = 15'000;
+			static const uint32_t MaxBatchSize = 10'000;
 			static const uint32_t MaxVertices = MaxBatchSize * 4;
 			static const uint32_t MaxIndices = MaxBatchSize * 6;
 			static uint32_t MaxTextureSlots;

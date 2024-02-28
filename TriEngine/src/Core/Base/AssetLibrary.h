@@ -9,8 +9,20 @@ namespace TriEngine {
 	template <typename T>
 	class AssetLibrary {
 	public:
+		using AssetMap = std::unordered_map<std::string, Reference<T>>;
+
 		AssetLibrary() = default;
 		~AssetLibrary() = default;
+
+		template <typename T, typename... Args>
+		Reference<T> Create(const std::string& name, Args &&...args) {
+			if (Exists(name)) {
+				TRI_CORE_WARN("AssetLibrary::Load({0}) - overwriting asset with same name", name);
+			}
+			Reference<T> asset = std::make_shared<T>(std::forward<Args>(args));
+			m_Assets[name] = asset;
+			return asset;
+		}
 
 		void Push(const std::string& name, Reference<T> asset) {
 			if (Exists(name))
@@ -29,7 +41,7 @@ namespace TriEngine {
 
 		void Clear() { m_Assets.clear(); }
 
-		const std::unordered_map<std::string, Reference<T>>& GetAll() const { return m_Assets; };
+		const AssetMap& GetAll() const { return m_Assets; };
 
 		Reference<T> Get(const std::string& name) const {
 			if (Exists(name)) {
@@ -45,7 +57,10 @@ namespace TriEngine {
 			return m_Assets.contains(name);
 		}
 
+		AssetMap::iterator begin() { return m_Assets.begin(); }
+		AssetMap::iterator end() { return m_Assets.end(); }
+
 	private:
-		mutable std::unordered_map<std::string, Reference<T>> m_Assets;
+		mutable AssetMap m_Assets;
 	};
 }

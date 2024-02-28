@@ -114,8 +114,8 @@ void EditorLayer::OnAttach()
 
 	m_ActiveScene->CreateSceneCamera();
 
-	auto sus = m_ActiveScene->CreateGameObject("sus");
-	sus.AddComponent<TransformComponent>();
+	auto sus = m_ActiveScene->CreateGameObject("Character");
+	sus.AddComponent<Transform2DComponent>();
 	sus.AddComponent<Sprite2DComponent>(m_Texture);
 
 	SetupImGuiStyle();
@@ -188,44 +188,25 @@ void EditorLayer::OnImGuiRender()
 		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	}
 
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			// Disabling fullscreen would allow the window to be moved to the front of other windows, 
-			// which we can't undo at the moment without finer window depth/z control.
-			//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
-
-			if (ImGui::MenuItem("Exit")) Application::Get().Close();
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMenuBar();
-	}
-
-	// Render modukles
+	// Render modules
+	m_FileMenu.OnImGuiRender();
 	m_SceneModule.OnImGuiRender();
 	m_DebugModule.OnImGuiRender();
 
-	if (ImGui::Begin("Settings")) {
-		auto stats = Renderer2D::GetStats();
-		ImGui::Text("Renderer2D Stats:");
-		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-		ImGui::Text("Quads: %d", stats.QuadCount);
-		ImGui::Text("Vertices: %d", stats.VertexCount());
-		ImGui::Text("Indices: %d", stats.IndexCount());
-	}
-	ImGui::End();
-
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	if(ImGui::Begin("SceneView")) {
+	if(ImGui::Begin("Viewport")) {
 
-		if (ImGui::IsWindowFocused()) {
+		//TODO: allow modules to pause/unpause the viewport if needed
+		m_SceneViewPaused = false;
+
+		/*
+		if (ImGui::IsWindowHovered()) {
 			m_SceneViewPaused = false;
 		}
 		else {
 			m_SceneViewPaused = true;
 		}
+		*/
 
 		ImGui::CaptureMouseFromApp(m_SceneViewPaused);
 		ImGui::CaptureKeyboardFromApp(m_SceneViewPaused);
