@@ -17,6 +17,9 @@ namespace TriEngine {
 		void DrawNode(GameObject& object);
 		void DrawComponents(GameObject& object);
 
+		template<typename T, typename Function> 
+		void DrawComponent(const std::string& name, GameObject object, Function function);
+
 		Reference<Scene> m_Scene;
 		GameObject m_SelectedItem;
 	};

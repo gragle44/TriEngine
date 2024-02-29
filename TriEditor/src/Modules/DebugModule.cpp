@@ -11,7 +11,7 @@ namespace TriEngine {
 
 			ImGui::Text("Renderering Stats:");
 			ImGuiTableFlags flags = ImGuiTableFlags_Resizable;
-			if (ImGui::BeginTable("perf_table", 4, flags)) {
+			if (ImGui::BeginTable("perf_table", 2, flags)) {
 				ImGui::TableNextColumn(); ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 				ImGui::Text("Quads: %d", stats.QuadCount);
 				ImGui::TableNextColumn(); ImGui::Text("Vertices: %d", stats.VertexCount());

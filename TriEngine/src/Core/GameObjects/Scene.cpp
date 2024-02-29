@@ -22,12 +22,14 @@ namespace TriEngine {
 	{
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
-			if (!sc.ScriptInstance)
-			{
-				sc.ScriptInstance = sc.InstantiateScript();
-				sc.ScriptInstance->m_Object = GameObject(entity, this);
+			if (sc.ScriptActive) {
+				if (!sc.ScriptInstance)
+				{
+					sc.ScriptInstance = sc.InstantiateScript();
+					sc.ScriptInstance->m_Object = GameObject(entity, this);
+				}
+				sc.ScriptInstance->OnUpdate(deltaTime);
 			}
-			sc.ScriptInstance->OnUpdate(deltaTime);
 		}
 
 

@@ -12,7 +12,7 @@ namespace TriEngine {
 
 	void OrthographicCamera::SetSize(float size, float nearClip, float farClip)
 	{
-		m_Size = size;
+		m_Zoom = size;
 		m_NearClip = nearClip;
 		m_FarClip = farClip;
 		RecalculateProjection();
@@ -36,10 +36,10 @@ namespace TriEngine {
 	void OrthographicCamera::RecalculateProjection()
 	{
 		m_Projection = glm::ortho(
-			-m_Size * m_AspectRaio * 0.5f,  // Bottom
-			 m_Size * m_AspectRaio * 0.5f,  // Top
-			-m_Size * m_YScale * 0.5f,                 // Left
-			 m_Size * m_YScale * 0.5f,                 // Right
+			-m_Zoom * m_AspectRaio * 0.5f,  // Bottom
+			 m_Zoom * m_AspectRaio * 0.5f,  // Top
+			-m_Zoom * m_YScale * 0.5f,                 // Left
+			 m_Zoom * m_YScale * 0.5f,                 // Right
 			m_NearClip, m_FarClip
 		);
 	}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Base/Core.h"
+#include "Core/Base/Assert.h"
 #include <string>
 #include <glm/glm.hpp>
 
@@ -28,6 +29,9 @@ namespace TriEngine {
 		TextureWrap Wrap = TextureWrap::Repeat;
 		uint32_t Samples = 1;
 	};
+
+	std::string TextureWrapToString(TextureWrap wrap);
+	std::string TextureFilterToString(TextureFilter filter);
 
 	class Texture {
 	public:

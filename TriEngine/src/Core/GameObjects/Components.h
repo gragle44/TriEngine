@@ -61,6 +61,8 @@ namespace TriEngine {
 
 		std::unique_ptr<Script>(*InstantiateScript)();
 
+		bool ScriptActive = true;
+
 		template<typename T>
 		void Bind() {
 			InstantiateScript = []() -> std::unique_ptr<Script> {return std::make_unique<T>(); };

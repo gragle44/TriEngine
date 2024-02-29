@@ -66,4 +66,41 @@ namespace TriEngine {
 			return nullptr;
 		}
 	}
+
+	std::string TextureWrapToString(TextureWrap wrap) {
+		switch (wrap)
+		{
+		case TriEngine::TextureWrap::None:
+			TRI_CORE_ASSERT(false, "TextureWrap was None!");
+			return "None";
+		case TriEngine::TextureWrap::Repeat:
+			return "Repeat";
+		case TriEngine::TextureWrap::MirroredRepeat:
+			return "Mirrored Repeat";
+		case TriEngine::TextureWrap::ClampEdge:
+			return "Clamp to Edge";
+		case TriEngine::TextureWrap::ClampBorder:
+			return "Clamp to Border";
+		default:
+			TRI_CORE_ASSERT(false, "Invalid TextureWrap!");
+			return "None";
+		}
+	}
+
+	std::string TextureFilterToString(TextureFilter filter)
+	{
+		switch (filter)
+		{
+		case TriEngine::TextureFilter::None:
+			TRI_CORE_ASSERT(false, "TextureFilter was None!");
+			return "None";
+		case TriEngine::TextureFilter::Linear:
+			return "Bilinear";
+		case TriEngine::TextureFilter::Nearest:
+			return "Nearest-neighbor";
+		default:
+			TRI_CORE_ASSERT(false, "Invalid TextureFilter!");
+			return "None";
+		}
+	}
 }

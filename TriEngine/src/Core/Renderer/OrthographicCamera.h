@@ -9,17 +9,19 @@ namespace TriEngine {
 		OrthographicCamera();
 		virtual ~OrthographicCamera() override = default;
 
-		void SetSize(float size, float nearClip = -1.0f, float farClip = 1.0f);
+		void SetSize(float zoom, float nearClip = -1.0f, float farClip = 1.0f);
 		void SetViewportSize(uint32_t width, uint32_t height, uint32_t windowHeight = 0);
 
 	private:
 		void RecalculateProjection();
 
-		float m_Size = 1.0f;
+		float m_Zoom = 1.0f;
 		float m_AspectRaio = 0.0f;
 		float m_InitialYValue = 0.0f;
 		float m_YScale = 0.0f;
 		float m_NearClip = -1.0f, m_FarClip = 1.0f;
+
+		friend class SceneModule;
 	};
 
 	class OrthographicCameraOld{

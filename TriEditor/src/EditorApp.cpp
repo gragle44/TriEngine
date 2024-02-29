@@ -100,6 +100,15 @@ void EditorLayer::SetupImGuiStyle()
 	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.196078434586525f, 0.1764705926179886f, 0.5450980663299561f, 0.501960813999176f);
 }
 
+class TestScript : public Script {
+public:
+	TestScript() = default;
+
+	void OnUpdate(float deltaTime) final {
+
+	}
+};
+
 void EditorLayer::OnAttach()
 {
 	RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
@@ -117,6 +126,8 @@ void EditorLayer::OnAttach()
 	auto sus = m_ActiveScene->CreateGameObject("Character");
 	sus.AddComponent<Transform2DComponent>();
 	sus.AddComponent<Sprite2DComponent>(m_Texture);
+	auto& script = sus.AddComponent<ScriptComponent>();
+	script.Bind<TestScript>();
 
 	SetupImGuiStyle();
 }
