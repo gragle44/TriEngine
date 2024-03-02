@@ -118,7 +118,6 @@ void EditorLayer::OnAttach()
 	m_Texture = Texture2D::Create("assets/test2.png");
 
 	m_ActiveScene = new Scene();
-	m_SceneModule = SceneModule();
 	m_SceneModule.SetScene(std::shared_ptr<Scene>(m_ActiveScene));
 
 	m_ActiveScene->CreateSceneCamera();

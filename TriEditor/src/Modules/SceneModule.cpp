@@ -24,11 +24,13 @@ namespace TriEngine {
 	SceneModule::SceneModule(const Reference<Scene>& scene)
 		:m_Scene(scene)
 	{
+		m_SpriteBackground = Texture2D::Create("assets/sprite2Dbg.png");
 	}
 
 	void SceneModule::SetScene(const Reference<Scene>& scene)
 	{
 		m_Scene = scene;
+		m_SpriteBackground = Texture2D::Create("assets/sprite2Dbg.png");
 	}
 
 	void SceneModule::OnImGuiRender()
@@ -36,6 +38,9 @@ namespace TriEngine {
 		ImGui::Begin("Scene Viewer");
 
 		auto view = m_Scene->m_Registry.view<TagComponent>();
+
+		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+			m_SelectedItem = {};
 
 		for (auto entity : view) {
 			GameObject object{ entity, m_Scene.get() };
@@ -67,10 +72,57 @@ namespace TriEngine {
 		ImGuiTreeNodeFlags flags = ((m_SelectedItem == object) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 		bool expanded = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)object.GetHandle(), flags, tag.Tag.c_str());
+
 		if (ImGui::IsItemClicked()) {
 			m_SelectedItem = object;
 		}
 
+		static bool renaming;
+
+		if (!renaming && ImGui::BeginPopupContextItem((const char*)&object)) {
+			auto& tag = object.GetComponent<TagComponent>();
+
+
+			if (ImGui::Button("Rename")) {
+				m_SelectedItem = object;
+				renaming = true;
+				ImGui::CloseCurrentPopup();
+			}
+
+
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
+		if (renaming && m_SelectedItem == object) {
+			//TODO: Destroy the context menu when this modal opens
+			auto& tag = object.GetComponent<TagComponent>();
+
+			if (!ImGui::IsPopupOpen("Renaming..."))
+				ImGui::OpenPopup("Renaming...");
+
+			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+			if (ImGui::BeginPopupModal("Renaming...", &renaming, ImGuiWindowFlags_AlwaysAutoResize)) {
+
+				char buffer[128];
+				memset(buffer, 0, sizeof(buffer));
+				strncpy_s(buffer, sizeof(buffer), tag.Tag.c_str(), sizeof(buffer));
+
+
+				ImGuiInputTextFlags flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue;
+				if (ImGui::InputText("##", buffer, sizeof(buffer), flags)) {
+					tag.Tag = std::string(buffer);
+					renaming = false;
+				}
+				ImGui::Text("Characters remaining: %i", sizeof(buffer) - strlen(buffer));
+			}
+			ImGui::EndPopup();
+
+
+		}
+	
 		if (expanded)
 			ImGui::TreePop();
 	}
@@ -115,17 +167,12 @@ namespace TriEngine {
 		if (object.HasComponent<Sprite2DComponent>()) {
 			if (ImGui::TreeNodeEx((void*)typeid(Sprite2DComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Sprite2D")) {
 				auto& sprite = object.GetComponent<Sprite2DComponent>();
-				ImGui::ShowDemoWindow();
-
-
+				
 				ImDrawList* draw_list = ImGui::GetWindowDrawList();
 				ImVec2 p0 = ImGui::GetCursorScreenPos();
-
-				draw_list->AddImage((void*)sprite.Texture->GetID(), p0, ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-				//TODO: Draw checkerboard
-
-				//ImGui::Image((void*)sprite.Texture->GetID(), { (float)sprite.Texture->GetWidth(), (float)sprite.Texture->GetHeight() }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4(1, 1, 1, 1), ImVec4(0.2352941185235977f, 0.2156862765550613f, 0.5960784554481506f, 1.0f));
-				//ImGui::Image((void*)sprite.Texture->GetID(), { (float)sprite.Texture->GetWidth(), (float)sprite.Texture->GetHeight() }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4(1, 1, 1, 1), ImVec4(0.2352941185235977f, 0.2156862765550613f, 0.5960784554481506f, 1.0f));
+				draw_list->AddImage((void*)m_SpriteBackground->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				draw_list->AddImage((void*)sprite.Texture->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				ImGui::Dummy(ImVec2(250.0f, 250.0f));
 				if (ImGui::BeginItemTooltip()) {
 
 					static const std::string dimensionsBase = "Dimensions: ";
@@ -146,6 +193,7 @@ namespace TriEngine {
 
 					ImGui::EndTooltip();
 				}
+
 				ImGui::ColorEdit4("Tint", glm::value_ptr(sprite.Tint));
 				ImGui::DragFloat("Tiling Factor", &sprite.TilingFactor);
 

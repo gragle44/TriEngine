@@ -22,5 +22,8 @@ namespace TriEngine {
 
 		Reference<Scene> m_Scene;
 		GameObject m_SelectedItem;
+
+		//Used to render the background for the Sprite2D node
+		Reference<Texture2D> m_SpriteBackground;
 	};
 }

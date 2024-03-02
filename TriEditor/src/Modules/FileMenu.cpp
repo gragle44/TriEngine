@@ -42,14 +42,21 @@ namespace TriEngine {
 
 	void FileMenu::RenderProjectSettings(bool* show)
 	{
+		static bool showDemo;
+
 		if (show) {
 			if (!ImGui::Begin("Settings", show)) {
 				ImGui::End();
 			}
 			else {
 				ImGui::Text("dnaslk");
+				if (ImGui::Button("Show ImGui demo"))
+					showDemo = true;
+
 				ImGui::End();
 			}
 		}
+		if (showDemo)
+			ImGui::ShowDemoWindow(&showDemo);
 	}
 }
