@@ -11,6 +11,7 @@ namespace TriEngine {
 	class Scene {
 	public:
 		Scene();
+		Scene(const std::string& name);
 		~Scene();
 
 		void OnUpdate(float deltaTime);
@@ -20,6 +21,7 @@ namespace TriEngine {
 		void SetMainCamera(GameObject camera);
 		GameObject& CreateSceneCamera(const std::string& tag = "Camera");
 		GameObject CreateGameObject(const std::string& tag = std::string());
+		void DeleteGameObject(GameObject object);
 
 	private:
 		friend class GameObject;
@@ -28,6 +30,7 @@ namespace TriEngine {
 		void InitRender();
 		void OnRender(float deltaTime);
 
+		std::string m_Name;
 		entt::registry m_Registry;
 
 		std::unique_ptr<GameObject> m_CameraObject = nullptr;

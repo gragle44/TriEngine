@@ -32,7 +32,7 @@ void Example2D::OnAttach()
 
 	for (int32_t y = 0; y < 100; y++) {
 		for (int32_t x = 0; x < 100; x++) {
-			auto quad = m_Scene->CreateGameObject(std::to_string(x + y));
+			auto quad = m_Scene->CreateGameObject(std::to_string(1 + x + y));
 			auto& transform = quad.AddComponent<TriEngine::TransformComponent>(glm::vec3(0.11f * x, 0.11f * y, 0.0f));
 			transform.Scale = {0.1f, 0.1f, 0.1};
 
@@ -40,6 +40,7 @@ void Example2D::OnAttach()
 			sprite.Tint = { TriEngine::Random::Float(), TriEngine::Random::Float(), TriEngine::Random::Float(), 1.0f };
 		}
 	}
+	TRI_TRACE("Done loading scene!");
 
 	TriEngine::RenderCommand::SetClearColor({ 0.45f, 0.45f, 0.45f, 1.0f });
 }

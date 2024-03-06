@@ -3,6 +3,7 @@
 #include "Core/GameObjects/Components.h"
 #include "Core/GameObjects/Script.h"
 #include "Core/Renderer/Texture.h"
+#include "Core/Base/Input.h"
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -35,20 +36,35 @@ namespace TriEngine {
 
 	void SceneModule::OnImGuiRender()
 	{
+		// SCENE VIEWER //
 		ImGui::Begin("Scene Viewer");
 
 		auto view = m_Scene->m_Registry.view<TagComponent>();
 
-		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
 			m_SelectedItem = {};
+		}
+
+		if (ImGui::Button("Create Object")) {
+			GameObject object = m_Scene->CreateGameObject("Object");
+			m_SelectedItem = object;
+		}
 
 		for (auto entity : view) {
 			GameObject object{ entity, m_Scene.get() };
 			DrawNode(object);
 		}
 
-		ImGui::End();
+		if (Input::IsKeyPressed(TRI_KEY_DELETE))
+			if (m_SelectedItem) {
+				m_Scene->DeleteGameObject(m_SelectedItem);
+				m_SelectedItem = {};
+			}
 
+		ImGui::End();
+		//////////////////
+
+		// PROPERTY INSPECTOR //
 		if (ImGui::Begin("Property Inspector")) {
 			if (m_SelectedItem)
 				DrawComponents(m_SelectedItem);
@@ -63,6 +79,7 @@ namespace TriEngine {
 
 		}
 		ImGui::End();
+		////////////////////////
 	}
 
 	void SceneModule::DrawNode(GameObject& object)
@@ -78,57 +95,110 @@ namespace TriEngine {
 		}
 
 		static bool renaming;
+		static bool deleting;
+		static bool addingComponent;
 
-		if (!renaming && ImGui::BeginPopupContextItem((const char*)&object)) {
+		if (!addingComponent && !renaming && ImGui::BeginPopupContextItem((const char*)&object)) {
 			auto& tag = object.GetComponent<TagComponent>();
 
+			if (ImGui::MenuItem("Add Component", "Ctrl + A")) {
+				m_RightSelectedItem = object;
+				addingComponent = true;
+				ImGui::CloseCurrentPopup();
+			}
 
-			if (ImGui::Button("Rename")) {
-				m_SelectedItem = object;
+			if (ImGui::MenuItem("Rename", "Ctrl + R")) {
+				m_RightSelectedItem = object;
 				renaming = true;
 				ImGui::CloseCurrentPopup();
 			}
 
-
-			if (ImGui::Button("Close"))
+			if (ImGui::MenuItem("Delete", "Del")) {
+				m_RightSelectedItem = object;
+				deleting = true;
 				ImGui::CloseCurrentPopup();
+			}
 
 			ImGui::EndPopup();
 		}
-		if (renaming && m_SelectedItem == object) {
-			//TODO: Destroy the context menu when this modal opens
-			auto& tag = object.GetComponent<TagComponent>();
 
+		if (addingComponent && m_RightSelectedItem == object) {
+			if (!ImGui::IsPopupOpen("Add Component"))
+				ImGui::OpenPopup("Add Component");
+
+			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+			if (ImGui::BeginPopupModal("Add Component", &addingComponent)) {
+				RenderComponentSelection<Transform2DComponent>("Transform2D", &addingComponent);
+				RenderComponentSelection<Sprite2DComponent>("Sprite2D", &addingComponent);
+				RenderComponentSelection<Camera2DComponent>("Camera2D", &addingComponent);
+
+				ImGui::End();
+			}
+		}
+
+		if (renaming && m_RightSelectedItem == object) {
 			if (!ImGui::IsPopupOpen("Renaming..."))
 				ImGui::OpenPopup("Renaming...");
 
 			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 			if (ImGui::BeginPopupModal("Renaming...", &renaming, ImGuiWindowFlags_AlwaysAutoResize)) {
+				auto& tag = object.GetComponent<TagComponent>();
+
+				char oldName[128];
+				memset(oldName, 0, sizeof(oldName));
+				tag.Tag.copy(oldName, tag.Tag.length());
 
 				char buffer[128];
 				memset(buffer, 0, sizeof(buffer));
 				strncpy_s(buffer, sizeof(buffer), tag.Tag.c_str(), sizeof(buffer));
 
-
 				ImGuiInputTextFlags flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue;
 				if (ImGui::InputText("##", buffer, sizeof(buffer), flags)) {
 					tag.Tag = std::string(buffer);
 					renaming = false;
+					TRI_CORE_INFO("Renamed object {0} to {1}", oldName, tag.Tag);
 				}
 				ImGui::Text("Characters remaining: %i", sizeof(buffer) - strlen(buffer));
+				ImGui::EndPopup();
 			}
-			ImGui::EndPopup();
-
-
 		}
-	
+
 		if (expanded)
 			ImGui::TreePop();
+
+		if (deleting && m_RightSelectedItem == object) {
+			if (!ImGui::IsPopupOpen("Delete Object"))
+				ImGui::OpenPopup("Delete Object");
+
+			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+			if (ImGui::BeginPopupModal("Delete Object", &deleting, ImGuiWindowFlags_AlwaysAutoResize)) {
+
+				ImGui::Text("Are you sure you want to delete this object? This action cannot be undone.");
+				if (ImGui::Button("Delete")) {
+					m_Scene->DeleteGameObject(object);
+					deleting = false;
+				}
+				ImGui::EndPopup();
+			}
+		}
+	}
+
+	template<typename T>
+	void SceneModule::RenderComponentSelection(std::string_view name, bool* stayOpen)
+	{
+		if (ImGui::Button(name.data())) {
+			m_RightSelectedItem.AddComponent<T>();
+			ImGui::CloseCurrentPopup();
+			*stayOpen = false;
+		}
 	}
 
 	template<typename T, typename Function>
-	void TriEngine::SceneModule::DrawComponent(const std::string& name, GameObject object, Function function)
+	void SceneModule::DrawComponent(const std::string& name, GameObject object, Function function)
 	{
 		//TODO: Make this work
 	}
@@ -145,8 +215,10 @@ namespace TriEngine {
 			ImGui::Text(tag.Tag.c_str());
 		}
 
+		const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
+
 		if (object.HasComponent<Transform2DComponent>()) {
-			if (ImGui::TreeNodeEx((void*)typeid(Transform2DComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Transform2D")) {
+			if (ImGui::TreeNodeEx((void*)typeid(Transform2DComponent).hash_code(), flags, "Transform2D")) {
 				auto& transform = object.GetComponent<Transform2DComponent>();
 
 				ImGui::DragFloat3("Position", glm::value_ptr(transform.Position), 0.25f);
@@ -155,8 +227,6 @@ namespace TriEngine {
 
 				ImGui::TreePop();
 			}
-
-			//TODO: add tranform editor
 		}
 		else if (object.HasComponent<TransformComponent>()) {
 			auto& transform = object.GetComponent<TransformComponent>();
@@ -165,7 +235,7 @@ namespace TriEngine {
 		}
 
 		if (object.HasComponent<Sprite2DComponent>()) {
-			if (ImGui::TreeNodeEx((void*)typeid(Sprite2DComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Sprite2D")) {
+			if (ImGui::TreeNodeEx((void*)typeid(Sprite2DComponent).hash_code(), flags, "Sprite2D")) {
 				auto& sprite = object.GetComponent<Sprite2DComponent>();
 				
 				ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -202,7 +272,7 @@ namespace TriEngine {
 		}
 
 		if (object.HasComponent<Camera2DComponent>()) {
-			if (ImGui::TreeNodeEx((void*)typeid(Camera2DComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Camera2D")) {
+			if (ImGui::TreeNodeEx((void*)typeid(Camera2DComponent).hash_code(), flags, "Camera2D")) {
 				auto& camera = object.GetComponent<Camera2DComponent>();
 
 				ImGui::Checkbox("Resizeable", &camera.Resizeable); HelpMarker("Determines if the camera's aspect ratio can be changed.", true);
@@ -222,7 +292,7 @@ namespace TriEngine {
 		}
 
 		if (object.HasComponent<ScriptComponent>()) {
-			if (ImGui::TreeNodeEx((void*)typeid(ScriptComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Scripts")) {
+			if (ImGui::TreeNodeEx((void*)typeid(ScriptComponent).hash_code(), flags, "Scripts")) {
 				auto& script = object.GetComponent<ScriptComponent>();
 
 				std::string scriptName = typeid(*(script.ScriptInstance)).name();

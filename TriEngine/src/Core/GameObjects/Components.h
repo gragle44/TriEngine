@@ -83,9 +83,10 @@ namespace TriEngine {
 		glm::vec4 Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float TilingFactor = 1.0f;
 
-		Sprite2DComponent() = default;
-		Sprite2DComponent(Reference<Texture2D> texture2d)
-			:Texture(texture2d) {}
+		Sprite2DComponent() 
+			:Texture(Texture2D::Create(glm::ivec2(1, 1))) {}
+		Sprite2DComponent(Reference<Texture2D> texture2D)
+			:Texture(texture2D) {}
 		Sprite2DComponent(const Sprite2DComponent&) = default;
 	};
 }

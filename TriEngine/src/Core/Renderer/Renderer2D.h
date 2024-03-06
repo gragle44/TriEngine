@@ -10,23 +10,6 @@
 #include <glm/glm.hpp>
 
 namespace TriEngine {
-	struct TexturedQuad {
-		glm::vec2 Position = glm::vec2(0.0f);
-		glm::vec2 Size = glm::vec2(1.0f);
-		Reference<Texture2D> Texture;
-		glm::vec4 Tint = glm::vec4(1.0f);
-		float Rotation = 0.0f;
-		float SortingOrder = 0.0f;
-		float TilingFactor = 1.0f;
-	};
-
-	struct TexturedQuadn {
-		glm::mat4 Transform;
-		Reference<Texture2D> Texture;
-		float TilingFactor = 1.0f;
-		glm::vec4 Tint = glm::vec4(1.0f);
-	};
-
 	struct SubTexturedQuad {
 		glm::vec2 Position = glm::vec2(0.0f);
 		glm::vec2 Size = glm::vec2(1.0f);
@@ -53,20 +36,32 @@ namespace TriEngine {
 			: Position(position), Size(size), Color(color), Rotation(rotation), SortingOrder(sortingOrder), TilingFactor(tilingFactor) {}
 	};
 
+	struct TexturedQuadn {
+		glm::mat4 Transform;
+		glm::vec4 Tint = glm::vec4(1.0f);
+		Reference<Texture2D> Texture;
+		float TilingFactor = 1.0f;
+	};
+
+	struct ColoredQuadn {
+		glm::mat4 Transform;
+		glm::vec4 Tint = glm::vec4(1.0f);
+		float TilingFactor = 1.0f;
+	};
+
 	class Renderer2D {
 	public:
 		static void Init();
 		static void ShutDown();
 
-		static void Begin(const OrthographicCameraOld& camera, const Reference<FrameBuffer>& frameBuffer);
 		static void Begin(const glm::mat4 cameraProjection, const glm::mat4& cameraTransform, const Reference<Renderpass>& renderPass);
 		static void End();
 		static void Flush();
 
-		static void SubmitQuad(const ColoredQuad& quad);
-		static void SubmitQuad(const TexturedQuad& quad);
-		static void SubmitQuad(const TexturedQuadn& quad);
 		static void SubmitQuad(const SubTexturedQuad& quad);
+
+		static void SubmitQuad(const TexturedQuadn& quad);
+		static void SubmitQuad(const ColoredQuadn& quad);
 
 		struct RenderStats {
 			uint32_t DrawCalls = 0;

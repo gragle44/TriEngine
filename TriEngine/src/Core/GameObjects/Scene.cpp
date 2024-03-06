@@ -10,6 +10,13 @@
 
 namespace TriEngine {
 	Scene::Scene()
+		:m_Name("Scene")
+	{
+		InitRender();
+	}
+
+	Scene::Scene(const std::string& name)
+		:m_Name(name)
 	{
 		InitRender();
 	}
@@ -74,6 +81,7 @@ namespace TriEngine {
 			camera = (Camera*)&m_CameraObject->GetComponent<Camera2DComponent>().Camera;
 		}
 
+		//TODO: provide a default runtime camera and editor camera if the user does not supply one
 		if (camera) {
 			Renderer2D::Begin(camera->GetProjection(), cameraTransform, m_MainRenderpass);
 
@@ -82,7 +90,14 @@ namespace TriEngine {
 			for (auto entity : group) {
 				auto [transform, sprite] = group.get<Transform2DComponent, Sprite2DComponent>(entity);
 
-				Renderer2D::SubmitQuad({ .Transform = transform.GetTransform(), .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor, .Tint = sprite.Tint });
+				bool empty = sprite.Texture->GetData().empty();
+				if (!empty) {
+					Renderer2D::SubmitQuad({ .Transform = transform.GetTransform(), .Tint = sprite.Tint, .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor });
+				}
+				else {
+					Renderer2D::SubmitQuad(ColoredQuadn(transform.GetTransform(), sprite.Tint, sprite.TilingFactor));
+				}
+
 			}
 
 			Renderer2D::End();
@@ -110,10 +125,19 @@ namespace TriEngine {
 
 	GameObject Scene::CreateGameObject(const std::string& tag)
 	{
+		//TRI_CORE_INFO("Creating object {0} in {1}", tag, m_Name);
 		GameObject object(m_Registry.create(), this);
 		TagComponent& tagComponent = object.AddComponent<TagComponent>(tag);
 		tagComponent.Tag = tag.empty() ? "Object" : tag;
 		return object;
+	}
+
+	void Scene::DeleteGameObject(GameObject object)
+	{
+		std::string& name = object.GetComponent<TagComponent>().Tag;
+		if (m_CameraObject && object == *m_CameraObject)
+			m_CameraObject = nullptr;
+		m_Registry.destroy(object.GetHandle());
 	}
 
 	GameObject& Scene::CreateSceneCamera(const std::string& tag)

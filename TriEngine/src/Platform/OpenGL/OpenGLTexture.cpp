@@ -91,14 +91,18 @@ namespace TriEngine {
     {
         stbi_set_flip_vertically_on_load(1);
 
-        int x, y, channels;
-        stbi_uc* data = stbi_load(filePath.c_str(), &x, &y, &channels, 0);
+        int32_t x, y, channels;
+        uint8_t* data = stbi_load(filePath.c_str(), &x, &y, &channels, 0);
 
         if (!data) {
             const char* failureReason = stbi_failure_reason();
             TRI_CORE_ERROR("Failed to load image \"{0}\": {1}", filePath, failureReason);
             TRI_CORE_ASSERT(data, "Image data is null!");
         }
+
+        uint32_t size = x * y * channels * sizeof(uint8_t);
+        m_Buffer.reserve(size);
+        m_Buffer.insert(m_Buffer.end(), data, data+size);
 
         m_Width = x;
         m_Height = y;
@@ -126,7 +130,7 @@ namespace TriEngine {
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
 
         glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
-        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
+        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, m_Buffer.data());
 
         stbi_image_free(data);
     }

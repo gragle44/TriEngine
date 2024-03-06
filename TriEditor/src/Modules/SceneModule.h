@@ -14,6 +14,9 @@ namespace TriEngine {
 
 		void OnImGuiRender();
 	private:
+		template<typename T>
+		void RenderComponentSelection(std::string_view name, bool* stayOpen);
+
 		void DrawNode(GameObject& object);
 		void DrawComponents(GameObject& object);
 
@@ -22,6 +25,7 @@ namespace TriEngine {
 
 		Reference<Scene> m_Scene;
 		GameObject m_SelectedItem;
+		GameObject m_RightSelectedItem;
 
 		//Used to render the background for the Sprite2D node
 		Reference<Texture2D> m_SpriteBackground;
