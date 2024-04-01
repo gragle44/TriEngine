@@ -39,7 +39,7 @@ namespace TriEngine {
 		// SCENE VIEWER //
 		ImGui::Begin("Scene Viewer");
 
-		auto view = m_Scene->m_Registry.view<TagComponent>();
+		auto view = m_Scene->m_Registry.group<TagComponent>();
 
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
 			m_SelectedItem = {};
@@ -147,11 +147,11 @@ namespace TriEngine {
 			if (ImGui::BeginPopupModal("Renaming...", &renaming, ImGuiWindowFlags_AlwaysAutoResize)) {
 				auto& tag = object.GetComponent<TagComponent>();
 
-				char oldName[128];
+				char oldName[64];
 				memset(oldName, 0, sizeof(oldName));
 				tag.Tag.copy(oldName, tag.Tag.length());
 
-				char buffer[128];
+				char buffer[64];
 				memset(buffer, 0, sizeof(buffer));
 				strncpy_s(buffer, sizeof(buffer), tag.Tag.c_str(), sizeof(buffer));
 
@@ -200,7 +200,26 @@ namespace TriEngine {
 	template<typename T, typename Function>
 	void SceneModule::DrawComponent(const std::string& name, GameObject object, Function function)
 	{
-		//TODO: Make this work
+		constexpr ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
+		if (object.HasComponent<T>()) {
+			bool shouldRemove = false;
+			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), flags, name.c_str());
+			ImGui::SameLine();
+
+			if (ImGui::SmallButton("X")) {
+				shouldRemove = true;
+			}
+
+			if (open) {
+				auto& component = object.GetComponent<T>();
+				function(component);
+				ImGui::TreePop();
+			}
+
+			if (shouldRemove) {
+				object.RemoveComponent<T>();
+			}
+		}
 	}
 
 	void SceneModule::DrawComponents(GameObject& object)
@@ -215,93 +234,67 @@ namespace TriEngine {
 			ImGui::Text(tag.Tag.c_str());
 		}
 
-		const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
+		DrawComponent<Transform2DComponent>("Transform2D", object, [](Transform2DComponent& component) 
+		{
+			ImGui::DragFloat3("Position", glm::value_ptr(component.Position), 0.25f);
+			ImGui::DragFloat("Rotation", &component.Rotation);
+			ImGui::DragFloat2("Scale", glm::value_ptr(component.Scale));
+		});
+		
+		DrawComponent<Sprite2DComponent>("Sprite2D", object, [&](Sprite2DComponent& sprite)
+		{
+			ImDrawList* draw_list = ImGui::GetWindowDrawList();
+			ImVec2 p0 = ImGui::GetCursorScreenPos();
+			draw_list->AddImage((void*)m_SpriteBackground->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			draw_list->AddImage((void*)sprite.Texture->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Dummy(ImVec2(250.0f, 250.0f));
+			if (ImGui::BeginItemTooltip()) {
 
-		if (object.HasComponent<Transform2DComponent>()) {
-			if (ImGui::TreeNodeEx((void*)typeid(Transform2DComponent).hash_code(), flags, "Transform2D")) {
-				auto& transform = object.GetComponent<Transform2DComponent>();
+				const std::string dimensionsBase = "Dimensions: ";
+				std::stringstream dss;
+				dss << '(' << sprite.Texture->GetWidth() << ", " << sprite.Texture->GetHeight() << ')';
+				std::string dimensions = dimensionsBase + dss.str();
+				ImGui::Text(dimensions.c_str());
 
-				ImGui::DragFloat3("Position", glm::value_ptr(transform.Position), 0.25f);
-				ImGui::DragFloat("Rotation", &transform.Rotation);
-				ImGui::DragFloat2("Scale", glm::value_ptr(transform.Scale));
+				const std::string filterBase = "Filter Mode: ";
+				std::string filterStr = TextureFilterToString(sprite.Texture->GetFilterMode());
+				std::string filterMode = filterBase + filterStr;
+				ImGui::Text(filterMode.c_str());
 
-				ImGui::TreePop();
+				const std::string wrapBase = "Wrap Mode: ";
+				std::string wrapStr = TextureWrapToString(sprite.Texture->GetWrapMode());
+				std::string wrapMode = wrapBase + wrapStr;
+				ImGui::Text(wrapMode.c_str());
+
+				ImGui::EndTooltip();
 			}
-		}
-		else if (object.HasComponent<TransformComponent>()) {
-			auto& transform = object.GetComponent<TransformComponent>();
 
-			//TODO: add 3D transforms
-		}
+			ImGui::ColorEdit4("Tint", glm::value_ptr(sprite.Tint));
+			ImGui::DragFloat("Tiling Factor", &sprite.TilingFactor);
+		});
 
-		if (object.HasComponent<Sprite2DComponent>()) {
-			if (ImGui::TreeNodeEx((void*)typeid(Sprite2DComponent).hash_code(), flags, "Sprite2D")) {
-				auto& sprite = object.GetComponent<Sprite2DComponent>();
-				
-				ImDrawList* draw_list = ImGui::GetWindowDrawList();
-				ImVec2 p0 = ImGui::GetCursorScreenPos();
-				draw_list->AddImage((void*)m_SpriteBackground->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-				draw_list->AddImage((void*)sprite.Texture->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-				ImGui::Dummy(ImVec2(250.0f, 250.0f));
-				if (ImGui::BeginItemTooltip()) {
+		DrawComponent<Camera2DComponent>("Camera2D", object, [](Camera2DComponent& camera)
+		{
+			ImGui::Checkbox("Resizeable", &camera.Resizeable); HelpMarker("Determines if the camera's aspect ratio can be changed.", true);
 
-					static const std::string dimensionsBase = "Dimensions: ";
-					std::stringstream dss;
-					dss << '(' << sprite.Texture->GetWidth() << ", " << sprite.Texture->GetHeight() << ')';
-					std::string dimensions = dimensionsBase + dss.str();
-					ImGui::Text(dimensions.c_str());
-
-					static const std::string filterBase = "Filter Mode: ";
-					std::string filterStr = TextureFilterToString(sprite.Texture->GetFilterMode());
-					std::string filterMode = filterBase + filterStr;
-					ImGui::Text(filterMode.c_str());
-
-					static const std::string wrapBase = "Wrap Mode: ";
-					std::string wrapStr = TextureWrapToString(sprite.Texture->GetWrapMode());
-					std::string wrapMode = wrapBase + wrapStr;
-					ImGui::Text(wrapMode.c_str());
-
-					ImGui::EndTooltip();
-				}
-
-				ImGui::ColorEdit4("Tint", glm::value_ptr(sprite.Tint));
-				ImGui::DragFloat("Tiling Factor", &sprite.TilingFactor);
-
-				ImGui::TreePop();
+			static float cameraSize = camera.Camera.m_Zoom;
+			if (ImGui::DragFloat("Zoom", &cameraSize, 1.0f, 0.1f, 100.0f)) {
+				camera.Camera.SetSize(cameraSize, camera.Camera.m_NearClip, camera.Camera.m_FarClip);
 			}
-		}
+			HelpMarker("Adjust the magnification level of the orthographic camera, controlling how much of the scene is visible within the viewport. Lower values correspond to more zoom.", true);
 
-		if (object.HasComponent<Camera2DComponent>()) {
-			if (ImGui::TreeNodeEx((void*)typeid(Camera2DComponent).hash_code(), flags, "Camera2D")) {
-				auto& camera = object.GetComponent<Camera2DComponent>();
+			if (ImGui::DragFloat2("Clipping", &camera.Camera.m_NearClip))
+				camera.Camera.RecalculateProjection();
+			HelpMarker("Set the range of visibility for objects in the scene, with the Near Plane defining the closest distance and the Far Plane defining the farthest distance before objects will be culled.", true);
+		});
 
-				ImGui::Checkbox("Resizeable", &camera.Resizeable); HelpMarker("Determines if the camera's aspect ratio can be changed.", true);
+		DrawComponent<ScriptComponent>("Script", object, [](ScriptComponent& script)
+		{
+			std::string scriptName = typeid(*(script.ScriptInstance)).name();
+			// Remove "class " from the start of the name
+			scriptName.erase(0, 6);
 
-				static float cameraSize = camera.Camera.m_Zoom;
-				if (ImGui::DragFloat("Zoom", &cameraSize, 1.0f, 0.1f, 100.0f)) {
-					camera.Camera.SetSize(cameraSize, camera.Camera.m_NearClip, camera.Camera.m_FarClip);
-				} 
-				HelpMarker("Adjust the magnification level of the orthographic camera, controlling how much of the scene is visible within the viewport. Lower values correspond to more zoom.", true);
-
-				if (ImGui::DragFloat2("Clipping", &camera.Camera.m_NearClip))
-					camera.Camera.RecalculateProjection();
-				HelpMarker("Set the range of visibility for objects in the scene, with the Near Plane defining the closest distance and the Far Plane defining the farthest distance before objects will be culled.", true);
-
-				ImGui::TreePop();
-			}
-		}
-
-		if (object.HasComponent<ScriptComponent>()) {
-			if (ImGui::TreeNodeEx((void*)typeid(ScriptComponent).hash_code(), flags, "Scripts")) {
-				auto& script = object.GetComponent<ScriptComponent>();
-
-				std::string scriptName = typeid(*(script.ScriptInstance)).name();
-				// Remove "class " from the start of the name
-				scriptName.erase(0, 6);
-
-				ImGui::Checkbox(scriptName.c_str(), &script.ScriptActive);
-				ImGui::TreePop();
-			}
-		}
+			ImGui::Checkbox(scriptName.c_str(), &script.ScriptActive);
+		});
 	}
 }

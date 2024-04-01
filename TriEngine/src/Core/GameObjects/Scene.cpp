@@ -64,6 +64,7 @@ namespace TriEngine {
 		FrameBufferSettings fbSettings;
 		fbSettings.Width = 1280;
 		fbSettings.Height = 720;
+		fbSettings.Samples = 1;
 
 		Reference<FrameBuffer> mainFB = FrameBuffer::Create(fbSettings);
 
@@ -129,6 +130,7 @@ namespace TriEngine {
 		GameObject object(m_Registry.create(), this);
 		TagComponent& tagComponent = object.AddComponent<TagComponent>(tag);
 		tagComponent.Tag = tag.empty() ? "Object" : tag;
+		object.AddComponent<Transform2DComponent>();
 		return object;
 	}
 
@@ -143,7 +145,6 @@ namespace TriEngine {
 	GameObject& Scene::CreateSceneCamera(const std::string& tag)
 	{
 		m_CameraObject = std::make_unique<GameObject>(CreateGameObject(tag));
-		m_CameraObject->AddComponent<Transform2DComponent>();
 
 		auto& cameraComponent = m_CameraObject->AddComponent<Camera2DComponent>();
 		cameraComponent.Camera.SetViewportSize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);

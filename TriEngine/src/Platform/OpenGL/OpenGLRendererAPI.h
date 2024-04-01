@@ -22,6 +22,6 @@ namespace TriEngine {
 		virtual void DrawArrays(const Reference<VertexArray>& vertexArray, uint32_t vertexBufferIndex = 0, uint32_t vertexCount = 0) const final;
 
 		virtual uint32_t GetMaxTextureSlots() const final;
-		virtual const RendererCapabilities& GetRendererCaps() const final;
+		virtual RendererCapabilities& GetRendererCaps() final;
 	};
 }

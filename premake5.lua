@@ -19,6 +19,8 @@ IncludeDir["spdlog"] = "TriEngine/vendor/spdlog/include"
 IncludeDir["GLFW"] = "TriEngine/vendor/GLFW/include"
 IncludeDir["Glad"] = "TriEngine/vendor/Glad/include"
 IncludeDir["ImGui"] = "TriEngine/vendor/imgui"
+IncludeDir["ImGuizmo"] = "TriEngine/vendor/ImGuizmo"
+IncludeDir["yaml_cpp"] = "TriEngine/vendor/yaml_cpp/include"
 IncludeDir["glm"] = "TriEngine/vendor/glm"
 IncludeDir["entt"] = "TriEngine/vendor/entt"
 
@@ -26,6 +28,7 @@ group "Dependancies"
 	include "TriEngine/vendor/GLFW"
 	include "TriEngine/vendor/Glad"
 	include "TriEngine/vendor/imgui"
+	include "TriEngine/vendor/yaml_cpp"
 
 group ""
 
@@ -44,7 +47,8 @@ project "TriEngine"
 
 	defines 
 	{
-		"_CRT_SECURE_NO_WARNINGS"
+		"_CRT_SECURE_NO_WARNINGS",
+		"YAML_CPP_STATIC_DEFINE"
 	}
 
 	files
@@ -56,6 +60,8 @@ project "TriEngine"
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp",
+		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h"
 	}
 
 	includedirs
@@ -67,16 +73,22 @@ project "TriEngine"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.yaml_cpp}",
 	}
 
 	links
 	{
 		"GLFW",
 		"Glad",
-		"ImGui"
+		"ImGui",
+		"yaml_cpp"
 	}
+
+	filter "files:TriEngine/vendor/ImGuizmo/**.cpp"
+		flags {"NoPCH"}
 
 	filter "system:windows"
 		systemversion "latest"
@@ -133,8 +145,10 @@ project "TriEditor"
 	{
 		"TriEngine/vendor/spdlog/include",
 		"TriEngine/vendor/imgui",
+		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.yaml_cpp}",
 		"TriEngine/src"
 	}
 
@@ -142,6 +156,8 @@ project "TriEditor"
 	{
 		"TriEngine"
 	}
+
+	defines "YAML_CPP_STATIC_DEFINE"
 
 	filter "system:windows"
 		systemversion "latest"
@@ -186,6 +202,7 @@ project "Sandbox"
 		"TriEngine/vendor/imgui",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.yaml_cpp}",
 		"TriEngine/src"
 	}
 
@@ -193,6 +210,8 @@ project "Sandbox"
 	{
 		"TriEngine"
 	}
+
+	defines "YAML_CPP_STATIC_DEFINE"
 
 	filter "system:windows"
 		systemversion "latest"

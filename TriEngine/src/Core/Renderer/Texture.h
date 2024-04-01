@@ -9,7 +9,7 @@ namespace TriEngine {
 	enum class TextureUsage : uint8_t {
 		Image,
 		TextureArray,
-		Depth
+		DepthStencil
 	};
 
 	enum class TextureFilter : uint8_t {

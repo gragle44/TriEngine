@@ -123,12 +123,15 @@ void EditorLayer::OnAttach()
 	m_ActiveScene->CreateSceneCamera();
 
 	auto sus = m_ActiveScene->CreateGameObject("Character");
-	sus.AddComponent<Transform2DComponent>();
 	sus.AddComponent<Sprite2DComponent>(m_Texture);
 	auto& script = sus.AddComponent<ScriptComponent>();
 	script.Bind<TestScript>();
 
 	SetupImGuiStyle();
+
+	TriEngine::SceneSerializer s(m_ActiveScene);
+	s.Serialize("test.tscn");
+
 }
 
 void EditorLayer::OnDetach()

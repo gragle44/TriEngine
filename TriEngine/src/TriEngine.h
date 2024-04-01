@@ -16,6 +16,8 @@
 #include "Core/GameObjects/Script.h"
 #include "Core/GameObjects/Scene.h"
 #include "Core/GameObjects/Components.h"
+#include "Core/GameObjects/Serializer.h"
+
 
 //Graphics
 #include "Core/Renderer/Framebuffer.h"

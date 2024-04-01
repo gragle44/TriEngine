@@ -12,6 +12,19 @@ namespace TriEngine {
 		uint32_t Samples = 1;
 	};
 
+	enum class RenderAttachmentType : uint8_t {
+		Color,
+		DepthStencil,
+		Dpeth
+	};
+
+	struct RenderAttachmentSettings {
+		RenderAttachmentType Type;
+		uint8_t Samples;
+		uint32_t Width;
+		uint32_t Height;
+	};
+
 	class FrameBuffer {
 	public:
 		virtual ~FrameBuffer() = default;
@@ -25,6 +38,9 @@ namespace TriEngine {
 		virtual void ReSize(uint32_t width, uint32_t height) = 0;
 
 		virtual bool OnWindowResize(WindowResizeEvent& e) = 0;
+
+		//virtual void AddColorAttachment(RenderAttachmentSettings texture);
+		//virtual void AddDepthAttachment(RenderAttachmentSettings settings);
 
 		virtual void BindColorAttachment() = 0;
 		virtual const Reference<Texture2D>& GetColorAttachment() = 0;

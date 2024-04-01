@@ -41,7 +41,7 @@ namespace TriEngine {
 			return s_RendererAPI->GetMaxTextureSlots();
 		}
 
-		static const RendererCapabilities& GetCapabilities() {
+		static RendererCapabilities& GetCapabilities() {
 			return s_RendererAPI->GetRendererCaps();
 		}
 

@@ -97,7 +97,7 @@ namespace TriEngine {
 		return maxTextureUnits;
 	}
 
-	const RendererCapabilities& OpenGLRendererAPI::GetRendererCaps() const
+	RendererCapabilities& OpenGLRendererAPI::GetRendererCaps()
 	{
 		return s_RenderData->RenderCaps;
 	}

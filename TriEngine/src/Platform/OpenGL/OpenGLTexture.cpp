@@ -51,23 +51,23 @@ namespace TriEngine {
 
         switch (settings.Usage)
         {
-        case TriEngine::TextureUsage::Depth: 
+        case TriEngine::TextureUsage::DepthStencil: 
             openGLFormat = GL_DEPTH24_STENCIL8; 
             dataFormat = GL_DEPTH_STENCIL;
-            textureType = GL_TEXTURE_2D;
+            textureType = settings.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
             break;
         case TriEngine::TextureUsage::Image: 
             openGLFormat = GL_RGBA8; 
             dataFormat = GL_RGBA; 
-            textureType = GL_TEXTURE_2D;
+            textureType = settings.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
             break;
         case TriEngine::TextureUsage::TextureArray:
             openGLFormat = GL_RGBA8;
             dataFormat = GL_RGBA;
-            textureType = GL_TEXTURE_2D_ARRAY;
+            textureType = settings.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
             break;
         }
-
+        
         glCreateTextures(textureType, 1, &m_TextureID);
 
         GLenum filter = FilterModeToOpenGLEnum(settings.Filter);

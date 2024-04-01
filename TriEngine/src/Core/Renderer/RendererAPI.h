@@ -31,7 +31,7 @@ namespace TriEngine {
 		virtual void DrawArrays(const Reference<VertexArray>& vertexArray, uint32_t vertexBufferIndex = 0, uint32_t vertexCount = 0) const = 0;
 
 		virtual uint32_t GetMaxTextureSlots() const = 0;
-		virtual const RendererCapabilities& GetRendererCaps() const = 0;
+		virtual RendererCapabilities& GetRendererCaps() = 0;
 
 		static API GetApi() { return s_API; }
 	private:

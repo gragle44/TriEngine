@@ -10,3 +10,9 @@
 [submodule "TriEngine/vendor/glm"]
 	path = TriEngine/vendor/glm
 	url = https://github.com/g-truc/glm
+[submodule "TriEngine/vendor/ImGuizmo"]
+	path = TriEngine/vendor/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo
+[submodule "TriEngine/vendor/yaml_cpp"]
+	path = TriEngine/vendor/yaml_cpp
+	url = https://github.com/gragle44/yaml-cpp
