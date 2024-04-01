@@ -11,8 +11,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "ImGuizmo.h"
-
 
 TriEngine::ImGuiLayer::ImGuiLayer()
 	: Layer("ImGuiLayer")
@@ -28,7 +26,6 @@ void TriEngine::ImGuiLayer::Begin()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-	ImGuizmo::BeginFrame();
 }
 
 void TriEngine::ImGuiLayer::End()

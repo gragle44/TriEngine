@@ -16,6 +16,7 @@ namespace TriEngine {
 		virtual void Bind(uint32_t slot) const final;
 		virtual void UnBind(uint32_t slot) const final;
 
+		virtual std::string& GetFilePath() final { return m_Path; }
 		virtual TextureFilter GetFilterMode() const final { return m_Settings.Filter; }
 		virtual TextureWrap GetWrapMode() const final { return m_Settings.Wrap; }
 

@@ -22,11 +22,9 @@ namespace TriEngine {
 	{
 		if (windowHeight != 0) {
 			// If there are ever problems with camera stuff this might be it
-			m_InitialYValue = (float)windowHeight;
 			m_YScale = (float)height / (float)windowHeight;
 		}
 		else {
-			m_InitialYValue = 1.0f;
 			m_YScale = 1.0f;
 		}
 		m_AspectRaio = (float)width / (float)height;
