@@ -1,0 +1,32 @@
+TriEngine Scene File
+---
+Scene: Scene
+Objects:
+  - Entity: uuid
+    TagComponent:
+      Tag: Character
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    ScriptComponent:
+      ScriptActive: true
+    Sprite2DComponent:
+      Texture:
+        FilePath: assets/test2.png
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: uuid
+    TagComponent:
+      Tag: Camera
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    Camera2DComponent:
+      Zoom: 1
+      AspectRatio: 1
+      YScale: 1
+      NearClip: -1
+      FarClip: 1
+      Resizeable: true

@@ -130,7 +130,7 @@ void EditorLayer::OnAttach()
 	SetupImGuiStyle();
 
 	TriEngine::SceneSerializer s(m_ActiveScene);
-	s.Serialize("test.tscn");
+	s.Deserialize("test.tscn");
 
 }
 

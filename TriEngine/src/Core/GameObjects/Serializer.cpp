@@ -20,6 +20,9 @@
 
 #define MAP_END   << YAML::EndMap
 
+
+#define SCENE_HEADER_TEXT "TriEngine Scene File"
+
 namespace YAML {
 	template<>
 	struct convert<glm::vec2>
@@ -155,7 +158,7 @@ namespace TriEngine {
 			out << YAML::Key << "Camera2DComponent" << YAML::Value << YAML::BeginMap;
 
 			out << YAML::Key << "Zoom" << YAML::Value << component.Camera.m_Zoom;
-			out << YAML::Key << "AspectRatio" << YAML::Value << component.Camera.m_AspectRaio;
+			out << YAML::Key << "AspectRatio" << YAML::Value << component.Camera.m_AspectRatio;
 			out << YAML::Key << "YScale" << YAML::Value << component.Camera.m_YScale;
 			out << YAML::Key << "NearClip" << YAML::Value << component.Camera.m_NearClip;
 			out << YAML::Key << "FarClip" << YAML::Value << component.Camera.m_FarClip;
@@ -182,6 +185,46 @@ namespace TriEngine {
 		out << YAML::EndMap;
 	}
 
+	void SceneSerializer::DeserializeEntity(YAML::Node& entity)
+	{
+		std::string name;
+
+		if (entity["TagComponent"] and entity["TagComponent"]["Tag"])
+			name = entity["TagComponent"]["Tag"].as<std::string>();
+
+		GameObject newEntity = m_Scene->CreateGameObject(name);
+
+		if (entity["Transform2DComponent"]) {
+			auto& transform = newEntity.AddComponent<Transform2DComponent>();
+			transform.Position = entity["Transform2DComponent"]["Position"].as<glm::vec3>();
+			transform.Rotation = entity["Transform2DComponent"]["Rotation"].as<float>();
+			transform.Scale = entity["Transform2DComponent"]["Scale"].as<glm::vec2>();
+		}
+
+		if (entity["ScriptComponent"]) {
+			//auto& script = newEntity.AddComponent<ScriptComponent>();
+			//script.ScriptActive = entity["ScriptComponent"]["ScriptActive"].as<bool>();
+		}
+
+		if (entity["Camera2DComponent"]) {
+			auto& camera = newEntity.AddComponent<Camera2DComponent>();
+			camera.Camera.m_Zoom = entity["Camera2DComponent"]["Zoom"].as<float>();
+			camera.Camera.m_AspectRatio = entity["Camera2DComponent"]["AspectRatio"].as<float>();
+			camera.Camera.m_YScale = entity["Camera2DComponent"]["YScale"].as<float>();
+			camera.Camera.m_NearClip = entity["Camera2DComponent"]["NearClip"].as<float>();
+			camera.Camera.m_FarClip = entity["Camera2DComponent"]["FarClip"].as<float>();
+			camera.Resizeable = entity["Camera2DComponent"]["Resizeable"].as<bool>();
+		}
+
+		if (entity["Sprite2DComponent"]) {
+			auto& sprite = newEntity.AddComponent<Sprite2DComponent>();
+			sprite.Texture = Texture2D::Create(entity["Sprite2DComponent"]["Texture"]["FilePath"].as<std::string>());
+			sprite.Tint = entity["Sprite2DComponent"]["Tint"].as<glm::vec4>();
+			sprite.TilingFactor = entity["Sprite2DComponent"]["TilingFactor"].as<float>();
+		}
+
+	}
+
 	SceneSerializer::SceneSerializer(Scene* scene)
 		:m_Scene(scene)
 	{
@@ -190,7 +233,7 @@ namespace TriEngine {
 	void SceneSerializer::Serialize(const std::string& filePath)
 	{
 		YAML::Emitter out;
-		out << "TriEngine Scene File";
+		out << SCENE_HEADER_TEXT;
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << m_Scene->m_Name;
 		out << YAML::Key << "Objects" << YAML::Value << YAML::BeginSeq;
@@ -211,7 +254,34 @@ namespace TriEngine {
 
 	void SceneSerializer::Deserialize(const std::string& filePath)
 	{
+		auto scene = YAML::LoadAllFromFile(filePath);
 
+		if (!scene[0].IsDefined()) {
+			TRI_CORE_ERROR("Deserialized file was invalid: \"{0}\"", filePath);
+			return;
+		}
+
+		std::string header; 
+		if (scene[0].IsScalar())
+			header = scene[0].as<std::string>();
+
+		if (header != SCENE_HEADER_TEXT) {
+			TRI_CORE_ERROR("Deserialized file was not of type TriEngine Scene: \"{0}\"", filePath);
+			return;
+		}
+
+		std::string name;
+		name = scene[1]["Scene"].as<std::string>();
+
+		//TODO: wipe the scene when switching to references
+		m_Scene->m_Name = name;
+
+		auto entities = scene[1]["Objects"];
+
+
+		for (auto entity : entities) {
+			DeserializeEntity(entity);
+		}
 	}
 	
 }
