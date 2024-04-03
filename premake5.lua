@@ -21,6 +21,7 @@ IncludeDir["Glad"] = "TriEngine/vendor/Glad/include"
 IncludeDir["ImGui"] = "TriEngine/vendor/imgui"
 IncludeDir["ImGuizmo"] = "TriEngine/vendor/ImGuizmo"
 IncludeDir["yaml_cpp"] = "TriEngine/vendor/yaml_cpp/include"
+IncludeDir["nativefiledialog"] = "TriEngine/vendor/nativefiledialog/src/include"
 IncludeDir["glm"] = "TriEngine/vendor/glm"
 IncludeDir["entt"] = "TriEngine/vendor/entt"
 
@@ -29,6 +30,7 @@ group "Dependancies"
 	include "TriEngine/vendor/Glad"
 	include "TriEngine/vendor/imgui"
 	include "TriEngine/vendor/yaml_cpp"
+	include "TriEngine/vendor/nativefiledialog"
 
 group ""
 
@@ -77,6 +79,7 @@ project "TriEngine"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.nativefiledialog}"
 	}
 
 	links
@@ -84,7 +87,8 @@ project "TriEngine"
 		"GLFW",
 		"Glad",
 		"ImGui",
-		"yaml_cpp"
+		"yaml_cpp",
+		"nativefiledialog"
 	}
 
 	filter "files:TriEngine/vendor/ImGuizmo/**.cpp"
@@ -149,6 +153,7 @@ project "TriEditor"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.nativefiledialog}",
 		"TriEngine/src"
 	}
 

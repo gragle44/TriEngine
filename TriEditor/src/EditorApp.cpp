@@ -1,5 +1,8 @@
 #include "EditorApp.h"
 
+#include <nfd.h>
+#include <filesystem>
+
 EditorLayer::EditorLayer()
 {
 }
@@ -129,9 +132,6 @@ void EditorLayer::OnAttach()
 
 	SetupImGuiStyle();
 
-	TriEngine::SceneSerializer s(m_ActiveScene);
-	s.Serialize("test.tscn");
-
 }
 
 void EditorLayer::OnDetach()
@@ -202,7 +202,13 @@ void EditorLayer::OnImGuiRender()
 	}
 
 	// Render modules
-	m_FileMenu.OnImGuiRender();
+	if (ImGui::BeginMenuBar())
+	{
+		UpdateTitleBar();
+		m_FileMenu.OnImGuiRender();
+		ImGui::EndMenuBar();
+	}
+
 	m_SceneModule.OnImGuiRender();
 	m_DebugModule.OnImGuiRender();
 
@@ -235,4 +241,61 @@ void EditorLayer::OnImGuiRender()
 	ImGui::PopStyleVar();
 
 	ImGui::End();
+}
+
+void EditorLayer::UpdateTitleBar()
+{
+	if (ImGui::BeginMenu("File"))
+	{
+		// Disabling fullscreen would allow the window to be moved to the front of other windows, 
+		// which we can't undo at the moment without finer window depth/z control.
+		//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+
+		if (ImGui::MenuItem("Save scene as")) {
+			char* output;
+			auto cwd = std::filesystem::current_path();
+			nfdresult_t result = NFD_SaveDialog("tscn", cwd.string().c_str(), &output);
+
+
+			if (result == NFD_OKAY) {
+				std::string path(output);
+				path.append(".tscn");
+				TriEngine::SceneSerializer s(m_ActiveScene);
+				s.Serialize(path);
+				delete output;
+			}
+
+			else if (result == NFD_CANCEL) {
+				TRI_CORE_TRACE("Canceled file dialog");
+			}
+
+			else if (result == NFD_ERROR) {
+				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
+			}
+
+		}
+
+		if (ImGui::MenuItem("Load scene")) {
+			nfdchar_t* output;
+			auto cwd = std::filesystem::current_path();
+			nfdresult_t result = NFD_OpenDialog("tscn", cwd.string().c_str(), &output);
+
+			if (result == NFD_OKAY) {
+				TriEngine::SceneSerializer s(m_ActiveScene);
+				s.Deserialize(output);
+				delete output;
+			}
+
+			else if (result == NFD_CANCEL) {
+				TRI_CORE_TRACE("Canceled file dialog");
+			}
+
+			else if (result == NFD_ERROR) {
+				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
+			}
+		}
+
+		if (ImGui::MenuItem("Exit")) Application::Get().Close();
+		ImGui::EndMenu();
+	}
 }

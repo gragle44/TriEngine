@@ -27,6 +27,7 @@ public:
 
 	void OnUpdate(float deltaTime) final;
 	virtual void OnImGuiRender() final;
+	void UpdateTitleBar();
 	void OnEvent(Event& e) final;
 private:
 	template<FontType::Font T>
