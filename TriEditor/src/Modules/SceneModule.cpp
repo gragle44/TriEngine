@@ -5,7 +5,9 @@
 #include "Core/Renderer/Texture.h"
 #include "Core/Base/Input.h"
 #include <imgui.h>
+#include <nfd.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <filesystem>
 
 namespace TriEngine {
 	static void HelpMarker(const char* desc, bool sameLine = false)
@@ -130,6 +132,7 @@ namespace TriEngine {
 			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
 			if (ImGui::BeginPopupModal("Add Component", &addingComponent)) {
+				RenderComponentSelection<ScriptComponent>("Script", &addingComponent);
 				RenderComponentSelection<Transform2DComponent>("Transform2D", &addingComponent);
 				RenderComponentSelection<Sprite2DComponent>("Sprite2D", &addingComponent);
 				RenderComponentSelection<Camera2DComponent>("Camera2D", &addingComponent);
@@ -268,6 +271,27 @@ namespace TriEngine {
 
 				ImGui::EndTooltip();
 			}
+			
+			if (ImGui::Button("Change image path")) {
+				char* output;
+				auto cwd = std::filesystem::current_path();
+				nfdresult_t result = NFD_OpenDialog("png, jpeg, jpg", cwd.string().c_str(), &output);
+
+
+				if (result == NFD_OKAY) {
+					sprite.Texture = TriEngine::Texture2D::Create(output);
+					delete output;
+				}
+
+				else if (result == NFD_CANCEL) {
+					TRI_CORE_TRACE("Canceled file dialog");
+				}
+
+				else if (result == NFD_ERROR) {
+					TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
+				}
+
+			}
 
 			ImGui::ColorEdit4("Tint", glm::value_ptr(sprite.Tint));
 			ImGui::DragFloat("Tiling Factor", &sprite.TilingFactor);
@@ -290,11 +314,25 @@ namespace TriEngine {
 
 		DrawComponent<ScriptComponent>("Script", object, [](ScriptComponent& script)
 		{
-			std::string scriptName = typeid(*(script.ScriptInstance)).name();
-			// Remove "class " from the start of the name
-			scriptName.erase(0, 6);
+			if (ImGui::BeginCombo("Select script", script.ScriptName.c_str())) {
+				for (const auto& pair : ScriptRegistry::Registry()) {
 
-			ImGui::Checkbox(scriptName.c_str(), &script.ScriptActive);
+					bool selected = pair.first == script.ScriptName;
+					if (ImGui::Selectable(pair.first.c_str(), &selected)) {
+						if (pair.first != script.ScriptName) {
+							script.InstantiateScript = pair.second;
+							script.ScriptName = pair.first;
+							script.ScriptInstance.release();
+						}
+					}
+
+					if (selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			ImGui::Checkbox("Enabled", &script.ScriptActive);
 		});
 	}
 }

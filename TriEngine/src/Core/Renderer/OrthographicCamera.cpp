@@ -27,15 +27,15 @@ namespace TriEngine {
 		else {
 			m_YScale = 1.0f;
 		}
-		m_AspectRaio = (float)width / (float)height;
+		m_AspectRatio = (float)width / (float)height;
 		RecalculateProjection();
 	}
 
 	void OrthographicCamera::RecalculateProjection()
 	{
 		m_Projection = glm::ortho(
-			-m_Zoom * m_AspectRaio * 0.5f,  // Bottom
-			 m_Zoom * m_AspectRaio * 0.5f,  // Top
+			-m_Zoom * m_AspectRatio * 0.5f,  // Bottom
+			 m_Zoom * m_AspectRatio * 0.5f,  // Top
 			-m_Zoom * m_YScale * 0.5f,                 // Left
 			 m_Zoom * m_YScale * 0.5f,                 // Right
 			m_NearClip, m_FarClip

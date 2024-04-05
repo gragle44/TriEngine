@@ -16,7 +16,7 @@ namespace TriEngine {
 		void RecalculateProjection();
 
 		float m_Zoom = 1.0f;
-		float m_AspectRaio = 0.0f;
+		float m_AspectRatio = 0.0f;
 		float m_YScale = 0.0f;
 		float m_NearClip = -1.0f, m_FarClip = 1.0f;
 

@@ -23,8 +23,6 @@ void Example2D::OnAttach()
 	m_ChestAtlas = std::make_shared<TriEngine::TextureAtlas>(m_Texture, 16);
 	m_Chest1 = m_ChestAtlas->CreateSubTexture(0, 0);
 
-	auto& cam = m_Scene->CreateSceneCamera();
-	cam.GetComponent<TriEngine::Camera2DComponent>().Camera.SetSize(10.0f);
 
 	m_Character = m_Scene->CreateGameObject("Character");
 	m_Character.AddComponent<TriEngine::TransformComponent>(glm::vec3(0.0f, 0.0f, 0.5f));

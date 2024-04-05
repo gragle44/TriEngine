@@ -17,6 +17,7 @@
 #include "Core/GameObjects/Scene.h"
 #include "Core/GameObjects/Components.h"
 #include "Core/GameObjects/Serializer.h"
+#include "Core/GameObjects/EditorCamera.h"
 
 
 //Graphics

@@ -3,8 +3,29 @@
 #include <nfd.h>
 #include <filesystem>
 
+class TestScript : public Script {
+public:
+	TestScript() = default;
+
+	void OnUpdate(float deltaTime) final {
+		TRI_TRACE("test");
+	}
+};
+
+
+class NewScript : public Script {
+public:
+	NewScript() = default;
+
+	void OnUpdate(float deltaTime) final {
+		TRI_TRACE("NewScript");
+	}
+};
+
 EditorLayer::EditorLayer()
 {
+	ScriptRegistry::Register<TestScript>();
+	ScriptRegistry::Register<NewScript>();
 }
 
 void EditorLayer::SetupImGuiStyle()
@@ -103,14 +124,6 @@ void EditorLayer::SetupImGuiStyle()
 	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.196078434586525f, 0.1764705926179886f, 0.5450980663299561f, 0.501960813999176f);
 }
 
-class TestScript : public Script {
-public:
-	TestScript() = default;
-
-	void OnUpdate(float deltaTime) final {
-
-	}
-};
 
 void EditorLayer::OnAttach()
 {
@@ -118,17 +131,12 @@ void EditorLayer::OnAttach()
 
 	m_ViewPortSize = { 1280, 720 };
 
-	m_Texture = Texture2D::Create("assets/test2.png");
+	m_ActiveScene = Scene::Create();
+	m_SceneModule.SetScene(m_ActiveScene);
 
-	m_ActiveScene = new Scene();
-	m_SceneModule.SetScene(std::shared_ptr<Scene>(m_ActiveScene));
+	m_Camera = std::make_shared<EditorCamera>();
+	m_ActiveScene->SetEditorCamera(m_Camera);
 
-	m_ActiveScene->CreateSceneCamera();
-
-	auto sus = m_ActiveScene->CreateGameObject("Character");
-	sus.AddComponent<Sprite2DComponent>(m_Texture);
-	auto& script = sus.AddComponent<ScriptComponent>();
-	script.Bind<TestScript>();
 
 	SetupImGuiStyle();
 
@@ -136,7 +144,6 @@ void EditorLayer::OnAttach()
 
 void EditorLayer::OnDetach()
 {
-	delete m_ActiveScene;
 }
 
 void EditorLayer::OnUpdate(float deltaTime)
@@ -153,6 +160,8 @@ void EditorLayer::OnUpdate(float deltaTime)
 
 void EditorLayer::OnEvent(Event& e)
 {
+	m_Camera->OnEvent(e);
+	m_ActiveScene->OnEvent(e);
 }
 
 void EditorLayer::OnImGuiRender()
@@ -259,7 +268,8 @@ void EditorLayer::UpdateTitleBar()
 
 			if (result == NFD_OKAY) {
 				std::string path(output);
-				path.append(".tscn");
+				if (!path.ends_with(".tscn"))
+					path.append(".tscn");
 				TriEngine::SceneSerializer s(m_ActiveScene);
 				s.Serialize(path);
 				delete output;

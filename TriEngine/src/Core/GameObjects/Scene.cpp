@@ -25,11 +25,21 @@ namespace TriEngine {
 	{
 	}
 
+	Reference<Scene> Scene::Create()
+	{
+		return std::make_shared<Scene>();
+	}
+
+	Reference<Scene> Scene::Create(const std::string& name)
+	{
+		return std::make_shared<Scene>(name);
+	}
+
 	void Scene::OnUpdate(float deltaTime)
 	{
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
-			if (sc.ScriptActive) {
+			if (sc.ScriptActive && sc.InstantiateScript != nullptr) {
 				if (!sc.ScriptInstance)
 				{
 					sc.ScriptInstance = sc.InstantiateScript();
@@ -38,7 +48,6 @@ namespace TriEngine {
 				sc.ScriptInstance->OnUpdate(deltaTime);
 			}
 		}
-
 
 		OnRender(deltaTime);
 	}
@@ -49,6 +58,10 @@ namespace TriEngine {
 		if (m_MainRenderpass->Target != nullptr) {
 			m_MainRenderpass->Target->ReSize(width, height);
 		}
+
+		if (m_CameraObject)
+			m_CameraObject->SetViewportSize(width, height);
+
 		auto view = m_Registry.view<Camera2DComponent>();
 
 		for (auto entity : view) {
@@ -57,6 +70,16 @@ namespace TriEngine {
 				camera.Camera.SetViewportSize(width, height);
 			}
 		}
+	}
+
+	void Scene::SetEditorCamera(Reference<EditorCamera> camera)
+	{
+		m_CameraObject = camera;
+	}
+
+	void Scene::OnEvent(Event& e)
+	{
+
 	}
 
 	void Scene::InitRender()
@@ -74,17 +97,12 @@ namespace TriEngine {
 	void Scene::OnRender(float deltaTime)
 	{
 		//2D rendering
-		Camera* camera = nullptr;
 		glm::mat4 cameraTransform;
 
 		if (m_CameraObject != nullptr) {
-			cameraTransform = m_CameraObject->GetComponent<Transform2DComponent>().GetTransform();
-			camera = (Camera*)&m_CameraObject->GetComponent<Camera2DComponent>().Camera;
-		}
-
-		//TODO: provide a default runtime camera and editor camera if the user does not supply one
-		if (camera) {
-			Renderer2D::Begin(camera->GetProjection(), cameraTransform, m_MainRenderpass);
+			m_CameraObject->OnUpdate(deltaTime);
+			cameraTransform = m_CameraObject->GetTransform();
+			Renderer2D::Begin(m_CameraObject->GetProjection(), cameraTransform, m_MainRenderpass);
 
 			auto group = m_Registry.group<Transform2DComponent>(entt::get<Sprite2DComponent>);
 
@@ -121,7 +139,7 @@ namespace TriEngine {
 			TRI_CORE_ERROR("Tried to set main camera to an object without a CameraComponent or a TransformComponent!");
 			return;
 		}
-		m_CameraObject = std::make_unique<GameObject>(camera);
+		//m_CameraObject = std::make_unique<GameObject>(camera);
 	}
 
 	GameObject Scene::CreateGameObject(const std::string& tag)
@@ -137,17 +155,7 @@ namespace TriEngine {
 	void Scene::DeleteGameObject(GameObject object)
 	{
 		std::string& name = object.GetComponent<TagComponent>().Tag;
-		if (m_CameraObject && object == *m_CameraObject)
-			m_CameraObject = nullptr;
 		m_Registry.destroy(object.GetHandle());
 	}
 
-	GameObject& Scene::CreateSceneCamera(const std::string& tag)
-	{
-		m_CameraObject = std::make_unique<GameObject>(CreateGameObject(tag));
-
-		auto& cameraComponent = m_CameraObject->AddComponent<Camera2DComponent>();
-		cameraComponent.Camera.SetViewportSize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-		return *m_CameraObject;
-	}
 }

@@ -24,6 +24,7 @@ IncludeDir["yaml_cpp"] = "TriEngine/vendor/yaml_cpp/include"
 IncludeDir["nativefiledialog"] = "TriEngine/vendor/nativefiledialog/src/include"
 IncludeDir["glm"] = "TriEngine/vendor/glm"
 IncludeDir["entt"] = "TriEngine/vendor/entt"
+IncludeDir["nameof"] = "TriEngine/vendor/nameof"
 
 group "Dependancies"
 	include "TriEngine/vendor/GLFW"
@@ -78,6 +79,7 @@ project "TriEngine"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.nameof}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.nativefiledialog}"
 	}
@@ -152,6 +154,7 @@ project "TriEditor"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.nameof}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.nativefiledialog}",
 		"TriEngine/src"
@@ -207,6 +210,7 @@ project "Sandbox"
 		"TriEngine/vendor/imgui",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.nameof}",
 		"%{IncludeDir.yaml_cpp}",
 		"TriEngine/src"
 	}

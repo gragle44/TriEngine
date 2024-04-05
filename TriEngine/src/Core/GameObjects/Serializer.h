@@ -9,13 +9,14 @@
 namespace TriEngine {
 	class SceneSerializer {
 	public:
-		SceneSerializer(Scene* scene);
+		SceneSerializer(const Reference<Scene>& scene);
 
 		void Serialize(const std::string& filePath);
 		void Deserialize(const std::string& filePath);
 	private:
-		void SerializeEntity(YAML::Emitter& out, GameObject& object);
+		void SerializeEntity(YAML::Emitter& out, GameObject& entity);
+		void DeserializeEntity(YAML::Node& serializedEntity);
 
-		Scene* m_Scene;
+		Reference<Scene> m_Scene;
 	};
 }

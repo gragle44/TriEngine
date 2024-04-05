@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Base/Core.h"
+#include "Core/GameObjects/Script.h"
 #include "Core/Renderer/Texture.h"
 #include "Core/Renderer/OrthographicCamera.h"
 #include "entt/entt.hpp"
@@ -59,13 +60,15 @@ namespace TriEngine {
 	struct ScriptComponent {
 		std::unique_ptr<Script> ScriptInstance;
 
-		std::unique_ptr<Script>(*InstantiateScript)();
+		ScriptRegistry::FactoryFunction InstantiateScript;
+
+		std::string ScriptName;
 
 		bool ScriptActive = true;
 
-		template<typename T>
-		void Bind() {
-			InstantiateScript = []() -> std::unique_ptr<Script> {return std::make_unique<T>(); };
+		void Bind(const std::string& scriptName) {
+			InstantiateScript = ScriptRegistry::GetFactoryFunction(scriptName);
+			ScriptName = scriptName;
 		}
 	};
 

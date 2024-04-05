@@ -53,12 +53,12 @@ private:
 	DebugModule m_DebugModule;
 	FileMenu m_FileMenu;
 
+	Reference<EditorCamera> m_Camera;
 
-	Reference<Texture2D> m_Texture;
 	glm::vec2 m_ViewPortSize;
 	glm::vec2 m_PrevViewPortSize;
 
-	Scene* m_ActiveScene;
+	Reference<Scene> m_ActiveScene;
 	ImFont* m_EditorFont;
 	bool m_SceneViewPaused = false;
 
