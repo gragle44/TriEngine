@@ -6,23 +6,26 @@
 #include "Platform/OpenGL/OpenGLTexture.h"
 
 namespace TriEngine {
-	struct FrameBufferSettings {
-		uint32_t Width, Height;
-
-		uint32_t Samples = 1;
-	};
-
 	enum class RenderAttachmentType : uint8_t {
+		None = 0,
 		Color,
 		DepthStencil,
-		Dpeth
+		Depth
 	};
 
 	struct RenderAttachmentSettings {
-		RenderAttachmentType Type;
-		uint8_t Samples;
-		uint32_t Width;
-		uint32_t Height;
+		RenderAttachmentType Type = RenderAttachmentType::None;
+
+		RenderAttachmentSettings() = default;
+		RenderAttachmentSettings(RenderAttachmentType type)
+			:Type(type) {}
+	};
+
+	struct FrameBufferSettings {
+		std::initializer_list<RenderAttachmentSettings> Attachments;
+		uint32_t Width, Height;
+
+		uint32_t Samples = 1;
 	};
 
 	class FrameBuffer {
@@ -39,11 +42,11 @@ namespace TriEngine {
 
 		virtual bool OnWindowResize(WindowResizeEvent& e) = 0;
 
-		//virtual void AddColorAttachment(RenderAttachmentSettings texture);
-		//virtual void AddDepthAttachment(RenderAttachmentSettings settings);
+		virtual RID GetColorAttachment(uint32_t index) const = 0;
+		virtual void BindColorAttachment(uint32_t slot, uint32_t index) const = 0;
 
-		virtual void BindColorAttachment() = 0;
-		virtual const Reference<Texture2D>& GetColorAttachment() = 0;
+		virtual RID GetDepthAttachment() const = 0;
+		virtual void BindDepthAttachment(uint32_t slot) const = 0;
 
 		static Reference<FrameBuffer> Create(const FrameBufferSettings& settings);
 	};

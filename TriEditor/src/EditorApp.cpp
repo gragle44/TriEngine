@@ -15,10 +15,17 @@ public:
 
 class NewScript : public Script {
 public:
-	NewScript() = default;
+	void OnCreate() final {
+		TRI_TRACE("created");
+	}
 
 	void OnUpdate(float deltaTime) final {
 		TRI_TRACE("NewScript");
+
+		if (Random::Int(0, 600) < 1) {
+			auto scene = GetScene();
+			scene->Reset();
+		}
 	}
 };
 
@@ -131,11 +138,14 @@ void EditorLayer::OnAttach()
 
 	m_ViewPortSize = { 1280, 720 };
 
-	m_ActiveScene = Scene::Create();
+	m_EditorScene = Scene::Create();
+	m_ActiveScene = m_EditorScene;
 	m_SceneModule.SetScene(m_ActiveScene);
 
 	m_Camera = std::make_shared<EditorCamera>();
 	m_ActiveScene->SetEditorCamera(m_Camera);
+
+	m_PlayTexture = Texture2D::Create("assets/playbutton.png");
 
 
 	SetupImGuiStyle();
@@ -144,24 +154,101 @@ void EditorLayer::OnAttach()
 
 void EditorLayer::OnDetach()
 {
+	m_ActiveScene->Stop();
+}
+
+void EditorLayer::RenderPlaybuttonsOld()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+	auto& colors = ImGui::GetStyle().Colors;
+	const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+	const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+	//ImGui::Begin("##editor_toolset", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+	float size = ImGui::GetWindowHeight() - 4.0f;
+	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+
+	if (ImGui::ImageButton((ImTextureID)m_PlayTexture->GetID(), { size, size }, ImVec2(0, 0), ImVec2(1, 1), 0)) {
+		m_SceneRunning = !m_SceneRunning;
+		if (m_SceneRunning)
+			m_ActiveScene->Start();
+		else {
+			m_ActiveScene->Stop();
+		}
+	}
+
+	ImGui::PopStyleVar(2);
+	ImGui::PopStyleColor(3);
+	//ImGui::End();
+}
+
+void EditorLayer::RenderPlaybuttons()
+{
+	auto& colors = ImGui::GetStyle().Colors;
+	const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+	const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+
+	float size = ImGui::GetWindowHeight() - 4.0f;
+	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.9f) - (size * 0.5f));
+
+	if (ImGui::ImageButton((ImTextureID)m_PlayTexture->GetID(), {size, size})) {
+		m_SceneRunning = !m_SceneRunning;
+		if (m_SceneRunning)
+			StartScene();
+		else {
+			StopScene();
+		}
+	}
+
+}
+
+void EditorLayer::StartScene()
+{
+	m_SceneRunning = true;
+	m_ActiveScene = m_EditorScene->Copy();
+	m_ActiveScene->Start();
+}
+
+void EditorLayer::StopScene()
+{
+	m_SceneRunning = false;
+	m_ActiveScene->Stop();
 }
 
 void EditorLayer::OnUpdate(float deltaTime)
 {
+	m_DebugModule.OnUpdate(deltaTime);
 	if (m_PrevViewPortSize.x != m_ViewPortSize.x || m_PrevViewPortSize.y != m_ViewPortSize.y && m_ViewPortSize.x > 0 && m_ViewPortSize.y > 0) {
 		m_PrevViewPortSize = m_ViewPortSize;
-		m_ActiveScene->OnViewportResized((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
 
-		m_ActiveScene->OnUpdate(deltaTime);
+		if (m_SceneRunning) {
+			m_ActiveScene->OnViewportResized((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+			m_ActiveScene->OnUpdate(deltaTime);
+		}
+		else {
+			m_EditorScene->OnViewportResized((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+			m_EditorScene->OnEditorUpdate(deltaTime);
+		}
 	}
-	else if (!m_SceneViewPaused)
+	else if (m_SceneRunning)
 		m_ActiveScene->OnUpdate(deltaTime);
+
+	else if (!m_SceneRunning)
+		m_EditorScene->OnEditorUpdate(deltaTime);
 }
 
 void EditorLayer::OnEvent(Event& e)
 {
 	m_Camera->OnEvent(e);
-	m_ActiveScene->OnEvent(e);
+	if (m_SceneRunning)
+		m_ActiveScene->OnEvent(e);
+	else
+		m_EditorScene->OnEvent(e);
 }
 
 void EditorLayer::OnImGuiRender()
@@ -243,7 +330,10 @@ void EditorLayer::OnImGuiRender()
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
 
-		m_ActiveScene->OnEditorRender();
+		if (m_SceneRunning)
+			m_ActiveScene->OnEditorRender();
+		else
+			m_EditorScene->OnEditorRender();
 
 	}
 	ImGui::End();
@@ -270,7 +360,8 @@ void EditorLayer::UpdateTitleBar()
 				std::string path(output);
 				if (!path.ends_with(".tscn"))
 					path.append(".tscn");
-				TriEngine::SceneSerializer s(m_ActiveScene);
+
+				TriEngine::SceneSerializer s(m_EditorScene);
 				s.Serialize(path);
 				delete output;
 			}
@@ -291,7 +382,8 @@ void EditorLayer::UpdateTitleBar()
 			nfdresult_t result = NFD_OpenDialog("tscn", cwd.string().c_str(), &output);
 
 			if (result == NFD_OKAY) {
-				TriEngine::SceneSerializer s(m_ActiveScene);
+				StopScene();
+				TriEngine::SceneSerializer s(m_EditorScene);
 				s.Deserialize(output);
 				delete output;
 			}
@@ -306,6 +398,11 @@ void EditorLayer::UpdateTitleBar()
 		}
 
 		if (ImGui::MenuItem("Exit")) Application::Get().Close();
+
 		ImGui::EndMenu();
+
 	}
+
+	RenderPlaybuttons();
+
 }

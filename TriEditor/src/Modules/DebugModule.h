@@ -8,6 +8,9 @@ namespace TriEngine {
 	public:
 		DebugModule() = default;
 
+		void OnUpdate(float deltaTime);
 		void OnImGuiRender();
+	private:
+		float m_FrameTime;
 	};
 }

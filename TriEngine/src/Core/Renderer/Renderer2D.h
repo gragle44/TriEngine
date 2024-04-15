@@ -41,12 +41,14 @@ namespace TriEngine {
 		glm::vec4 Tint = glm::vec4(1.0f);
 		Reference<Texture2D> Texture;
 		float TilingFactor = 1.0f;
+		bool Transparent = false;
 	};
 
 	struct ColoredQuadn {
 		glm::mat4 Transform;
 		glm::vec4 Tint = glm::vec4(1.0f);
 		float TilingFactor = 1.0f;
+		bool Transparent = false;
 	};
 
 	class Renderer2D {
@@ -112,11 +114,20 @@ namespace TriEngine {
 
 			std::vector<QuadVertex> VertexData;
 			std::vector<QuadVertex>::iterator VertexDataPtr;
+			std::vector<QuadVertex>::iterator TransparentVertexDataBegin;
+			std::vector<QuadVertex>::iterator TransparentVertexDataPtr;
 
 			std::vector<Reference<Texture2D>> TextureSlots;
 			uint32_t TextureSlotIndex = 1;
 			
 			uint32_t IndexCount = 0;
+		};
+
+		struct TransparencyKey {
+			bool operator() (const QuadVertex& a, const QuadVertex& b)
+			{
+				return a.Position.z < b.Position.z;
+			}
 		};
 
 		static RenderData s_RenderData;

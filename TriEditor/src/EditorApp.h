@@ -46,7 +46,12 @@ private:
 		fontVector[T] = font;
 	}
 
+	void RenderPlaybuttons();
+	void RenderPlaybuttonsOld();
 	void SetupImGuiStyle();
+
+	void StartScene();
+	void StopScene();
 
 	//Editor components
 	SceneModule m_SceneModule;
@@ -54,12 +59,18 @@ private:
 	FileMenu m_FileMenu;
 
 	Reference<EditorCamera> m_Camera;
+	Reference<Texture2D> m_PlayTexture;
+	Reference<Texture2D> m_PauseTexture;
 
 	glm::vec2 m_ViewPortSize;
 	glm::vec2 m_PrevViewPortSize;
 
+	Reference<Scene> m_EditorScene;
 	Reference<Scene> m_ActiveScene;
+
+
 	ImFont* m_EditorFont;
 	bool m_SceneViewPaused = false;
+	bool m_SceneRunning = false;
 
 };

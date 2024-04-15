@@ -30,9 +30,9 @@ namespace TriEngine {
 		glVertexArrayVertexBuffer(arrayID, 0, m_BufferID, 0, m_Layout.GetStride());
 	}
 
-	void OpenGLVertexBuffer::SetData(const void* data, uint32_t size)
+	void OpenGLVertexBuffer::SetData(const void* data, uint32_t size, uint32_t offset)
 	{
-		glNamedBufferSubData(m_BufferID, 0, size, data);
+		glNamedBufferSubData(m_BufferID, offset, size, data);
 	}
 	
 	//Index Buffer

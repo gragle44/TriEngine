@@ -5,6 +5,9 @@
 #include "Core/Renderer/RenderPass.h"
 #include "entt/entt.hpp"
 
+// Forward declared
+class b2World;
+
 namespace TriEngine {
 	class GameObject;
 }
@@ -19,15 +22,26 @@ namespace TriEngine {
 		static Reference<Scene> Create();
 		static Reference<Scene> Create(const std::string& name);
 
+		Reference<Scene> Copy();
+
+		void Start();
+		void Stop();
+		void Reset();
+
 		void OnEvent(Event& e);
 		void OnUpdate(float deltaTime);
+		void OnEditorUpdate(float deltaTime);
 		void OnEditorRender();
 		void OnViewportResized(uint32_t width, uint32_t height);
 		const std::string& GetName() const { return m_Name; }
 
 		void SetEditorCamera(Reference<EditorCamera> camera);
 		void SetMainCamera(GameObject camera);
+
+
 		GameObject CreateGameObject(const std::string& tag = std::string());
+		GameObject CreateGameObjectUUID(uint64_t uuid, const std::string& tag = std::string());
+		GameObject DuplicateObject(GameObject object);
 		void DeleteGameObject(GameObject object);
 
 	private:
@@ -35,13 +49,15 @@ namespace TriEngine {
 		friend class SceneModule;
 		friend class SceneSerializer;
 
-
 		void InitRender();
 		void OnRender(float deltaTime);
 
 		std::string m_Name;
 		entt::registry m_Registry;
 
+		Reference<Scene> m_ResetPoint = nullptr;
+
+		b2World* m_PhysicsWorld = nullptr;
 
 		Reference<EditorCamera> m_CameraObject = nullptr;
 

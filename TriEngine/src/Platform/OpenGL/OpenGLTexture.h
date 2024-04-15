@@ -16,6 +16,7 @@ namespace TriEngine {
 		virtual void Bind(uint32_t slot) const final;
 		virtual void UnBind(uint32_t slot) const final;
 
+		virtual bool HasTransparency() const final { return m_Transparent; }
 		virtual std::string& GetFilePath() final { return m_Path; }
 		virtual TextureFilter GetFilterMode() const final { return m_Settings.Filter; }
 		virtual TextureWrap GetWrapMode() const final { return m_Settings.Wrap; }
@@ -30,6 +31,7 @@ namespace TriEngine {
 		
 		TextureSettings m_Settings;
 
+		bool m_Transparent = false;
 		ByteBuffer m_Buffer;
 		uint32_t m_Width, m_Height;
 		std::string m_Path;

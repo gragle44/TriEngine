@@ -20,6 +20,33 @@ namespace TriEngine {
 			:Tag(tag) {}
 	};
 
+	struct IDComponent {
+		uint64_t ID = 0;
+
+		IDComponent() = default;
+		IDComponent(uint64_t id)
+			:ID(id) {}
+	};
+
+	struct RigidBody2DComponent {
+		enum class BodyType : uint8_t {
+			Static,
+			Dynamic, 
+			Kinematic
+		};
+		BodyType Type = BodyType::Dynamic;
+
+		void* Body;
+	};
+
+	struct BoxCollider2DComponent {
+		glm::vec2 Size = { 0.5f, 0.5f };
+		float Density = 1.0f;
+		float Friction = 0.3f;
+		float Restitution = 0.0f;
+		float RestitutionThreshold = 1.0f;
+	};
+
 	struct Transform2DComponent {
 		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
 		float Rotation = 0.0f;
@@ -55,7 +82,6 @@ namespace TriEngine {
 
 	};
 
-	class Script;
 
 	struct ScriptComponent {
 		std::unique_ptr<Script> ScriptInstance;
@@ -69,6 +95,21 @@ namespace TriEngine {
 		void Bind(const std::string& scriptName) {
 			InstantiateScript = ScriptRegistry::GetFactoryFunction(scriptName);
 			ScriptName = scriptName;
+		}
+
+		ScriptComponent() = default;
+
+		ScriptComponent(const ScriptComponent& other)
+			: ScriptInstance(nullptr), InstantiateScript(other.InstantiateScript),
+			ScriptName(other.ScriptName), ScriptActive(other.ScriptActive) {}
+
+		ScriptComponent& operator=(const ScriptComponent& other) {
+			if (this != &other) {
+				InstantiateScript = other.InstantiateScript;
+				ScriptName = other.ScriptName;
+				ScriptActive = other.ScriptActive;
+			}
+			return *this;
 		}
 	};
 
@@ -85,6 +126,8 @@ namespace TriEngine {
 		Reference<Texture2D> Texture;
 		glm::vec4 Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float TilingFactor = 1.0f;
+
+		bool HasTransparency() { return Texture->HasTransparency() || Tint.a < 1.0f; }
 
 		Sprite2DComponent() 
 			:Texture(Texture2D::Create(glm::ivec2(1, 1))) {}

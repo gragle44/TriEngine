@@ -21,13 +21,12 @@ namespace TriEngine {
 
 		void SetSize(float zoom, float nearClip = -1.0f, float farClip = 1.0f);
 		void SetViewportSize(uint32_t width, uint32_t height, uint32_t windowHeight = 0);
+
 		glm::mat4 GetTransform() const {
 			return glm::translate(glm::mat4(1.0f), m_Position)
 				* glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), { 0, 0, 1 })
 				* glm::scale(glm::mat4(1.0f), { m_Scale.x, m_Scale.y, 1.0f });
 		}
-
-
 
 	private:
 		void RecalculateProjection();
@@ -39,7 +38,7 @@ namespace TriEngine {
 		float m_ViewportWidth;
 		float m_ViewportHeight;
 
-		float m_Zoom = 1.0f;
+		float m_Zoom = 10.0f;
 		float m_AspectRatio = 0.0f;
 		float m_YScale = 0.0f;
 		float m_NearClip = -1.0f, m_FarClip = 1.0f;

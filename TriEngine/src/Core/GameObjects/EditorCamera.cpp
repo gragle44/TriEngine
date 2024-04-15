@@ -23,7 +23,7 @@ namespace TriEngine {
 		if (Input::IsKeyPressed(TRI_KEY_DOWN)) {
 			m_Position.y -= moveSpeed.y;
 		}
-		if (Input::IsKeyPressed(TRI_KEY_UP)) {
+		else if (Input::IsKeyPressed(TRI_KEY_UP)) {
 			m_Position.y += moveSpeed.y;
 		}
 	}

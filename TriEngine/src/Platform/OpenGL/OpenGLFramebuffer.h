@@ -3,6 +3,8 @@
 #include "Core/Renderer/Framebuffer.h"
 #include "Core/Renderer/Texture.h"
 
+#include <glad/glad.h>
+
 namespace TriEngine {
 	class OpenGLFrameBuffer : public FrameBuffer {
 	public:
@@ -19,17 +21,25 @@ namespace TriEngine {
 
 		virtual bool OnWindowResize(WindowResizeEvent& e) final;
 
-		virtual void BindColorAttachment() final;
-		virtual const Reference<Texture2D>& GetColorAttachment() final { return m_ColorTarget; }
+		virtual RID GetColorAttachment(uint32_t index) const { return m_ColorAttachments[index]; }
+		virtual void BindColorAttachment(uint32_t slot, uint32_t index) const;
+
+		virtual RID GetDepthAttachment() const { return m_DepthAttachment; }
+		virtual void BindDepthAttachment(uint32_t slot) const;
 
 		void Recreate();
 	private:
+		void AttachColorTexture(RID id, GLenum format, int index);
+		void AttachDepthTexture(RID id, GLenum format);
+
+
 		RID m_BufferID = 0;
-
-		RID m_RenderBuffer = 0;
-
-		Reference<Texture2D> m_ColorTarget, m_DepthTarget;
-
 		FrameBufferSettings m_Settings;
+
+		std::vector<RenderAttachmentSettings> m_ColorAttachmentSettings;
+		RenderAttachmentSettings m_DepthAttachmentSettings;
+
+		std::vector<RID> m_ColorAttachments;
+		RID m_DepthAttachment;
 	};
 }

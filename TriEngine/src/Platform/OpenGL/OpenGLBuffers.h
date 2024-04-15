@@ -13,7 +13,7 @@ namespace TriEngine {
 
 		virtual RID GetID() const final { return m_BufferID; }
 
-		virtual void SetData(const void* data, uint32_t size) final;
+		virtual void SetData(const void* data, uint32_t size, uint32_t offset = 0) final;
 
 		virtual void SetLayout(const BufferLayout& layout) final { m_Layout = layout; };
 		virtual const BufferLayout& GetLayout() const final { return m_Layout; };

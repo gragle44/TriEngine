@@ -8,11 +8,12 @@ namespace TriEngine {
 	//Forward declared
 	class Scene;
 
-
 	class Script {
 	public:
 		Script() = default;
 		virtual ~Script() = default;
+
+		virtual void OnCreate() {}
 
 		virtual void OnUpdate(float deltaTime) {}
 	protected:
@@ -35,6 +36,8 @@ namespace TriEngine {
 		bool ComponentExists() {
 			return m_Object.HasComponent<T>();
 		}
+
+		Scene* GetScene() { return m_Object.m_Scene; }
 
 		friend class Scene;
 

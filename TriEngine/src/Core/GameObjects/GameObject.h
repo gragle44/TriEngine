@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+
 #include "entt/entt.hpp"
 
 namespace TriEngine {
@@ -46,6 +47,8 @@ namespace TriEngine {
 			return !(*this == other);
 		}
 	private:
+		friend class Script;
+
 		entt::entity m_Handle = entt::null;
 		Scene* m_Scene = nullptr;
 	};

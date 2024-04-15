@@ -16,3 +16,6 @@
 [submodule "TriEngine/vendor/yaml_cpp"]
 	path = TriEngine/vendor/yaml_cpp
 	url = https://github.com/gragle44/yaml-cpp
+[submodule "TriEngine/vendor/box2D"]
+	path = TriEngine/vendor/box2D
+	url = https://github.com/gragle44/box2d

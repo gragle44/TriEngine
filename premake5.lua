@@ -19,6 +19,7 @@ IncludeDir["spdlog"] = "TriEngine/vendor/spdlog/include"
 IncludeDir["GLFW"] = "TriEngine/vendor/GLFW/include"
 IncludeDir["Glad"] = "TriEngine/vendor/Glad/include"
 IncludeDir["ImGui"] = "TriEngine/vendor/imgui"
+IncludeDir["box2D"] = "TriEngine/vendor/box2D/include"
 IncludeDir["ImGuizmo"] = "TriEngine/vendor/ImGuizmo"
 IncludeDir["yaml_cpp"] = "TriEngine/vendor/yaml_cpp/include"
 IncludeDir["nativefiledialog"] = "TriEngine/vendor/nativefiledialog/src/include"
@@ -30,6 +31,7 @@ group "Dependancies"
 	include "TriEngine/vendor/GLFW"
 	include "TriEngine/vendor/Glad"
 	include "TriEngine/vendor/imgui"
+	include "TriEngine/vendor/box2D"
 	include "TriEngine/vendor/yaml_cpp"
 	include "TriEngine/vendor/nativefiledialog"
 
@@ -76,6 +78,7 @@ project "TriEngine"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.box2D}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
@@ -89,6 +92,7 @@ project "TriEngine"
 		"GLFW",
 		"Glad",
 		"ImGui",
+		"box2D",
 		"yaml_cpp",
 		"nativefiledialog"
 	}
@@ -126,7 +130,8 @@ project "TriEngine"
 		symbols "off"
 		runtime "Release"
 
-		flags {
+		flags 
+		{
 			"LinkTimeOptimization"
 		}
 
@@ -156,6 +161,7 @@ project "TriEditor"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.nameof}",
 		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.box2D}",
 		"%{IncludeDir.nativefiledialog}",
 		"TriEngine/src"
 	}
@@ -187,9 +193,8 @@ project "TriEditor"
 		runtime "Release"
 		flags "LinkTimeOptimization"
 	
-
-project "Sandbox"
-	location "Sandbox"
+project "TriRuntime"
+	location "TriRuntime"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++20"
@@ -211,6 +216,7 @@ project "Sandbox"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.nameof}",
+		"%{IncludeDir.box2D}",
 		"%{IncludeDir.yaml_cpp}",
 		"TriEngine/src"
 	}

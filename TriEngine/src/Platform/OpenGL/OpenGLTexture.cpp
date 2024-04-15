@@ -113,10 +113,12 @@ namespace TriEngine {
         if (channels == 3) {
             openGLFormat = GL_RGB8;
             dataFormat = GL_RGB;
+            m_Transparent = false;
         }
         else if (channels == 4) {
             openGLFormat = GL_RGBA8;
             dataFormat = GL_RGBA;
+            m_Transparent = true;
         }
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
@@ -150,6 +152,7 @@ namespace TriEngine {
 
         GLenum openGLFormat = GL_RGBA8;
         GLenum dataFormat = GL_RGBA;
+        m_Transparent = true;
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
 
@@ -191,8 +194,10 @@ namespace TriEngine {
             }
         }
 
+        //TODO: use RGB8 instead if there if alpha is 1
         GLenum openGLFormat = GL_RGBA8;
         GLenum dataFormat = GL_RGBA;
+        m_Transparent = true;
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
 

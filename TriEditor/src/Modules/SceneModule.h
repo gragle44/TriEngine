@@ -15,7 +15,9 @@ namespace TriEngine {
 		void OnImGuiRender();
 	private:
 		template<typename T>
-		void RenderComponentSelection(std::string_view name, bool* stayOpen);
+		void RenderComponentSelection(std::string_view name, GameObject object, bool* stayOpen);
+
+		void DuplicateObject(GameObject object);
 
 		void DrawNode(GameObject& object);
 		void DrawComponents(GameObject& object);

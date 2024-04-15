@@ -2,30 +2,18 @@ TriEngine Scene File
 ---
 Scene: Scene
 Objects:
-  - Entity: uuid
+  - Entity: 9358933247478325987
     TagComponent:
-      Tag: square
-    Transform2DComponent:
-      Position: [-0.75, 0, 0]
-      Rotation: 45
-      Scale: [0.5, 0.5]
-    Sprite2DComponent:
-      Texture:
-        FilePath: C:\Dev\TriEngine\TriEditor\assets\test2.png
-      Tint: [0.832817316, 0.286200374, 0.286200374, 1]
-      TilingFactor: 1
-  - Entity: uuid
-    TagComponent:
-      Tag: Character
+      Tag: test
     Transform2DComponent:
       Position: [0, 0, 0]
       Rotation: 0
       Scale: [1, 1]
     ScriptComponent:
-      ScriptActive: false
-      ScriptName: class TestScript
+      ScriptActive: true
+      ScriptName: class NewScript
     Sprite2DComponent:
       Texture:
-        FilePath: C:\Dev\TriEngine\TriEditor\assets\test2.png
+        FilePath: ""
       Tint: [1, 1, 1, 1]
       TilingFactor: 1

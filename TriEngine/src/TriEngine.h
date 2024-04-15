@@ -3,6 +3,7 @@
 #include "Core/Base/Application.h"
 #include "Core/Base/Layer.h"
 #include "Core/Base/Deltatime.h"
+#include "Core/Base/UUID.h"
 #include "Core/Base/Random.h"
 #include "Core/Base/Log.h"
 #include "Core/Base/Assert.h"
@@ -14,6 +15,7 @@
 //ECS
 #include "Core/GameObjects/GameObject.h"
 #include "Core/GameObjects/Script.h"
+#include "Core/GameObjects/ScriptRegistry.h"
 #include "Core/GameObjects/Scene.h"
 #include "Core/GameObjects/Components.h"
 #include "Core/GameObjects/Serializer.h"

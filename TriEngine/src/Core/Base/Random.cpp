@@ -18,7 +18,7 @@ namespace TriEngine {
 
     int32_t Random::Int(int32_t min, int32_t max)
     {
-        return Generate(std::uniform_int_distribution<>(min, max));
+        return Generate(std::uniform_int_distribution<int32_t>(min, max));
     }
 
     uint32_t Random::Uint(uint32_t min, uint32_t max)

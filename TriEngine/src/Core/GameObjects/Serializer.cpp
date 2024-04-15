@@ -5,6 +5,7 @@
 #include "GameObject.h"
 #include "Components.h"
 #include "Script.h"
+#include "ScriptRegistry.h"
 
 #include <glm/glm.hpp>
 
@@ -120,9 +121,27 @@ namespace TriEngine {
 		return out;
 	}
 
+	static std::string RigidBodyTypeToString(RigidBody2DComponent::BodyType type) {
+		switch (type)
+		{
+		case TriEngine::RigidBody2DComponent::BodyType::Static: return "Static";
+		case TriEngine::RigidBody2DComponent::BodyType::Dynamic: return "Dynamic";
+		case TriEngine::RigidBody2DComponent::BodyType::Kinematic: return "Kinematic";
+		default: TRI_CORE_ERROR("Unkown RigidBody type!"); return "";
+		}
+	}
+
+	static RigidBody2DComponent::BodyType StringToRigidBodyType(const std::string& type) {
+		if (type == "Static") return RigidBody2DComponent::BodyType::Static;
+		else if (type == "Dynamic") return RigidBody2DComponent::BodyType::Dynamic;
+		else if (type == "Kinematic") return RigidBody2DComponent::BodyType::Kinematic;
+	}
+
 	void SceneSerializer::SerializeEntity(YAML::Emitter& out, GameObject& object)
 	{
-		out << YAML::BeginMap << YAML::Key << "Entity" << YAML::Value << "uuid";
+		auto& idComponent = object.GetComponent<IDComponent>();
+
+		out << YAML::BeginMap << YAML::Key << "Entity" << YAML::Value << idComponent.ID;
 
 		if (object.HasComponent<TagComponent>()) {
 			auto& component = object.GetComponent<TagComponent>();
@@ -155,10 +174,30 @@ namespace TriEngine {
 			out << YAML::EndMap;
 		}
 
+		if (object.HasComponent<RigidBody2DComponent>()) {
+			auto& component = object.GetComponent<RigidBody2DComponent>();
+
+			out << YAML::Key << "RigidBody2DComponent" << YAML::Value << YAML::BeginMap;
+			out << YAML::Key << "Type" << YAML::Value << RigidBodyTypeToString(component.Type);
+			out << YAML::EndMap;
+		}
+
+		if (object.HasComponent<BoxCollider2DComponent>()) {
+			auto& component = object.GetComponent<BoxCollider2DComponent>();
+
+			out << YAML::Key << "BoxCollider2DComponent" << YAML::Value << YAML::BeginMap;
+			out << YAML::Key << "Size" << YAML::Value << component.Size;
+			out << YAML::Key << "Density" << YAML::Value << component.Density;
+			out << YAML::Key << "Friction" << YAML::Value << component.Friction;
+			out << YAML::Key << "Restitution" << YAML::Value << component.Restitution;
+			out << YAML::Key << "RestitutionThreshold" << YAML::Value << component.RestitutionThreshold;
+			out << YAML::EndMap;
+		}
+
 		if (object.HasComponent<Camera2DComponent>()) {
 			auto& component = object.GetComponent<Camera2DComponent>();
-			out << YAML::Key << "Camera2DComponent" << YAML::Value << YAML::BeginMap;
 
+			out << YAML::Key << "Camera2DComponent" << YAML::Value << YAML::BeginMap;
 			out << YAML::Key << "Zoom" << YAML::Value << component.Camera.m_Zoom;
 			out << YAML::Key << "AspectRatio" << YAML::Value << component.Camera.m_AspectRatio;
 			out << YAML::Key << "YScale" << YAML::Value << component.Camera.m_YScale;
@@ -189,12 +228,13 @@ namespace TriEngine {
 
 	void SceneSerializer::DeserializeEntity(YAML::Node& entity)
 	{
-		std::string name;
+		uint64_t uuid = entity["Entity"].as<uint64_t>();
 
+		std::string name;
 		if (entity["TagComponent"] and entity["TagComponent"]["Tag"])
 			name = entity["TagComponent"]["Tag"].as<std::string>();
 
-		GameObject newEntity = m_Scene->CreateGameObject(name);
+		GameObject newEntity = m_Scene->CreateGameObjectUUID(uuid, name);
 
 		if (entity["Transform2DComponent"]) {
 			auto& transform = newEntity.AddComponent<Transform2DComponent>();
@@ -213,6 +253,20 @@ namespace TriEngine {
 			else {
 				TRI_CORE_WARN("Could not find script \"{0}\" in registry, removing ScriptComponent from entity {1}" ,scriptName, name);
 			}
+		}
+
+		if (entity["RigidBody2DComponent"]) {
+			auto& rigidBody = newEntity.AddComponent<RigidBody2DComponent>();
+			rigidBody.Type = StringToRigidBodyType(entity["RigidBody2DComponent"]["Type"].as<std::string>());
+		}
+
+		if (entity["BoxCollider2DComponent"]) {
+			auto& transform = newEntity.AddComponent<BoxCollider2DComponent>();
+			transform.Size = entity["BoxCollider2DComponent"]["Size"].as<glm::vec2>();
+			transform.Density = entity["BoxCollider2DComponent"]["Density"].as<float>();
+			transform.Friction = entity["BoxCollider2DComponent"]["Friction"].as<float>();
+			transform.Restitution = entity["BoxCollider2DComponent"]["Restitution"].as<float>();
+			transform.RestitutionThreshold = entity["BoxCollider2DComponent"]["RestitutionThreshold"].as<float>();
 		}
 
 		if (entity["Camera2DComponent"]) {
@@ -239,7 +293,6 @@ namespace TriEngine {
 		}
 
 	}
-
 
 	SceneSerializer::SceneSerializer(const Reference<Scene>& scene)
 		:m_Scene(scene)

@@ -24,6 +24,11 @@ namespace TriEngine {
 		}
 	}
 
+	void SceneModule::DuplicateObject(GameObject object) {
+		GameObject duplicatedObject = m_Scene->DuplicateObject(object);
+		m_SelectedItem = duplicatedObject;
+	}
+
 	SceneModule::SceneModule(const Reference<Scene>& scene)
 		:m_Scene(scene)
 	{
@@ -63,10 +68,15 @@ namespace TriEngine {
 				m_SelectedItem = {};
 			}
 
+		if (Input::IsKeyPressed(TRI_KEY_LEFT_CONTROL) || Input::IsKeyPressed(TRI_KEY_RIGHT_CONTROL)) {
+			if (Input::IsKeyPressed(TRI_KEY_D))
+				DuplicateObject(m_SelectedItem);
+		}
+
 		ImGui::End();
 		//////////////////
 
-		// PROPERTY INSPECTOR //
+		// PROPERTY INSPECTOR // 
 		if (ImGui::Begin("Property Inspector")) {
 			if (m_SelectedItem)
 				DrawComponents(m_SelectedItem);
@@ -115,6 +125,11 @@ namespace TriEngine {
 				ImGui::CloseCurrentPopup();
 			}
 
+			if (ImGui::MenuItem("Duplicate", "Ctrl + D")) {
+				DuplicateObject(object);
+				ImGui::CloseCurrentPopup();
+			}
+
 			if (ImGui::MenuItem("Delete", "Del")) {
 				m_RightSelectedItem = object;
 				deleting = true;
@@ -132,10 +147,12 @@ namespace TriEngine {
 			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
 			if (ImGui::BeginPopupModal("Add Component", &addingComponent)) {
-				RenderComponentSelection<ScriptComponent>("Script", &addingComponent);
-				RenderComponentSelection<Transform2DComponent>("Transform2D", &addingComponent);
-				RenderComponentSelection<Sprite2DComponent>("Sprite2D", &addingComponent);
-				RenderComponentSelection<Camera2DComponent>("Camera2D", &addingComponent);
+				RenderComponentSelection<ScriptComponent>("Script", object, &addingComponent);
+				RenderComponentSelection<Transform2DComponent>("Transform2D", object, &addingComponent);
+				RenderComponentSelection<Sprite2DComponent>("Sprite2D", object, &addingComponent);
+				RenderComponentSelection<RigidBody2DComponent>("RigidBody2D", object, &addingComponent);
+				RenderComponentSelection<BoxCollider2DComponent>("BoxCollider2D", object, &addingComponent);
+				RenderComponentSelection<Camera2DComponent>("Camera2D", object, &addingComponent);
 
 				ImGui::End();
 			}
@@ -191,13 +208,14 @@ namespace TriEngine {
 	}
 
 	template<typename T>
-	void SceneModule::RenderComponentSelection(std::string_view name, bool* stayOpen)
+	void SceneModule::RenderComponentSelection(std::string_view name, GameObject object, bool* stayOpen)
 	{
-		if (ImGui::Button(name.data())) {
-			m_RightSelectedItem.AddComponent<T>();
-			ImGui::CloseCurrentPopup();
-			*stayOpen = false;
-		}
+		if (!object.HasComponent<T>())
+			if (ImGui::Button(name.data())) {
+				m_RightSelectedItem.AddComponent<T>();
+				ImGui::CloseCurrentPopup();
+				*stayOpen = false;
+			}
 	}
 
 	template<typename T, typename Function>
@@ -223,6 +241,10 @@ namespace TriEngine {
 				object.RemoveComponent<T>();
 			}
 		}
+	}
+
+	static void AddSpriteTooltipText(const std::string& label, const std::string& text) {
+		ImGui::Text((label + text).c_str());
 	}
 
 	void SceneModule::DrawComponents(GameObject& object)
@@ -251,24 +273,12 @@ namespace TriEngine {
 			draw_list->AddImage((void*)m_SpriteBackground->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 			draw_list->AddImage((void*)sprite.Texture->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 			ImGui::Dummy(ImVec2(250.0f, 250.0f));
+
 			if (ImGui::BeginItemTooltip()) {
-
-				const std::string dimensionsBase = "Dimensions: ";
-				std::stringstream dss;
-				dss << '(' << sprite.Texture->GetWidth() << ", " << sprite.Texture->GetHeight() << ')';
-				std::string dimensions = dimensionsBase + dss.str();
-				ImGui::Text(dimensions.c_str());
-
-				const std::string filterBase = "Filter Mode: ";
-				std::string filterStr = TextureFilterToString(sprite.Texture->GetFilterMode());
-				std::string filterMode = filterBase + filterStr;
-				ImGui::Text(filterMode.c_str());
-
-				const std::string wrapBase = "Wrap Mode: ";
-				std::string wrapStr = TextureWrapToString(sprite.Texture->GetWrapMode());
-				std::string wrapMode = wrapBase + wrapStr;
-				ImGui::Text(wrapMode.c_str());
-
+				AddSpriteTooltipText("Dimensions: ", "(" + std::to_string(sprite.Texture->GetWidth()) + ", " + std::to_string(sprite.Texture->GetHeight()) + ")");
+				AddSpriteTooltipText("Filter Mode: ", TextureFilterToString(sprite.Texture->GetFilterMode()));
+				AddSpriteTooltipText("Wrap Mode: ", TextureWrapToString(sprite.Texture->GetWrapMode()));
+				AddSpriteTooltipText("Transparent: ", sprite.HasTransparency() ? "True" : "False");
 				ImGui::EndTooltip();
 			}
 			
@@ -296,6 +306,36 @@ namespace TriEngine {
 			ImGui::ColorEdit4("Tint", glm::value_ptr(sprite.Tint));
 			ImGui::DragFloat("Tiling Factor", &sprite.TilingFactor);
 		});
+
+		DrawComponent<RigidBody2DComponent>("RigidBody2D", object, [](RigidBody2DComponent& component)
+			{
+				constexpr const char* bodyTypes[] = { "Static", "Dynamic", "Kinematic" };
+				const char* currentType = bodyTypes[(uint8_t)component.Type];
+
+				if (ImGui::BeginCombo("Type", currentType)) {
+					for (int i = 0; i < 3; i++) {
+						bool selected = currentType == bodyTypes[i];
+						if (ImGui::Selectable(bodyTypes[i], &selected)) {
+							currentType = bodyTypes[i];
+							component.Type = (RigidBody2DComponent::BodyType)i;
+						}
+
+						if (selected)
+							ImGui::SetItemDefaultFocus();
+					}
+
+					ImGui::EndCombo();
+				}
+			});
+
+		DrawComponent<BoxCollider2DComponent>("BoxCollider2D", object, [](BoxCollider2DComponent& component)
+			{
+				ImGui::DragFloat2("Size", glm::value_ptr(component.Size), 0.25f);
+				ImGui::DragFloat("Density", &component.Density);
+				ImGui::DragFloat("Friction", &component.Friction);
+				ImGui::DragFloat("Restitution", &component.Restitution);
+				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold);
+			});
 
 		DrawComponent<Camera2DComponent>("Camera2D", object, [](Camera2DComponent& camera)
 		{

@@ -1,14 +1,14 @@
 #include <TriEngine.h>
 #include <Core/Base/EntryPoint.h>
 
-#include "Example2D.h"
+#include "App.h"
 
 class Sandbox : public TriEngine::Application {
 public:
     Sandbox()
-        :Application("Example2D")
+        :Application("App")
     {
-        PushLayer(new Example2D());
+        PushLayer(new App());
     }
 
     ~Sandbox() {

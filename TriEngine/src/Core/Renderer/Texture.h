@@ -40,6 +40,7 @@ namespace TriEngine {
 		virtual void Bind(uint32_t slot) const = 0;
 		virtual void UnBind(uint32_t slot) const = 0;
 
+		virtual bool HasTransparency() const = 0;
 		virtual std::string& GetFilePath() = 0;
 		virtual TextureFilter GetFilterMode() const = 0;
 		virtual TextureWrap GetWrapMode() const = 0;

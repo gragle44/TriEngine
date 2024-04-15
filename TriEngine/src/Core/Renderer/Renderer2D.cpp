@@ -47,10 +47,13 @@ namespace TriEngine {
 		
 		s_RenderData.QuadVertexArray = VertexArray::Create();
 		
-		s_RenderData.VertexData.resize(BatchSettings::MaxVertices);
+		
+		s_RenderData.VertexData.resize(BatchSettings::MaxVertices * 2);
 		s_RenderData.VertexDataPtr = s_RenderData.VertexData.begin();
+		s_RenderData.TransparentVertexDataBegin = s_RenderData.VertexData.begin() + (s_RenderData.VertexData.size() / 2);
+		s_RenderData.TransparentVertexDataPtr = s_RenderData.TransparentVertexDataBegin;
 					
-		s_RenderData.QuadVertexBuffer = VertexBuffer::Create(BatchSettings::MaxVertices * sizeof(QuadVertex));
+		s_RenderData.QuadVertexBuffer = VertexBuffer::Create(BatchSettings::MaxVertices * sizeof(QuadVertex) * 2);
 
 		{
 			TriEngine::BufferLayout layout = {
@@ -85,8 +88,8 @@ namespace TriEngine {
 
 		delete[] quadIndices;
 
-		int32_t* samplers = (int32_t*)alloca(BatchSettings::MaxTextureSlots * sizeof(int32_t));
-
+		int32_t* samplers = new int32_t[BatchSettings::MaxTextureSlots];
+			
 		for (int32_t i = 0; i < (int32_t)BatchSettings::MaxTextureSlots; i++)
 			samplers[i] = i;
 
@@ -94,6 +97,8 @@ namespace TriEngine {
 		s_RenderData.MainShader = Shader::Create("TextureShader", "src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl");
 
 		s_RenderData.MainShader->SetIntArray("u_Samplers", samplers, BatchSettings::MaxTextureSlots);
+
+		delete[] samplers;
 
 		s_RenderData.DefaultTexture = Texture2D::Create(glm::vec4(1.0f), 1);
 		s_RenderData.TextureSlots[0] = s_RenderData.DefaultTexture;
@@ -133,7 +138,7 @@ namespace TriEngine {
 			RenderCommand::DepthTest(false);
 
 			s_RenderData.ScreenShader->Bind();
-			s_RenderData.CurrentPass->Target->BindColorAttachment();
+			s_RenderData.CurrentPass->Target->BindColorAttachment(0, 0);
 
 			RenderCommand::DrawArrays(s_RenderData.ScreenVertexArray);
 		}
@@ -150,8 +155,13 @@ namespace TriEngine {
 		}
 
 		//Update Vertex Buffer
-		uint32_t size = (uint32_t)std::distance(s_RenderData.VertexData.begin(), s_RenderData.VertexDataPtr);
+		std::sort(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr, TransparencyKey());
+
+		uint32_t size = std::distance(s_RenderData.VertexData.begin(), s_RenderData.VertexDataPtr);
+		uint32_t transparentSize = std::distance(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr);
+		
 		s_RenderData.QuadVertexBuffer->SetData(s_RenderData.VertexData.data(), size * sizeof(QuadVertex));
+		s_RenderData.QuadVertexBuffer->SetData(s_RenderData.TransparentVertexDataBegin._Ptr, transparentSize * sizeof(QuadVertex), size * sizeof(QuadVertex));
 
 		//Update bound textures
 		for (uint32_t i = 0; i < s_RenderData.TextureSlotIndex; i++) {
@@ -168,6 +178,7 @@ namespace TriEngine {
 		s_RenderData.Stats.QuadCount += s_RenderData.IndexCount / 6;
 
 		s_RenderData.VertexDataPtr = s_RenderData.VertexData.begin();
+		s_RenderData.TransparentVertexDataPtr = s_RenderData.TransparentVertexDataBegin;
 		s_RenderData.IndexCount = 0;
 
 		s_RenderData.TextureSlotIndex = 1;
@@ -200,12 +211,23 @@ namespace TriEngine {
 			s_RenderData.TextureSlotIndex++;
 		}
 
-		for (int i = 0; i < 4; i++) {
-			s_RenderData.VertexDataPtr->Position = quad.Transform * baseQuadPosition[i];
-			s_RenderData.VertexDataPtr->Color = quad.Tint;
-			s_RenderData.VertexDataPtr->TexCoord = baseTexCoord[i] * quad.TilingFactor;
-			s_RenderData.VertexDataPtr->TexIndex = texIndex;
-			s_RenderData.VertexDataPtr++;
+		if (!quad.Transparent) {
+			for (int i = 0; i < 4; i++) {
+				s_RenderData.VertexDataPtr->Position = quad.Transform * baseQuadPosition[i];
+				s_RenderData.VertexDataPtr->Color = quad.Tint;
+				s_RenderData.VertexDataPtr->TexCoord = baseTexCoord[i] * quad.TilingFactor;
+				s_RenderData.VertexDataPtr->TexIndex = texIndex;
+				s_RenderData.VertexDataPtr++;
+			}
+		}
+		else {
+			for (int i = 0; i < 4; i++) {
+				s_RenderData.TransparentVertexDataPtr->Position = quad.Transform * baseQuadPosition[i];
+				s_RenderData.TransparentVertexDataPtr->Color = quad.Tint;
+				s_RenderData.TransparentVertexDataPtr->TexCoord = baseTexCoord[i] * quad.TilingFactor;
+				s_RenderData.TransparentVertexDataPtr->TexIndex = texIndex;
+				s_RenderData.TransparentVertexDataPtr++;
+			}
 		}
 
 		s_RenderData.IndexCount += 6;
@@ -218,12 +240,23 @@ namespace TriEngine {
 			NewBatch();
 		}
 
-		for (int i = 0; i < 4; i++) {
-			s_RenderData.VertexDataPtr->Position = quad.Transform * baseQuadPosition[i];
-			s_RenderData.VertexDataPtr->Color = quad.Tint;
-			s_RenderData.VertexDataPtr->TexCoord = baseTexCoord[i];
-			s_RenderData.VertexDataPtr->TexIndex = 0;
-			s_RenderData.VertexDataPtr++;
+		if (!quad.Transparent) {
+			for (int i = 0; i < 4; i++) {
+				s_RenderData.VertexDataPtr->Position = quad.Transform * baseQuadPosition[i];
+				s_RenderData.VertexDataPtr->Color = quad.Tint;
+				s_RenderData.VertexDataPtr->TexCoord = baseTexCoord[i] * quad.TilingFactor;
+				s_RenderData.VertexDataPtr->TexIndex = 0;
+				s_RenderData.VertexDataPtr++;
+			}
+		}
+		else {
+			for (int i = 0; i < 4; i++) {
+				s_RenderData.TransparentVertexDataPtr->Position = quad.Transform * baseQuadPosition[i];
+				s_RenderData.TransparentVertexDataPtr->Color = quad.Tint;
+				s_RenderData.TransparentVertexDataPtr->TexCoord = baseTexCoord[i] * quad.TilingFactor;
+				s_RenderData.TransparentVertexDataPtr->TexIndex = 0;
+				s_RenderData.TransparentVertexDataPtr++;
+			}
 		}
 
 		s_RenderData.IndexCount += 6;
