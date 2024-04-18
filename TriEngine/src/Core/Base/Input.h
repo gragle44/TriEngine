@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "KeyCodes.h"
+#include "ControllerCodes.h"
 #include "MouseButtonCodes.h"
 #include <glm/vec2.hpp>
 
@@ -10,6 +11,7 @@ namespace TriEngine {
 	{
 	public:
 		static bool IsKeyPressed(int keycode);
+		static bool IsKeyHeld(int keycode);
 
 		static bool IsMouseButtonPressed(int button);
 		static float GetMouseX();

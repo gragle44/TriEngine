@@ -5,17 +5,34 @@
 
 class TestScript : public Script {
 public:
-	TestScript() = default;
+	TestScript()
+	{
+
+	}
+
+	void OnStop() final {
+	}
 
 	void OnUpdate(float deltaTime) final {
-		TRI_TRACE("test");
+		m_TimeElapsed += deltaTime;
+
+		if (m_TimeElapsed > 5.0f)
+			GetScene()->Reset();
 	}
+
+	virtual void OnCollisionStart(GameObject collider) final {
+	}
+
+	virtual void OnCollisionEnd(GameObject collider) final {
+	}
+private:
+	float m_TimeElapsed = 0.0f;
 };
 
 
 class NewScript : public Script {
 public:
-	void OnCreate() final {
+	void OnStart() final {
 		TRI_TRACE("created");
 	}
 
@@ -29,10 +46,98 @@ public:
 	}
 };
 
+class BirdScript : public Script {
+public:
+	void OnStart() final {
+	}
+
+	void OnUpdate(float deltaTime) final {
+		auto& rigidBody = GetComponent<RigidBody2DComponent>();
+		auto& transform = GetComponent<Transform2DComponent>();
+
+		if (Input::IsKeyPressed(TRI_KEY_SPACE)) {
+			m_UpVelocity += 200.0f;
+			m_RotationVelocity = 575.0f;
+
+		}
+		else
+			m_RotationVelocity = -175.0f;
+
+		m_UpVelocity -= 45.0f;
+
+		if (m_UpVelocity > 700.0f)
+			m_UpVelocity = 700.0f;
+		else if (m_UpVelocity < -1000.0f)
+			m_UpVelocity = -1000.0f;
+
+		if (transform.Rotation > 45.0f && m_RotationVelocity > 0.0f)
+			m_RotationVelocity = 0.0f;
+		else if (transform.Rotation < -90.0f && m_RotationVelocity < 0.0f)
+			m_RotationVelocity = 0.0f;
+
+		rigidBody.SetVelocity({ 0.0f, m_UpVelocity * deltaTime });
+		rigidBody.SetAngularVelocity(m_RotationVelocity * deltaTime);
+
+	}
+
+	virtual void OnCollisionStart(GameObject collider) final {
+		auto scene = GetScene();
+		scene->Reset();
+	}
+private:
+	float m_UpVelocity = 0.0f;
+	float m_RotationVelocity = 0.0f;
+};
+
+class BackgroundScript : public Script {
+public:
+	void OnStart() final {
+		for (auto [id, object] : GetScene()->GetAllObjects()) {
+			if (object.GetComponent<TagComponent>().Tag == "Pillar") {
+				m_Pillars.emplace_back(object);
+			}
+		}
+
+		for (int i = 0; i < 8; i += 2) {
+			float displacement = Random::Float(-1.25f, 1.25f);
+
+			GameObject object1 = m_Pillars[i];
+			object1.GetComponent<Transform2DComponent>().Position.y += displacement;
+
+			GameObject object2 = m_Pillars[i+1];
+			object2.GetComponent<Transform2DComponent>().Position.y += displacement;
+
+		}
+
+	}
+
+	void OnUpdate(float deltaTime) final {
+		for (int i = 0; i < 8; i++) {
+			auto pillar = m_Pillars[i];
+
+			auto& body = pillar.GetComponent<RigidBody2DComponent>();
+			auto& transform = pillar.GetComponent<Transform2DComponent>();
+
+			if (transform.Position.x < -15.6f) {
+				auto& transform = pillar.GetComponent<Transform2DComponent>();
+				auto& body = pillar.GetComponent<RigidBody2DComponent>();
+				body.SetPosition({ transform.Position.x + 40.0f, transform.Position.y });
+			}
+			else
+				body.SetPosition({ transform.Position.x -= m_MoveSpeed * deltaTime, transform.Position.y });
+		}
+	}
+private:
+	const float m_MoveSpeed = 7.0f;
+	std::vector<GameObject> m_Pillars;
+};
+
 EditorLayer::EditorLayer()
 {
 	ScriptRegistry::Register<TestScript>();
 	ScriptRegistry::Register<NewScript>();
+	ScriptRegistry::Register<BirdScript>();
+	ScriptRegistry::Register<BackgroundScript>();
 }
 
 void EditorLayer::SetupImGuiStyle()
@@ -140,13 +245,15 @@ void EditorLayer::OnAttach()
 
 	m_EditorScene = Scene::Create();
 	m_ActiveScene = m_EditorScene;
-	m_SceneModule.SetScene(m_ActiveScene);
+	m_SceneModule.SetScene(m_EditorScene);
 
 	m_Camera = std::make_shared<EditorCamera>();
-	m_ActiveScene->SetEditorCamera(m_Camera);
+	m_EditorScene->SetEditorCamera(m_Camera);
 
-	m_PlayTexture = Texture2D::Create("assets/playbutton.png");
+	TextureSettings playbuttonSettings;
+	playbuttonSettings.Filter = TextureFilter::Linear;
 
+	m_PlayTexture = Texture2D::Create("assets/playbutton.png", playbuttonSettings);
 
 	SetupImGuiStyle();
 
@@ -168,35 +275,11 @@ void EditorLayer::RenderPlaybuttonsOld()
 	const auto& buttonActive = colors[ImGuiCol_ButtonActive];
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
 
-	//ImGui::Begin("##editor_toolset", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+	ImGui::Begin("##editor_start_stop", nullptr);
 
-	float size = ImGui::GetWindowHeight() - 4.0f;
-	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+	float size = ImGui::GetWindowHeight();
 
-	if (ImGui::ImageButton((ImTextureID)m_PlayTexture->GetID(), { size, size }, ImVec2(0, 0), ImVec2(1, 1), 0)) {
-		m_SceneRunning = !m_SceneRunning;
-		if (m_SceneRunning)
-			m_ActiveScene->Start();
-		else {
-			m_ActiveScene->Stop();
-		}
-	}
-
-	ImGui::PopStyleVar(2);
-	ImGui::PopStyleColor(3);
-	//ImGui::End();
-}
-
-void EditorLayer::RenderPlaybuttons()
-{
-	auto& colors = ImGui::GetStyle().Colors;
-	const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
-	const auto& buttonActive = colors[ImGuiCol_ButtonActive];
-
-	float size = ImGui::GetWindowHeight() - 4.0f;
-	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.9f) - (size * 0.5f));
-
-	if (ImGui::ImageButton((ImTextureID)m_PlayTexture->GetID(), {size, size})) {
+	if (ImGui::ImageButton((ImTextureID)m_PlayTexture->GetID(), { size, size }, ImVec2(0, 0), ImVec2(1, 1))) {
 		m_SceneRunning = !m_SceneRunning;
 		if (m_SceneRunning)
 			StartScene();
@@ -204,6 +287,38 @@ void EditorLayer::RenderPlaybuttons()
 			StopScene();
 		}
 	}
+
+	ImGui::PopStyleVar(2);
+	ImGui::PopStyleColor(3);
+	ImGui::End();
+}
+
+void EditorLayer::RenderPlaybuttons()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+	auto& colors = ImGui::GetStyle().Colors;
+	const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+	const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+	const float size = 24.0f;
+	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+
+
+	if (ImGui::ImageButton((ImTextureID)m_PlayTexture->GetID(), { size, size })) {
+		m_SceneRunning = !m_SceneRunning;
+		if (m_SceneRunning)
+			StartScene();
+		else {
+			StopScene();
+		}
+	}
+
+	ImGui::PopStyleVar(2);
+	ImGui::PopStyleColor(3);
 
 }
 
@@ -302,6 +417,7 @@ void EditorLayer::OnImGuiRender()
 	{
 		UpdateTitleBar();
 		m_FileMenu.OnImGuiRender();
+		RenderPlaybuttons();
 		ImGui::EndMenuBar();
 	}
 
@@ -402,7 +518,5 @@ void EditorLayer::UpdateTitleBar()
 		ImGui::EndMenu();
 
 	}
-
-	RenderPlaybuttons();
 
 }

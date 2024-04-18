@@ -6,6 +6,7 @@
 #include "Core/Renderer/OrthographicCamera.h"
 #include "entt/entt.hpp"
 
+#include "box2d/b2_body.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -37,6 +38,31 @@ namespace TriEngine {
 		BodyType Type = BodyType::Dynamic;
 
 		void* Body;
+
+		void ApplyVelocity(const glm::vec2& velocity) {
+			b2Body* b2body = (b2Body*)Body;
+
+			b2body->ApplyLinearImpulseToCenter({ velocity.x, velocity.y }, true);
+		}
+
+		void SetVelocity(const glm::vec2& velocity) {
+			b2Body* b2body = (b2Body*)Body;
+
+			b2body->SetLinearVelocity({ velocity.x, velocity.y });
+		}
+
+		void SetAngularVelocity(float velocity) {
+			b2Body* b2body = (b2Body*)Body;
+
+			b2body->SetAngularVelocity(velocity);
+		}
+
+		void SetPosition(const glm::vec2& pos) {
+			b2Body* b2body = (b2Body*)Body;
+
+			b2body->SetTransform({ pos.x, pos.y }, b2body->GetAngle());
+		}
+
 	};
 
 	struct BoxCollider2DComponent {
@@ -116,6 +142,7 @@ namespace TriEngine {
 
 	struct Camera2DComponent {
 		OrthographicCamera Camera;
+		bool Primary = false;
 		bool Resizeable = true;
 
 		Camera2DComponent() = default;

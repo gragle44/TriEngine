@@ -204,6 +204,7 @@ namespace TriEngine {
 			out << YAML::Key << "NearClip" << YAML::Value << component.Camera.m_NearClip;
 			out << YAML::Key << "FarClip" << YAML::Value << component.Camera.m_FarClip;
 			out << YAML::Key << "Resizeable" << YAML::Value << component.Resizeable;
+			out << YAML::Key << "Primary" << YAML::Value << component.Primary;
 
 			out << YAML::EndMap;
 		}
@@ -277,6 +278,7 @@ namespace TriEngine {
 			camera.Camera.m_NearClip = entity["Camera2DComponent"]["NearClip"].as<float>();
 			camera.Camera.m_FarClip = entity["Camera2DComponent"]["FarClip"].as<float>();
 			camera.Resizeable = entity["Camera2DComponent"]["Resizeable"].as<bool>();
+			camera.Primary = entity["Camera2DComponent"]["Primary"].as<bool>();
 		}
 
 		if (entity["Sprite2DComponent"]) {

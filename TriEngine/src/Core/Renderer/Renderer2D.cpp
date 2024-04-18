@@ -108,6 +108,11 @@ namespace TriEngine {
 	{
 	}
 
+	void Renderer2D::ClearTextures()
+	{
+		s_RenderData.TextureSlots.erase(s_RenderData.TextureSlots.begin() + 1, s_RenderData.TextureSlots.end());
+	}
+
 	void Renderer2D::Begin(const glm::mat4 cameraProjection, const glm::mat4& cameraTransform, const Reference<Renderpass>& renderPass)
 	{
 		s_RenderData.CurrentPass = renderPass;
@@ -155,7 +160,11 @@ namespace TriEngine {
 		}
 
 		//Update Vertex Buffer
-		std::sort(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr, TransparencyKey());
+		
+		 
+		 
+		// Disabled due to rendering issues 
+		//std::sort(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr, TransparencyKey());
 
 		uint32_t size = std::distance(s_RenderData.VertexData.begin(), s_RenderData.VertexDataPtr);
 		uint32_t transparentSize = std::distance(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr);

@@ -8,13 +8,13 @@
 namespace TriEngine {
 	enum class RenderAttachmentType : uint8_t {
 		None = 0,
-		Color,
-		DepthStencil,
-		Depth
+		Color = 1,
+		DepthStencil = 2,
+		Depth = 3
 	};
 
 	struct RenderAttachmentSettings {
-		RenderAttachmentType Type = RenderAttachmentType::None;
+		RenderAttachmentType Type;
 
 		RenderAttachmentSettings() = default;
 		RenderAttachmentSettings(RenderAttachmentType type)
@@ -22,9 +22,9 @@ namespace TriEngine {
 	};
 
 	struct FrameBufferSettings {
-		std::initializer_list<RenderAttachmentSettings> Attachments;
-		uint32_t Width, Height;
+		std::vector<RenderAttachmentSettings> Attachments;
 
+		uint32_t Width, Height;
 		uint32_t Samples = 1;
 	};
 

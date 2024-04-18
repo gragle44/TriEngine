@@ -339,13 +339,17 @@ namespace TriEngine {
 
 		DrawComponent<Camera2DComponent>("Camera2D", object, [](Camera2DComponent& camera)
 		{
-			ImGui::Checkbox("Resizeable", &camera.Resizeable); HelpMarker("Determines if the camera's aspect ratio can be changed.", true);
+				ImGui::Checkbox("Resizeable", &camera.Resizeable); HelpMarker("Determines if the camera's aspect ratio can be changed.", true);
+				ImGui::Checkbox("Primary", &camera.Primary); HelpMarker("Sets the camera as the main scene camera.", true);
 
 			static float cameraSize = camera.Camera.m_Zoom;
 			if (ImGui::DragFloat("Zoom", &cameraSize, 1.0f, 0.1f, 100.0f)) {
 				camera.Camera.SetSize(cameraSize, camera.Camera.m_NearClip, camera.Camera.m_FarClip);
 			}
 			HelpMarker("Adjust the magnification level of the orthographic camera, controlling how much of the scene is visible within the viewport. Lower values correspond to more zoom.", true);
+
+			if (ImGui::DragFloat("Aspect Ratio", &camera.Camera.m_AspectRatio))
+				camera.Camera.RecalculateProjection();
 
 			if (ImGui::DragFloat2("Clipping", &camera.Camera.m_NearClip))
 				camera.Camera.RecalculateProjection();

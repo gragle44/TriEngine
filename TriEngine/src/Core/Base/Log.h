@@ -21,14 +21,14 @@ namespace TriEngine {
 	};
 }
 
-#define TRI_CORE_CRITICAL(...) ::TriEngine::Log::GetCoreLogger()->critical(__VA_ARGS__)
-#define TRI_CORE_ERROR(...) ::TriEngine::Log::GetCoreLogger()->error(__VA_ARGS__)
-#define TRI_CORE_WARN(...)  ::TriEngine::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define TRI_CORE_INFO(...)  ::TriEngine::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define TRI_CORE_TRACE(...) ::TriEngine::Log::GetCoreLogger()->trace(__VA_ARGS__)
+#define TRI_CORE_CRITICAL(...) ::TriEngine::Log::GetCoreLogger()->critical(__VA_ARGS__, __FILE__, __LINE__)
+#define TRI_CORE_ERROR(...) ::TriEngine::Log::GetCoreLogger()->error(__VA_ARGS__, __FILE__, __LINE__)
+#define TRI_CORE_WARN(...)  ::TriEngine::Log::GetCoreLogger()->warn(__VA_ARGS__, __FILE__, __LINE__)
+#define TRI_CORE_INFO(...)  ::TriEngine::Log::GetCoreLogger()->info(__VA_ARGS__, __FILE__, __LINE__)
+#define TRI_CORE_TRACE(...) ::TriEngine::Log::GetCoreLogger()->trace(__VA_ARGS__, __FILE__, __LINE__)
 
-#define TRI_CRITICAL(...)   ::TriEngine::Log::GetCoreLogger()->critical(__VA_ARGS__)
-#define TRI_ERROR(...) ::TriEngine::Log::GetClientLogger()->error(__VA_ARGS__)
-#define TRI_WARN(...)  ::TriEngine::Log::GetClientLogger()->warn(__VA_ARGS__)
-#define TRI_INFO(...)  ::TriEngine::Log::GetClientLogger()->info(__VA_ARGS__)
+#define TRI_CRITICAL(...)   ::TriEngine::Log::GetCoreLogger()->critical(__VA_ARGS__, __FILE__, __LINE__)
+#define TRI_ERROR(...) ::TriEngine::Log::GetClientLogger()->error(__VA_ARGS__, __FILE__, __LINE__)
+#define TRI_WARN(...)  ::TriEngine::Log::GetClientLogger()->warn(__VA_ARGS__, __FILE__, __LINE__)
+#define TRI_INFO(...)  ::TriEngine::Log::GetClientLogger()->info(__VA_ARGS__, __FILE__, __LINE__)
 #define TRI_TRACE(...) ::TriEngine::Log::GetClientLogger()->trace(__VA_ARGS__)

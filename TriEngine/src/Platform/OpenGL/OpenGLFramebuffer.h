@@ -9,7 +9,7 @@ namespace TriEngine {
 	class OpenGLFrameBuffer : public FrameBuffer {
 	public:
 		OpenGLFrameBuffer(const FrameBufferSettings& settings);
-		virtual ~OpenGLFrameBuffer();
+		virtual ~OpenGLFrameBuffer() final;
 
 		virtual void Bind() final;
 		virtual void UnBind() final;
@@ -40,6 +40,6 @@ namespace TriEngine {
 		RenderAttachmentSettings m_DepthAttachmentSettings;
 
 		std::vector<RID> m_ColorAttachments;
-		RID m_DepthAttachment;
+		RID m_DepthAttachment = 0;
 	};
 }

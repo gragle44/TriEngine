@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 namespace TriEngine {
-	class OrthographicCamera : Camera {
+	class OrthographicCamera : public Camera {
 	public:
 		OrthographicCamera();
 		virtual ~OrthographicCamera() override = default;

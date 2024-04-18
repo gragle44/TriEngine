@@ -56,6 +56,8 @@ namespace TriEngine {
 		static void Init();
 		static void ShutDown();
 
+		static void ClearTextures();
+
 		static void Begin(const glm::mat4 cameraProjection, const glm::mat4& cameraTransform, const Reference<Renderpass>& renderPass);
 		static void End();
 		static void Flush();

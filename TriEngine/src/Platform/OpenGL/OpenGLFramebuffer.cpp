@@ -45,17 +45,22 @@ namespace TriEngine {
             glTextureParameteri(id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         }
 
-        glNamedFramebufferTexture(m_BufferID, GL_DEPTH_ATTACHMENT, id, 0);
+        glNamedFramebufferTexture(m_BufferID, GL_DEPTH_STENCIL_ATTACHMENT, id, 0);
     }
 
     OpenGLFrameBuffer::OpenGLFrameBuffer(const FrameBufferSettings& settings)
         :m_Settings(settings)
     {
         for (auto setting : m_Settings.Attachments) {
-            if (setting.Type != RenderAttachmentType::Depth && setting.Type != RenderAttachmentType::DepthStencil)
+            switch (setting.Type)
+            {
+            case RenderAttachmentType::Color:
                 m_ColorAttachmentSettings.emplace_back(setting);
-            else
+            case RenderAttachmentType::Depth:
                 m_DepthAttachmentSettings = setting;
+            case RenderAttachmentType::DepthStencil:
+                m_DepthAttachmentSettings = setting;
+            }
         }
 
         Recreate();
@@ -136,7 +141,7 @@ namespace TriEngine {
         }
 
         if (m_DepthAttachmentSettings.Type != RenderAttachmentType::None) {
-            glCreateTextures(multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, m_ColorAttachmentSettings.size(), m_ColorAttachments.data());
+            glCreateTextures(multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, m_ColorAttachmentSettings.size(), &m_DepthAttachment);
 
             AttachDepthTexture(m_DepthAttachment, GL_DEPTH24_STENCIL8);
 

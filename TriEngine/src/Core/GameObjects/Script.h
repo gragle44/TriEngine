@@ -13,9 +13,14 @@ namespace TriEngine {
 		Script() = default;
 		virtual ~Script() = default;
 
-		virtual void OnCreate() {}
+		virtual void OnStart() {}
+
+		virtual void OnStop() {}
 
 		virtual void OnUpdate(float deltaTime) {}
+
+		virtual void OnCollisionStart(GameObject collider) {}
+		virtual void OnCollisionEnd(GameObject collider) {}
 	protected:
 		template <typename T, typename... Args>
 		T& AddComponent(Args&&... args) {

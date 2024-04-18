@@ -3,6 +3,7 @@
 #include "EditorCamera.h"
 #include "Core/Events/Event.h"
 #include "Core/Renderer/RenderPass.h"
+#include "Core/Physics/ContactListener.h"
 #include "entt/entt.hpp"
 
 // Forward declared
@@ -38,6 +39,7 @@ namespace TriEngine {
 		void SetEditorCamera(Reference<EditorCamera> camera);
 		void SetMainCamera(GameObject camera);
 
+		const std::unordered_map<uint64_t, GameObject>& GetAllObjects() const { return m_GameObjcts; }
 
 		GameObject CreateGameObject(const std::string& tag = std::string());
 		GameObject CreateGameObjectUUID(uint64_t uuid, const std::string& tag = std::string());
@@ -52,16 +54,24 @@ namespace TriEngine {
 		void InitRender();
 		void OnRender(float deltaTime);
 
+		void ShouldReset();
+
+
 		std::string m_Name;
+
 		entt::registry m_Registry;
+		std::unordered_map<uint64_t, GameObject> m_GameObjcts;
 
 		Reference<Scene> m_ResetPoint = nullptr;
 
 		b2World* m_PhysicsWorld = nullptr;
+		ContactListener* m_ContactListener = nullptr;
 
 		Reference<EditorCamera> m_CameraObject = nullptr;
 
 		glm::vec2 m_ViewportSize;
+
+		bool m_ShouldReset = false;
 
 		Reference<Renderpass> m_MainRenderpass;
 	};

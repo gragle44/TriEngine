@@ -72,8 +72,21 @@ namespace TriEngine {
 	{
 		m_ResetPoint = Copy();
 
+		auto camView = m_Registry.view<Camera2DComponent>();
+
+		for (auto entity : camView) {
+			auto& camera = camView.get<Camera2DComponent>(entity);
+			if (camera.Resizeable) {
+				camera.Camera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
+			}
+		}
+
 		//TODO: Adjustable gravity in project settings
 		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
+
+		m_ContactListener = new ContactListener();
+
+		m_PhysicsWorld->SetContactListener(m_ContactListener);
 
 		auto view = m_Registry.view<RigidBody2DComponent, BoxCollider2DComponent>();
 
@@ -88,6 +101,7 @@ namespace TriEngine {
 			bodyDef.type = BodyTypeToB2Type(rigidBody.Type);
 			bodyDef.position.Set(transform.Position.x, transform.Position.y);
 			bodyDef.angle = glm::radians(transform.Rotation);
+			bodyDef.userData.pointer = (uintptr_t)&m_GameObjcts.at(object.GetComponent<IDComponent>().ID);
 
 			b2Body* body = m_PhysicsWorld->CreateBody(&bodyDef);
 
@@ -105,7 +119,6 @@ namespace TriEngine {
 			fixtureDef.restitutionThreshold = collider.RestitutionThreshold;
 
 			body->CreateFixture(&fixtureDef);
-
 		}
 	}
 
@@ -113,26 +126,51 @@ namespace TriEngine {
 	{
 		delete m_PhysicsWorld;
 		m_PhysicsWorld = nullptr;
-	}
 
-	void Scene::Reset()
-	{
-		m_Registry.clear();
-		Stop();
-		//TRI_CORE_TRACE("Reseting scene {0}", m_Name);
-		auto idView = m_ResetPoint->m_Registry.view<IDComponent>();
+		delete m_ContactListener;
+		m_ContactListener = nullptr;
 
-		for (auto entity : idView) {
-			GameObject object = { entity, m_ResetPoint.get()};
-
-			std::string name = object.GetComponent<TagComponent>().Tag;
-
-			GameObject newObject = CreateGameObject(name);
-
-			CopyAllComponents(newObject, object);
+		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
+		{
+			if (sc.ScriptActive && sc.ScriptInstance) {
+				if (sc.ScriptInstance)
+				{
+					sc.ScriptInstance->OnStop();
+				}
+				sc.ScriptInstance = nullptr;
+			}
 		}
 
-		Start();
+		m_Registry.clear();
+		m_GameObjcts.clear();
+
+	}
+
+	void Scene::Reset() 
+	{
+		m_ShouldReset = true;
+	}
+
+	void Scene::ShouldReset()
+	{
+		if (m_ShouldReset) {
+			m_ShouldReset = false;
+			Stop();
+
+			auto idView = m_ResetPoint->m_Registry.view<IDComponent>();
+
+			for (auto entity : idView) {
+				GameObject object = { entity, m_ResetPoint.get() };
+
+				std::string name = object.GetComponent<TagComponent>().Tag;
+
+				GameObject newObject = CreateGameObject(name);
+
+				CopyAllComponents(newObject, object);
+			}
+
+			Start();
+		}
 	}
 
 	void Scene::OnUpdate(float deltaTime)
@@ -144,7 +182,7 @@ namespace TriEngine {
 				{
 					sc.ScriptInstance = sc.InstantiateScript();
 					sc.ScriptInstance->m_Object = GameObject(entity, this);
-					sc.ScriptInstance->OnCreate();
+					sc.ScriptInstance->OnStart();
 				}
 				sc.ScriptInstance->OnUpdate(deltaTime);
 			}
@@ -173,6 +211,8 @@ namespace TriEngine {
 		}
 
 		OnRender(deltaTime);
+
+		ShouldReset();
 	}
 
 	void Scene::OnEditorUpdate(float deltaTime)
@@ -216,41 +256,56 @@ namespace TriEngine {
 		fbSettings.Width = 1280;
 		fbSettings.Height = 720;
 		fbSettings.Samples = 1;
-		fbSettings.Attachments = { RenderAttachmentType::Color };
+		fbSettings.Attachments = { RenderAttachmentType::Color, RenderAttachmentType::DepthStencil };
 
 		Reference<FrameBuffer> mainFB = FrameBuffer::Create(fbSettings);
 
 		m_MainRenderpass = std::make_shared<Renderpass>(mainFB);
-		m_MainRenderpass->DepthTest = false;
+		m_MainRenderpass->DepthTest = true;
 	}
 
 	void Scene::OnRender(float deltaTime)
 	{
 		//2D rendering
 		glm::mat4 cameraTransform;
+		glm::mat4 cameraProjection;
 
 		if (m_CameraObject != nullptr) {
 			m_CameraObject->OnUpdate(deltaTime);
 			cameraTransform = m_CameraObject->GetTransform();
-			Renderer2D::Begin(m_CameraObject->GetProjection(), cameraTransform, m_MainRenderpass);
+			cameraProjection = m_CameraObject->GetProjection();
+		}
+		else {
+			auto cameraView = m_Registry.view<Transform2DComponent, Camera2DComponent>();
 
-			auto group = m_Registry.group<Transform2DComponent>(entt::get<Sprite2DComponent>);
-
-			for (auto entity : group) {
-				auto [transform, sprite] = group.get<Transform2DComponent, Sprite2DComponent>(entity);
-
-				bool empty = sprite.Texture->GetData().empty();
-				if (!empty) {
-					Renderer2D::SubmitQuad({ .Transform = transform.GetTransform(), .Tint = sprite.Tint, .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor, .Transparent = sprite.HasTransparency()});
+			for (auto entity : cameraView) {
+				GameObject object = { entity, this };
+				auto [transform, camera] = cameraView.get<Transform2DComponent, Camera2DComponent>(entity);
+				if (camera.Primary) {
+					cameraTransform = transform.GetTransform();
+					cameraProjection = camera.Camera.GetProjection();
 				}
-				else {
-					Renderer2D::SubmitQuad(ColoredQuadn(transform.GetTransform(), sprite.Tint, sprite.TilingFactor, sprite.HasTransparency()));
-				}
+			}
+		}
 
+		Renderer2D::Begin(cameraProjection, cameraTransform, m_MainRenderpass);
+
+		auto group = m_Registry.group<Transform2DComponent>(entt::get<Sprite2DComponent>);
+
+		for (auto entity : group) {
+			auto [transform, sprite] = group.get<Transform2DComponent, Sprite2DComponent>(entity);
+
+			bool empty = sprite.Texture->GetData().empty();
+			if (!empty) {
+				Renderer2D::SubmitQuad({ .Transform = transform.GetTransform(), .Tint = sprite.Tint, .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor, .Transparent = sprite.HasTransparency()});
+			}
+			else {
+				Renderer2D::SubmitQuad(ColoredQuadn(transform.GetTransform(), sprite.Tint, sprite.TilingFactor, sprite.HasTransparency()));
 			}
 
-			Renderer2D::End();
 		}
+
+			Renderer2D::End();
 
 		//TODO: Postprocess
 	}
@@ -290,7 +345,7 @@ namespace TriEngine {
 	{
 		Reference<Scene> newScene = Scene::Create(m_Name);
 
-		newScene->m_CameraObject = m_CameraObject;
+		//newScene->m_CameraObject = m_CameraObject;
 		newScene->m_ViewportSize = m_ViewportSize;
 		newScene->m_MainRenderpass = m_MainRenderpass;
 
@@ -316,12 +371,16 @@ namespace TriEngine {
 		TagComponent& tagComponent = object.AddComponent<TagComponent>(tag);
 		tagComponent.Tag = tag.empty() ? "Object" : tag;
 		object.AddComponent<Transform2DComponent>();
+
+		m_GameObjcts.emplace(uuid, object);
 		return object;
 	}
 
 	void Scene::DeleteGameObject(GameObject object)
 	{
-		std::string& name = object.GetComponent<TagComponent>().Tag;
+		uint64_t uuid = object.GetComponent<IDComponent>().ID;
+
+		m_GameObjcts.erase(uuid);
 		m_Registry.destroy(object.GetHandle());
 	}
 
