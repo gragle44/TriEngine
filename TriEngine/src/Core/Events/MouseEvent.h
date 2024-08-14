@@ -3,7 +3,6 @@
 #include "tripch.h"
 #include "Event.h"
 
-
 namespace TriEngine {
 
 	class  MouseMovedEvent : public Event

@@ -1,0 +1,4 @@
+TriEngine Project File
+---
+Project: Flappy Bird
+StartupScene: "flappybird.tscn"

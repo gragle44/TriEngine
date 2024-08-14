@@ -305,7 +305,7 @@ namespace TriEngine {
 
 		}
 
-			Renderer2D::End();
+		Renderer2D::End();
 
 		//TODO: Postprocess
 	}

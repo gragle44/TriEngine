@@ -1,0 +1,28 @@
+TriEngine Scene File
+---
+Scene: Scene
+Objects:
+  - Entity: 3391805444541615699
+    TagComponent:
+      Tag: Object
+    Transform2DComponent:
+      Position: [0, 2, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    Sprite2DComponent:
+      Texture:
+        FilePath: ""
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 543829192013126505
+    TagComponent:
+      Tag: Object
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [25, 1]
+    Sprite2DComponent:
+      Texture:
+        FilePath: test2.png
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1

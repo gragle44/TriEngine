@@ -10,7 +10,7 @@ namespace TriEngine{
 	}
 	Reference<Texture2D> TextureManager::Create2D(const std::string& name, const std::string& filePath, const TextureSettings& settings)
 	{
-		return Reference<Texture2D>();
+		return s_TextureLibrary.Push(name, Texture2D::Create(filePath, settings));
 	}
 	Reference<Texture2D> TextureManager::Create2D(const std::string& name, const glm::vec4& color, uint32_t size, const TextureSettings& settings)
 	{

@@ -4,6 +4,7 @@
 #include "Log.h"
 #include <unordered_map>
 #include <string>
+#include <memory>
 
 namespace TriEngine {
 	template <typename T>
@@ -19,17 +20,18 @@ namespace TriEngine {
 			if (Exists(name)) {
 				TRI_CORE_WARN("AssetLibrary::Load({0}) - overwriting asset with same name", name);
 			}
-			Reference<T> asset = std::make_shared<T>(std::forward<Args>(args));
+			Reference<T> asset = std::make_shared<T>(std::forward<Args>(args)...);
 			m_Assets[name] = asset;
 			return asset;
 		}
 
-		void Push(const std::string& name, Reference<T> asset) {
+		Reference<T> Push(const std::string& name, Reference<T> asset) {
 			if (Exists(name))
 			{
 				TRI_CORE_WARN("AssetLibrary::Load({0}) - overwriting asset with same name", name);
 			}
 			m_Assets[name] = asset;
+			return asset;
 		}
 
 		void Pop(const std::string& name) {

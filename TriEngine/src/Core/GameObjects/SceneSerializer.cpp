@@ -1,15 +1,17 @@
-#pragma once
 #include "tripch.h"
 
-#include "Serializer.h"
+#include "SceneSerializer.h"
 #include "GameObject.h"
 #include "Components.h"
+#include "Renderer/TextureManager.h"
 #include "Script.h"
 #include "ScriptRegistry.h"
+#include "Projects/ProjectManager.h"
 
 #include <glm/glm.hpp>
 
 #include <fstream>
+#include <filesystem>
 
 #define KEY(x) << YAML::Key << x
 
@@ -215,7 +217,11 @@ namespace TriEngine {
 			
 			// TODO: save other parameters from the texture
 			out << YAML::Key << "Texture" << YAML::Value << YAML::BeginMap;
-			out << YAML::Key << "FilePath" << YAML::Value << component.Texture->GetFilePath();
+
+			std::filesystem::path texturePath = component.Texture->GetFilePath();
+			const std::filesystem::path& projectPath = ProjectManager::GetCurrent()->GetWorkingDirectory();
+
+			out << YAML::Key << "FilePath" << YAML::Value << std::filesystem::relative(texturePath, projectPath).string();
 			out << YAML::EndMap;
 
 			out << YAML::Key << "Tint" << YAML::Value << component.Tint;
@@ -284,9 +290,15 @@ namespace TriEngine {
 		if (entity["Sprite2DComponent"]) {
 			auto& sprite = newEntity.AddComponent<Sprite2DComponent>();
 			//TODO: different types of sprite components under a dropdown in the UI
-			std::string path = entity["Sprite2DComponent"]["Texture"]["FilePath"].as<std::string>();
-			if (!path.empty())
-				sprite.Texture = Texture2D::Create(path);
+			std::string relativePath = entity["Sprite2DComponent"]["Texture"]["FilePath"].as<std::string>();
+			if (!relativePath.empty()) {
+
+				auto path = ProjectManager::GetCurrent()->GetAbsolutePath(relativePath);
+
+				if (!TextureManager::Exists(path.string()))
+					TextureManager::Create2D(path.string(), path.string());
+				sprite.Texture = TextureManager::Get(path.string());
+			}
 			else {
 				sprite.Texture = Texture2D::Create(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 			}

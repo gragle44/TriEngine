@@ -47,8 +47,15 @@ private:
 	}
 
 	void RenderPlaybuttons();
-	void RenderPlaybuttonsOld();
 	void SetupImGuiStyle();
+
+	void LoadEmptyScene();
+
+	void LoadProject(const std::string& path);
+	void SaveProject(const std::string& path);
+
+	void LoadScene(const std::string& path);
+	void SaveScene(const std::string& path);
 
 	void StartScene();
 	void StopScene();

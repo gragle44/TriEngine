@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Base/Core.h"
+#include "Core/Base/AssetLibrary.h"
 #include "Core/GameObjects/GameObject.h"
 #include "Core/GameObjects/Scene.h"
 
@@ -28,6 +29,8 @@ namespace TriEngine {
 		Reference<Scene> m_Scene;
 		GameObject m_SelectedItem;
 		GameObject m_RightSelectedItem;
+
+		AssetLibrary<Texture2D> m_TextureLibrary;
 
 		//Used to render the background for the Sprite2D node
 		Reference<Texture2D> m_SpriteBackground;

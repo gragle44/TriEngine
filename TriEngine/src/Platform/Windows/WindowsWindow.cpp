@@ -6,6 +6,7 @@
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
+#include "Events/JoystickEvent.h"
 #include "Events/Event.h"
 
 #include "Platform/OpenGL/OpenGLContext.h"
@@ -65,7 +66,7 @@ namespace TriEngine {
 		m_Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
-		SetVSync(VsyncMode::Adaptive);
+		SetVSync(VsyncMode::On);
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
@@ -155,6 +156,18 @@ namespace TriEngine {
 
 				MouseMovedEvent event((float)xPos, (float)yPos);
 				data.EventCallback(event);
+			});
+
+		glfwSetJoystickCallback([](int id, int type) 
+			{
+				JoystickConnectedEvent::JoyStickConnectedEventType eventType;
+
+				if (type == GLFW_CONNECTED)
+					eventType = JoystickConnectedEvent::JoyStickConnectedEventType::Connected;
+				else
+					eventType = JoystickConnectedEvent::JoyStickConnectedEventType::Disconected;
+
+				JoystickConnectedEvent event(id, eventType);
 			});
 	}
 

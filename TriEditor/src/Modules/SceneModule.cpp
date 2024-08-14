@@ -270,8 +270,15 @@ namespace TriEngine {
 		{
 			ImDrawList* draw_list = ImGui::GetWindowDrawList();
 			ImVec2 p0 = ImGui::GetCursorScreenPos();
-			draw_list->AddImage((void*)m_SpriteBackground->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-			draw_list->AddImage((void*)sprite.Texture->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + 250.0f, p0.y + 250.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+			const float bgSize = 250.0f;
+			draw_list->AddImage((void*)m_SpriteBackground->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + bgSize, p0.y + bgSize), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+			float scaleFactor = std::min(bgSize / sprite.Texture->GetWidth(), bgSize / sprite.Texture->GetHeight());
+			float posX = (sprite.Texture->GetWidth() * scaleFactor);
+			float posY = (sprite.Texture->GetHeight() * scaleFactor);
+
+			draw_list->AddImage((void*)sprite.Texture->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + posX, p0.y + posY), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 			ImGui::Dummy(ImVec2(250.0f, 250.0f));
 
 			if (ImGui::BeginItemTooltip()) {
@@ -290,7 +297,6 @@ namespace TriEngine {
 
 				if (result == NFD_OKAY) {
 					sprite.Texture = TriEngine::Texture2D::Create(output);
-					delete output;
 				}
 
 				else if (result == NFD_CANCEL) {
@@ -301,6 +307,7 @@ namespace TriEngine {
 					TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
 				}
 
+				delete output;
 			}
 
 			ImGui::ColorEdit4("Tint", glm::value_ptr(sprite.Tint));

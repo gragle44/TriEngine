@@ -55,7 +55,7 @@ public:
 		auto& rigidBody = GetComponent<RigidBody2DComponent>();
 		auto& transform = GetComponent<Transform2DComponent>();
 
-		if (Input::IsKeyPressed(TRI_KEY_SPACE)) {
+		if (Input::IsKeyPressed(TRI_KEY_SPACE) || Input::IsGamepadButtonPressed(TRI_JOYSTICK_1,TRI_GAMEPAD_BUTTON_A)) {
 			m_UpVelocity += 200.0f;
 			m_RotationVelocity = 575.0f;
 
@@ -243,6 +243,8 @@ void EditorLayer::OnAttach()
 
 	m_ViewPortSize = { 1280, 720 };
 
+	ProjectManager::CreateNew();
+
 	m_EditorScene = Scene::Create();
 	m_ActiveScene = m_EditorScene;
 	m_SceneModule.SetScene(m_EditorScene);
@@ -254,6 +256,7 @@ void EditorLayer::OnAttach()
 	playbuttonSettings.Filter = TextureFilter::Linear;
 
 	m_PlayTexture = Texture2D::Create("assets/playbutton.png", playbuttonSettings);
+	m_PauseTexture = Texture2D::Create("assets/pausebutton.png", playbuttonSettings);
 
 	SetupImGuiStyle();
 
@@ -261,77 +264,6 @@ void EditorLayer::OnAttach()
 
 void EditorLayer::OnDetach()
 {
-	m_ActiveScene->Stop();
-}
-
-void EditorLayer::RenderPlaybuttonsOld()
-{
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
-	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-	auto& colors = ImGui::GetStyle().Colors;
-	const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
-	const auto& buttonActive = colors[ImGuiCol_ButtonActive];
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
-
-	ImGui::Begin("##editor_start_stop", nullptr);
-
-	float size = ImGui::GetWindowHeight();
-
-	if (ImGui::ImageButton((ImTextureID)m_PlayTexture->GetID(), { size, size }, ImVec2(0, 0), ImVec2(1, 1))) {
-		m_SceneRunning = !m_SceneRunning;
-		if (m_SceneRunning)
-			StartScene();
-		else {
-			StopScene();
-		}
-	}
-
-	ImGui::PopStyleVar(2);
-	ImGui::PopStyleColor(3);
-	ImGui::End();
-}
-
-void EditorLayer::RenderPlaybuttons()
-{
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
-	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-	auto& colors = ImGui::GetStyle().Colors;
-	const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
-	const auto& buttonActive = colors[ImGuiCol_ButtonActive];
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
-
-	const float size = 24.0f;
-	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
-
-
-	if (ImGui::ImageButton((ImTextureID)m_PlayTexture->GetID(), { size, size })) {
-		m_SceneRunning = !m_SceneRunning;
-		if (m_SceneRunning)
-			StartScene();
-		else {
-			StopScene();
-		}
-	}
-
-	ImGui::PopStyleVar(2);
-	ImGui::PopStyleColor(3);
-
-}
-
-void EditorLayer::StartScene()
-{
-	m_SceneRunning = true;
-	m_ActiveScene = m_EditorScene->Copy();
-	m_ActiveScene->Start();
-}
-
-void EditorLayer::StopScene()
-{
-	m_SceneRunning = false;
 	m_ActiveScene->Stop();
 }
 
@@ -365,6 +297,62 @@ void EditorLayer::OnEvent(Event& e)
 	else
 		m_EditorScene->OnEvent(e);
 }
+
+void EditorLayer::StartScene()
+{
+	m_SceneRunning = true;
+	m_ActiveScene = m_EditorScene->Copy();
+	m_ActiveScene->Start();
+}
+
+void EditorLayer::StopScene()
+{
+	m_SceneRunning = false;
+	m_ActiveScene->Stop();
+}
+
+void EditorLayer::LoadEmptyScene()
+{
+	StopScene();
+	m_EditorScene = Scene::Create();
+	m_ActiveScene = m_EditorScene;
+}
+
+void EditorLayer::LoadProject(const std::string& path)
+{
+	std::filesystem::path filePath = path;
+	TriEngine::ProjectManager::Load(filePath);
+
+	const TriEngine::ProjectData& projectData = TriEngine::ProjectManager::GetCurrent()->GetProjectData();
+
+	if (!projectData.StartupScene.empty()) {
+		std::filesystem::path fullStartupScenePath = TriEngine::ProjectManager::GetCurrent()->GetAbsolutePath(projectData.StartupScene.string());
+
+		LoadScene(fullStartupScenePath.string());
+	}
+	else {
+		LoadEmptyScene();
+	}
+}
+
+void EditorLayer::SaveProject(const std::string& path)
+{
+	ProjectManager::Save(path);
+}
+
+void EditorLayer::LoadScene(const std::string& path)
+{
+	StopScene();
+	TriEngine::SceneSerializer s(m_EditorScene);
+	s.Deserialize(path);
+}
+
+void EditorLayer::SaveScene(const std::string& path)
+{
+	TriEngine::SceneSerializer s(m_EditorScene);
+	s.Serialize(path);
+}
+
 
 void EditorLayer::OnImGuiRender()
 {
@@ -458,6 +446,38 @@ void EditorLayer::OnImGuiRender()
 	ImGui::End();
 }
 
+void EditorLayer::RenderPlaybuttons()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+	auto& colors = ImGui::GetStyle().Colors;
+	const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+	const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+	const float size = 24.0f;
+	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+
+
+	Reference<Texture2D>& currentTexture = m_SceneRunning ? m_PauseTexture : m_PlayTexture;
+
+	if (ImGui::ImageButton((ImTextureID)currentTexture->GetID(), { size, size })) {
+		m_SceneRunning = !m_SceneRunning;
+		if (m_SceneRunning)
+			StartScene();
+		else {
+			StopScene();
+		}
+	}
+
+	ImGui::PopStyleVar(2);
+	ImGui::PopStyleColor(3);
+
+}
+
+
 void EditorLayer::UpdateTitleBar()
 {
 	if (ImGui::BeginMenu("File"))
@@ -465,6 +485,51 @@ void EditorLayer::UpdateTitleBar()
 		// Disabling fullscreen would allow the window to be moved to the front of other windows, 
 		// which we can't undo at the moment without finer window depth/z control.
 		//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+
+		if (ImGui::MenuItem("Save project as")) {
+			char* output;
+			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
+			nfdresult_t result = NFD_SaveDialog("tri", cwd.string().c_str(), &output);
+
+			if (result == NFD_OKAY) {
+				std::string path(output);
+				if (!path.ends_with(".tri"))
+					path.append(".tri");
+
+				SaveProject(path);
+			}
+
+			else if (result == NFD_CANCEL) {
+				TRI_CORE_TRACE("Canceled file dialog");
+			}
+
+			else if (result == NFD_ERROR) {
+				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
+			}
+
+			delete output;
+
+		}
+
+		if (ImGui::MenuItem("Load project")) {
+			nfdchar_t* output;
+			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
+			nfdresult_t result = NFD_OpenDialog("tri", cwd.string().c_str(), &output);
+
+			if (result == NFD_OKAY) {
+				LoadProject(output);
+			}
+
+			else if (result == NFD_CANCEL) {
+				TRI_CORE_TRACE("Canceled file dialog");
+			}
+
+			else if (result == NFD_ERROR) {
+				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
+			}
+
+			delete output;
+		}
 
 		if (ImGui::MenuItem("Save scene as")) {
 			char* output;
@@ -477,9 +542,7 @@ void EditorLayer::UpdateTitleBar()
 				if (!path.ends_with(".tscn"))
 					path.append(".tscn");
 
-				TriEngine::SceneSerializer s(m_EditorScene);
-				s.Serialize(path);
-				delete output;
+				SaveScene(path);
 			}
 
 			else if (result == NFD_CANCEL) {
@@ -490,6 +553,7 @@ void EditorLayer::UpdateTitleBar()
 				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
 			}
 
+			delete output;
 		}
 
 		if (ImGui::MenuItem("Load scene")) {
@@ -498,10 +562,7 @@ void EditorLayer::UpdateTitleBar()
 			nfdresult_t result = NFD_OpenDialog("tscn", cwd.string().c_str(), &output);
 
 			if (result == NFD_OKAY) {
-				StopScene();
-				TriEngine::SceneSerializer s(m_EditorScene);
-				s.Deserialize(output);
-				delete output;
+				LoadScene(output);
 			}
 
 			else if (result == NFD_CANCEL) {
@@ -511,6 +572,8 @@ void EditorLayer::UpdateTitleBar()
 			else if (result == NFD_ERROR) {
 				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
 			}
+
+			delete output;
 		}
 
 		if (ImGui::MenuItem("Exit")) Application::Get().Close();
