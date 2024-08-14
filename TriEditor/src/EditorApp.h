@@ -51,6 +51,7 @@ private:
 
 	void LoadEmptyScene();
 
+	void PromptLoadProject();
 	void LoadProject(const std::string& path);
 	void SaveProject(const std::string& path);
 
@@ -77,6 +78,9 @@ private:
 
 
 	ImFont* m_EditorFont;
+	
+	bool m_NoProjectLoaded = true;
+
 	bool m_SceneViewPaused = false;
 	bool m_SceneRunning = false;
 

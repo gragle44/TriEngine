@@ -160,11 +160,7 @@ namespace TriEngine {
 		}
 
 		//Update Vertex Buffer
-		
-		 
-		 
-		// Disabled due to rendering issues 
-		//std::sort(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr, TransparencyKey());
+		std::stable_sort(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr, TransparencyKey());
 
 		uint32_t size = std::distance(s_RenderData.VertexData.begin(), s_RenderData.VertexDataPtr);
 		uint32_t transparentSize = std::distance(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr);

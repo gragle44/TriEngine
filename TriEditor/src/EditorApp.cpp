@@ -243,8 +243,6 @@ void EditorLayer::OnAttach()
 
 	m_ViewPortSize = { 1280, 720 };
 
-	ProjectManager::CreateNew();
-
 	m_EditorScene = Scene::Create();
 	m_ActiveScene = m_EditorScene;
 	m_SceneModule.SetScene(m_EditorScene);
@@ -315,6 +313,7 @@ void EditorLayer::LoadEmptyScene()
 {
 	StopScene();
 	m_EditorScene = Scene::Create();
+	m_EditorScene->SetEditorCamera(m_Camera);
 	m_ActiveScene = m_EditorScene;
 }
 
@@ -440,10 +439,55 @@ void EditorLayer::OnImGuiRender()
 			m_EditorScene->OnEditorRender();
 
 	}
+
+	PromptLoadProject();
+
 	ImGui::End();
 	ImGui::PopStyleVar();
 
 	ImGui::End();
+}
+
+void EditorLayer::PromptLoadProject()
+{
+	if (m_NoProjectLoaded) {
+		if (!ImGui::IsPopupOpen("Load Project"))
+			ImGui::OpenPopup("Load Project");
+
+		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		if (ImGui::BeginPopupModal("Load Project", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+
+			if (ImGui::Button("Load", {60, 0})) {
+				nfdchar_t* output;
+				auto cwd = std::filesystem::current_path();
+				nfdresult_t result = NFD_OpenDialog("tri", cwd.string().c_str(), &output);
+
+				if (result == NFD_OKAY) {
+					LoadProject(output);
+					m_NoProjectLoaded = false;
+					delete output;
+				}
+
+				else if (result == NFD_CANCEL) {
+					TRI_CORE_TRACE("Canceled file dialog");
+				}
+
+				else if (result == NFD_ERROR) {
+					TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
+				}
+
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("New", { 60, 0 })) {
+				ProjectManager::CreateNew();
+				LoadEmptyScene();
+				m_NoProjectLoaded = false;
+			}
+			ImGui::EndPopup();
+		}
+	}
 }
 
 void EditorLayer::RenderPlaybuttons()
@@ -497,6 +541,7 @@ void EditorLayer::UpdateTitleBar()
 					path.append(".tri");
 
 				SaveProject(path);
+				delete output;
 			}
 
 			else if (result == NFD_CANCEL) {
@@ -506,9 +551,6 @@ void EditorLayer::UpdateTitleBar()
 			else if (result == NFD_ERROR) {
 				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
 			}
-
-			delete output;
-
 		}
 
 		if (ImGui::MenuItem("Load project")) {
@@ -518,6 +560,7 @@ void EditorLayer::UpdateTitleBar()
 
 			if (result == NFD_OKAY) {
 				LoadProject(output);
+				delete output;
 			}
 
 			else if (result == NFD_CANCEL) {
@@ -528,12 +571,11 @@ void EditorLayer::UpdateTitleBar()
 				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
 			}
 
-			delete output;
 		}
 
 		if (ImGui::MenuItem("Save scene as")) {
 			char* output;
-			auto cwd = std::filesystem::current_path();
+			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
 			nfdresult_t result = NFD_SaveDialog("tscn", cwd.string().c_str(), &output);
 
 
@@ -543,6 +585,7 @@ void EditorLayer::UpdateTitleBar()
 					path.append(".tscn");
 
 				SaveScene(path);
+				delete output;
 			}
 
 			else if (result == NFD_CANCEL) {
@@ -552,17 +595,16 @@ void EditorLayer::UpdateTitleBar()
 			else if (result == NFD_ERROR) {
 				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
 			}
-
-			delete output;
 		}
 
 		if (ImGui::MenuItem("Load scene")) {
 			nfdchar_t* output;
-			auto cwd = std::filesystem::current_path();
+			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
 			nfdresult_t result = NFD_OpenDialog("tscn", cwd.string().c_str(), &output);
 
 			if (result == NFD_OKAY) {
 				LoadScene(output);
+				delete output;
 			}
 
 			else if (result == NFD_CANCEL) {
@@ -572,8 +614,6 @@ void EditorLayer::UpdateTitleBar()
 			else if (result == NFD_ERROR) {
 				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
 			}
-
-			delete output;
 		}
 
 		if (ImGui::MenuItem("Exit")) Application::Get().Close();

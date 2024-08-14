@@ -1,5 +1,6 @@
 #include "SceneModule.h"
 
+#include "Core/Projects/ProjectManager.h"
 #include "Core/GameObjects/Components.h"
 #include "Core/GameObjects/Script.h"
 #include "Core/Renderer/Texture.h"
@@ -195,7 +196,7 @@ namespace TriEngine {
 
 			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			if (ImGui::BeginPopupModal("Delete Object", &deleting, ImGuiWindowFlags_AlwaysAutoResize)) {
+			if (ImGui::BeginPopupModal("Delete Object", &deleting, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
 
 				ImGui::Text("Are you sure you want to delete this object? This action cannot be undone.");
 				if (ImGui::Button("Delete")) {
@@ -291,12 +292,13 @@ namespace TriEngine {
 			
 			if (ImGui::Button("Change image path")) {
 				char* output;
-				auto cwd = std::filesystem::current_path();
+				auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
 				nfdresult_t result = NFD_OpenDialog("png, jpeg, jpg", cwd.string().c_str(), &output);
 
 
 				if (result == NFD_OKAY) {
 					sprite.Texture = TriEngine::Texture2D::Create(output);
+					delete output;
 				}
 
 				else if (result == NFD_CANCEL) {
@@ -306,8 +308,6 @@ namespace TriEngine {
 				else if (result == NFD_ERROR) {
 					TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
 				}
-
-				delete output;
 			}
 
 			ImGui::ColorEdit4("Tint", glm::value_ptr(sprite.Tint));

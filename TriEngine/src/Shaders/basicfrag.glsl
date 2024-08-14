@@ -46,9 +46,5 @@ void main()
 		case 31: texColor = texture(u_Samplers[31], v_TexCoord); break;
 	}
 
-	if (texColor.a == 0.0) {
-		discard;
-	}
-
 	FragColor = texColor * v_Color;
 }
