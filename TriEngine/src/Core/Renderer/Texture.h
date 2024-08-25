@@ -2,6 +2,7 @@
 
 #include "Core/Base/Core.h"
 #include "Core/Base/Assert.h"
+#include "Core/Resources/Resource.h"
 #include <string>
 #include <glm/glm.hpp>
 
@@ -33,7 +34,7 @@ namespace TriEngine {
 	std::string TextureWrapToString(TextureWrap wrap);
 	std::string TextureFilterToString(TextureFilter filter);
 
-	class Texture {
+	class Texture : public Resource {
 	public:
 		virtual ~Texture() = default;
 
