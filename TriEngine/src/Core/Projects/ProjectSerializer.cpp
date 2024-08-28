@@ -2,8 +2,6 @@
 #include "ProjectSerializer.h"
 #include "Core/Base/Assert.h"
 
-#include <fstream>
-
 #define KEY(x) << YAML::Key << x
 
 #define VAL(x) << YAML::Value << x

@@ -7,6 +7,21 @@
 #include "Platform/OpenGL/OpenGLTexture.h"
 
 namespace TriEngine {
+	Reference<Texture2D> Texture2D::Create(const ByteBuffer& buffer, const TextureSettings& settings)
+	{
+		switch (Renderer::GetCurrentAPI())
+		{
+		case RendererAPI::API::None:
+			TRI_CORE_ASSERT(false, "Renderer type 'None' is not currently supported");
+			return nullptr;
+		case RendererAPI::API::OpenGL:
+			return std::make_shared<OpenGLTexture2D>(buffer, settings);
+
+			TRI_CORE_ASSERT(false, "Invalid renderer type!");
+			return nullptr;
+		}
+	}
+	
 	Reference<Texture2D> Texture2D::Create(const glm::ivec2& size, const TextureSettings& settings)
 	{
 		switch (Renderer::GetCurrentAPI())

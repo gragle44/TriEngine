@@ -13,6 +13,8 @@
 #include "Utils/PlatformUtils.h"
 
 //Projects and Scenes
+#include "Core/Resources/ResourceManager.h"
+#include "Core/Resources/Resource.h"
 #include "Core/Projects/Project.h"
 #include "Core/Projects/ProjectManager.h"
 #include "Core/GameObjects/GameObject.h"

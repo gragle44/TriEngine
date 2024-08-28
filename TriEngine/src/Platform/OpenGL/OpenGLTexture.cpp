@@ -44,9 +44,39 @@ namespace TriEngine {
         }
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const glm::ivec2& size, const TextureSettings& settings)
-        :m_Width(size.x), m_Height(size.y), m_Settings(settings)
+    OpenGLTexture2D::OpenGLTexture2D(const ByteBuffer& buffer, const TextureSettings& settings)
+        :m_Buffer(buffer), m_Settings(settings)
     {
+
+        GLenum openGLFormat = GL_RGB8;
+        GLenum dataFormat = GL_RGB;
+
+        //Check how many channels the texture has
+        if (buffer.size() / (settings.SizeX * settings.SizeY) == 4) {
+            m_Transparent = true;
+            openGLFormat = GL_RGBA8;
+            dataFormat = GL_RGBA;
+        }
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
+
+        GLenum filter = FilterModeToOpenGLEnum(settings.Filter);
+        GLenum wrap = WrapModeToOpenGLEnum(settings.Wrap);
+
+        glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, filter);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, filter);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, wrap);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
+
+        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Settings.SizeX, m_Settings.SizeY);
+        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Settings.SizeX, m_Settings.SizeY, dataFormat, GL_UNSIGNED_BYTE, m_Buffer.data());
+    }
+
+    OpenGLTexture2D::OpenGLTexture2D(const glm::ivec2& size, const TextureSettings& settings)
+        :m_Settings(settings)
+    {
+        m_Settings.SizeX = size.x;
+        m_Settings.SizeY = size.y;
         GLenum openGLFormat = 0, dataFormat = 0, textureType = 0;
 
         switch (settings.Usage)
@@ -79,10 +109,10 @@ namespace TriEngine {
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
 
         if (settings.Samples > 1) {
-            glTextureStorage2DMultisample(m_TextureID, settings.Samples, openGLFormat, m_Width, m_Height, GL_TRUE);
+            glTextureStorage2DMultisample(m_TextureID, settings.Samples, openGLFormat, m_Settings.SizeX, m_Settings.SizeY, GL_TRUE);
         }
         else {
-            glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
+            glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Settings.SizeX, m_Settings.SizeY);
         }
     }
 
@@ -104,8 +134,8 @@ namespace TriEngine {
         m_Buffer.reserve(size);
         m_Buffer.insert(m_Buffer.end(), data, data+size);
 
-        m_Width = x;
-        m_Height = y;
+        m_Settings.SizeX = x;
+        m_Settings.SizeY = y;
 
         GLenum openGLFormat = 0;
         GLenum dataFormat = 0;
@@ -131,15 +161,19 @@ namespace TriEngine {
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, wrap);
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
 
-        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
-        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, m_Buffer.data());
+        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Settings.SizeX, m_Settings.SizeY);
+        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Settings.SizeX, m_Settings.SizeY, dataFormat, GL_UNSIGNED_BYTE, m_Buffer.data());
 
         stbi_image_free(data);
     }
 
     OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& color, uint32_t size, const TextureSettings& settings)
-        :m_Settings(settings), m_Width(size), m_Height(size)
+        :m_Settings(settings)
     {
+
+        m_Settings.SizeX = size;
+        m_Settings.SizeY = size;
+
         uint8_t colorBytes[] = {
             (uint8_t)(color.r * 0xffu),
             (uint8_t)(color.g * 0xffu),
@@ -147,7 +181,7 @@ namespace TriEngine {
             (uint8_t)(color.a * 0xffu) 
         };
 
-        m_Buffer.resize(m_Width * m_Height * sizeof(colorBytes));
+        m_Buffer.resize(m_Settings.SizeX * m_Settings.SizeY * sizeof(colorBytes));
         m_Buffer.assign(reinterpret_cast<uint8_t*>(colorBytes), reinterpret_cast<uint8_t*>(colorBytes) + m_Buffer.size());
 
         GLenum openGLFormat = GL_RGBA8;
@@ -164,15 +198,16 @@ namespace TriEngine {
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, wrap);
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
 
-        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
-        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, m_Buffer.data());
-
+        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Settings.SizeX, m_Settings.SizeY);
+        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Settings.SizeX, m_Settings.SizeY, dataFormat, GL_UNSIGNED_BYTE, m_Buffer.data());
     }
 
     OpenGLTexture2D::OpenGLTexture2D(const glm::vec4& startColor, const glm::vec4& endColor, uint32_t size, const TextureSettings& settings)
-        :m_Settings(settings), m_Width(size), m_Height(size)
+        :m_Settings(settings)
     {
-        m_Buffer.resize(m_Width * m_Height * sizeof(uint8_t) * 4);
+        m_Settings.SizeX = size;
+        m_Settings.SizeY = size;
+        m_Buffer.resize(m_Settings.SizeX * m_Settings.SizeY * sizeof(uint8_t) * 4);
         
         auto iterator = m_Buffer.begin();
 
@@ -209,8 +244,8 @@ namespace TriEngine {
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, wrap);
         glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, wrap);
 
-        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Width, m_Height);
-        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, m_Buffer.data());
+        glTextureStorage2D(m_TextureID, 1, openGLFormat, m_Settings.SizeX, m_Settings.SizeY);
+        glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Settings.SizeX, m_Settings.SizeY, dataFormat, GL_UNSIGNED_BYTE, m_Buffer.data());
 
     }
 

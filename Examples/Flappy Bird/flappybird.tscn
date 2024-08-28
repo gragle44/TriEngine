@@ -19,7 +19,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\pipe-green.png
+        ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 8440524986258898521
@@ -39,7 +39,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\pipe-green.png
+        ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 7306591404399475779
@@ -59,7 +59,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\base.png
+        ResourceID: 3323281954826050416
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 17092832116788378862
@@ -79,7 +79,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\base.png
+        ResourceID: 3323281954826050416
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 9099734326440738584
@@ -91,7 +91,7 @@ Objects:
       Scale: [10, 17.7777786]
     Sprite2DComponent:
       Texture:
-        FilePath: assets\background-day.png
+        ResourceID: 3874022383595756532
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 15498692396540144430
@@ -103,7 +103,7 @@ Objects:
       Scale: [10, 17.7777786]
     Sprite2DComponent:
       Texture:
-        FilePath: assets\background-day.png
+        ResourceID: 3874022383595756532
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 8120513386865572024
@@ -138,7 +138,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\base.png
+        ResourceID: 3323281954826050416
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 608594939993781728
@@ -158,7 +158,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\pipe-green.png
+        ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 18204241134393458218
@@ -178,7 +178,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\pipe-green.png
+        ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 4189047165466491587
@@ -198,7 +198,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\pipe-green.png
+        ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 12789667045006573725
@@ -218,7 +218,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\pipe-green.png
+        ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 1178490386364648096
@@ -238,7 +238,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\pipe-green.png
+        ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 17568630165194497668
@@ -258,7 +258,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\pipe-green.png
+        ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 13164760565101997395
@@ -281,7 +281,7 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        FilePath: assets\yellowbird-midflap.png
+        ResourceID: 4855337914940871302
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 8154006424767514121
@@ -296,7 +296,7 @@ Objects:
       ScriptName: class BackgroundScript
     Sprite2DComponent:
       Texture:
-        FilePath: assets\background-day.png
+        ResourceID: 3874022383595756532
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 11786186107443961375

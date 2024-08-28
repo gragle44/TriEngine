@@ -6,7 +6,6 @@
 #include <chrono>
 
 #include <filesystem>
-#include <fstream>
 
 namespace TriEngine {
 	float Time::GetTime() {

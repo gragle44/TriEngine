@@ -319,11 +319,18 @@ void EditorLayer::LoadEmptyScene()
 
 void EditorLayer::LoadProject(const std::string& path)
 {
+
+	if (TriEngine::ProjectManager::GetCurrent() != nullptr) {
+		//Unload project
+		TriEngine::ResourceManager::Shutdown();
+	}
+
 	std::filesystem::path filePath = path;
 	TriEngine::ProjectManager::Load(filePath);
 
-	const TriEngine::ProjectData& projectData = TriEngine::ProjectManager::GetCurrent()->GetProjectData();
+	TriEngine::ResourceManager::Init();
 
+	const TriEngine::ProjectData& projectData = TriEngine::ProjectManager::GetCurrent()->GetProjectData();
 	if (!projectData.StartupScene.empty()) {
 		std::filesystem::path fullStartupScenePath = TriEngine::ProjectManager::GetCurrent()->GetAbsolutePath(projectData.StartupScene.string());
 

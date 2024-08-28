@@ -7,6 +7,7 @@
 namespace TriEngine {
 	class OpenGLTexture2D : public Texture2D {
 	public:
+		OpenGLTexture2D(const ByteBuffer& buffer, const TextureSettings& settings);
 		OpenGLTexture2D(const glm::ivec2& size, const TextureSettings& settings);
 		OpenGLTexture2D(const std::string& filePath, const TextureSettings& settings);
 		OpenGLTexture2D(const glm::vec4& color, uint32_t size, const TextureSettings& settings);
@@ -20,10 +21,11 @@ namespace TriEngine {
 		virtual std::string& GetFilePath() final { return m_Path; }
 		virtual TextureFilter GetFilterMode() const final { return m_Settings.Filter; }
 		virtual TextureWrap GetWrapMode() const final { return m_Settings.Wrap; }
+		virtual const TextureSettings& GetSettings() const final { return m_Settings; }
 
 		virtual ByteBuffer& GetData() final { return m_Buffer; };
-		virtual uint32_t GetWidth() const final { return m_Width; };
-		virtual uint32_t GetHeight() const final { return m_Height; };
+		virtual uint32_t GetWidth() const final { return m_Settings.SizeX; };
+		virtual uint32_t GetHeight() const final { return m_Settings.SizeY; };
 
 		virtual RID GetID() const final { return m_TextureID; };
 	private:
@@ -33,7 +35,6 @@ namespace TriEngine {
 
 		bool m_Transparent = false;
 		ByteBuffer m_Buffer;
-		uint32_t m_Width, m_Height;
 		std::string m_Path;
 	};
 }

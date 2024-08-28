@@ -1,5 +1,6 @@
 #include "SceneModule.h"
 
+#include "Core/Resources/ResourceManager.h"
 #include "Core/Projects/ProjectManager.h"
 #include "Core/GameObjects/Components.h"
 #include "Core/GameObjects/Script.h"
@@ -293,11 +294,14 @@ namespace TriEngine {
 			if (ImGui::Button("Change image path")) {
 				char* output;
 				auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-				nfdresult_t result = NFD_OpenDialog("png, jpeg, jpg", cwd.string().c_str(), &output);
-
+				nfdresult_t result = NFD_OpenDialog("png", cwd.string().c_str(), &output);
 
 				if (result == NFD_OKAY) {
-					sprite.Texture = TriEngine::Texture2D::Create(output);
+					TriEngine::ResourceID resourceID = TriEngine::ResourceManager::GetIDFromPath(output);
+					if (!TriEngine::ResourceManager::ResourceExists(resourceID))
+						sprite.Texture = TriEngine::ResourceManager::Create<Texture2D>(output, output);
+					else
+						sprite.Texture = std::reinterpret_pointer_cast<Texture2D>(TriEngine::ResourceManager::Get(resourceID));
 					delete output;
 				}
 

@@ -26,6 +26,7 @@ IncludeDir["nativefiledialog"] = "TriEngine/vendor/nativefiledialog/src/include"
 IncludeDir["glm"] = "TriEngine/vendor/glm"
 IncludeDir["entt"] = "TriEngine/vendor/entt"
 IncludeDir["nameof"] = "TriEngine/vendor/nameof"
+IncludeDir["magic_enum"] = "TriEngine/vendor/magic_enum"
 
 group "Dependancies"
 	include "TriEngine/vendor/GLFW"
@@ -84,7 +85,8 @@ project "TriEngine"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.nameof}",
 		"%{IncludeDir.yaml_cpp}",
-		"%{IncludeDir.nativefiledialog}"
+		"%{IncludeDir.nativefiledialog}",
+		"%{IncludeDir.magic_enum}"
 	}
 
 	links

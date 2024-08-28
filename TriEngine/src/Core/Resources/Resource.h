@@ -8,9 +8,10 @@ namespace TriEngine {
 
 	using ResourceID = UUID;
 
-	enum class ResourceType {
+	enum class ResourceType : uint8_t {
 		None,
-		Texture
+		Texture,
+		Scene
 	};
 
 	struct ResourceMetadata {
@@ -26,6 +27,10 @@ namespace TriEngine {
 
 		template<typename T>
 		Reference<T> As() { return reinterpret_cast<T*>(this); }
+
+		operator bool() const {
+			return MetaData.Type != ResourceType::None;
+		}
 
 		virtual ~Resource() = default;
 	};

@@ -25,6 +25,7 @@ namespace TriEngine {
 	};
 
 	struct TextureSettings {
+		uint32_t SizeX, SizeY;
 		TextureUsage Usage = TextureUsage::Image;
 		TextureFilter Filter = TextureFilter::Nearest;
 		TextureWrap Wrap = TextureWrap::Repeat;
@@ -43,18 +44,23 @@ namespace TriEngine {
 
 		virtual bool HasTransparency() const = 0;
 		virtual std::string& GetFilePath() = 0;
+
+		virtual const TextureSettings& GetSettings() const = 0;
 		virtual TextureFilter GetFilterMode() const = 0;
 		virtual TextureWrap GetWrapMode() const = 0;
-
-		virtual ByteBuffer& GetData() = 0;
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
+
+		virtual ByteBuffer& GetData() = 0;
+
 
 		virtual RID GetID() const = 0;
 	};
 
 	class Texture2D : public Texture {
 	public:
+		static Reference<Texture2D> Create(const ByteBuffer& buffer, const TextureSettings& settings = TextureSettings());
+
 		static Reference<Texture2D> Create(const glm::ivec2& size, const TextureSettings& settings = TextureSettings());
 
 		static Reference<Texture2D> Create(const std::string& filePath, const TextureSettings& settings = TextureSettings());

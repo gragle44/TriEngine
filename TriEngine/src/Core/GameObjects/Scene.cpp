@@ -367,7 +367,7 @@ namespace TriEngine {
 	GameObject Scene::CreateGameObjectUUID(uint64_t uuid, const std::string& tag)
 	{
 		GameObject object(m_Registry.create(), this);
-		IDComponent idComponent = object.AddComponent<IDComponent>(uuid);
+		object.AddComponent<IDComponent>(uuid);
 		TagComponent& tagComponent = object.AddComponent<TagComponent>(tag);
 		tagComponent.Tag = tag.empty() ? "Object" : tag;
 		object.AddComponent<Transform2DComponent>();

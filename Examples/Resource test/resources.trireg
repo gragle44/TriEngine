@@ -1,0 +1,8 @@
+TriEngine Resource Registry
+---
+- ID: 8693485404377251036
+  Filepath: test2.png
+  Type: Texture
+- ID: 5188285009302322869
+  Filepath: red.png
+  Type: Texture
