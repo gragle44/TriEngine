@@ -25,7 +25,7 @@ namespace TriEngine {
 	};
 
 	struct TextureSettings {
-		uint32_t SizeX, SizeY;
+		uint32_t SizeX, SizeY = 0;
 		TextureUsage Usage = TextureUsage::Image;
 		TextureFilter Filter = TextureFilter::Nearest;
 		TextureWrap Wrap = TextureWrap::Repeat;

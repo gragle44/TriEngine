@@ -2,210 +2,64 @@ TriEngine Scene File
 ---
 Scene: Scene
 Objects:
-  - Entity: 4910622945802663607
+  - Entity: 11786186107443961375
     TagComponent:
-      Tag: Pillar
+      Tag: Camera
     Transform2DComponent:
-      Position: [40, -6.5, 0]
+      Position: [0, 0, 0]
       Rotation: 0
-      Scale: [1, 8]
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 9289331653196552355
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 8440524986258898521
-    TagComponent:
-      Tag: Pillar
-    Transform2DComponent:
-      Position: [40, 6.5, 0]
-      Rotation: 180
-      Scale: [1, 8]
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 9289331653196552355
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 7306591404399475779
-    TagComponent:
-      Tag: Floor
-    Transform2DComponent:
-      Position: [-10, -8.39999962, 0.5]
-      Rotation: 0
-      Scale: [10, 1]
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 3323281954826050416
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 17092832116788378862
-    TagComponent:
-      Tag: Floor
-    Transform2DComponent:
-      Position: [10, -8.39999962, 0.5]
-      Rotation: 0
-      Scale: [10, 1]
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 3323281954826050416
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 9099734326440738584
+      Scale: [1, 1]
+    Camera2DComponent:
+      Zoom: 17.5
+      AspectRatio: 1.5219512
+      YScale: 1
+      NearClip: -1
+      FarClip: 1
+      Resizeable: true
+      Primary: true
+  - Entity: 8154006424767514121
     TagComponent:
       Tag: Background
     Transform2DComponent:
-      Position: [-10, 0, -0.5]
+      Position: [0, 0, -0.5]
       Rotation: 0
       Scale: [10, 17.7777786]
+    ScriptComponent:
+      ScriptActive: true
+      ScriptName: class BackgroundScript
     Sprite2DComponent:
       Texture:
         ResourceID: 3874022383595756532
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 15498692396540144430
+  - Entity: 13164760565101997395
     TagComponent:
-      Tag: Background
+      Tag: bird
     Transform2DComponent:
-      Position: [10, 0, -0.5]
+      Position: [0, -0.25, 1]
       Rotation: 0
-      Scale: [10, 17.7777786]
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 3874022383595756532
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 8120513386865572024
-    TagComponent:
-      Tag: Skybox
-    Transform2DComponent:
-      Position: [0, 9, 0]
-      Rotation: 0
-      Scale: [10, 1]
+      Scale: [1.41600001, 1]
+    ScriptComponent:
+      ScriptActive: true
+      ScriptName: class BirdScript
     RigidBody2DComponent:
-      Type: Static
+      Type: Dynamic
     BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
-  - Entity: 2879408657904103908
-    TagComponent:
-      Tag: Floor
-    Transform2DComponent:
-      Position: [0, -8.39999962, 0.5]
-      Rotation: 0
-      Scale: [10, 1]
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
+      Size: [0.349999994, 0.349999994]
+      Density: 0.200000003
       Friction: 0.300000012
       Restitution: 0
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        ResourceID: 3323281954826050416
+        ResourceID: 4276605916735430945
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 608594939993781728
+  - Entity: 17568630165194497668
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
-      Position: [30, 6.5, 0]
-      Rotation: 180
-      Scale: [1, 8]
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 9289331653196552355
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 18204241134393458218
-    TagComponent:
-      Tag: Pillar
-    Transform2DComponent:
-      Position: [30, -6.5, 0]
-      Rotation: 0
-      Scale: [1, 8]
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 9289331653196552355
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 4189047165466491587
-    TagComponent:
-      Tag: Pillar
-    Transform2DComponent:
-      Position: [20, 6.5, 0]
-      Rotation: 180
-      Scale: [1, 8]
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 9289331653196552355
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 12789667045006573725
-    TagComponent:
-      Tag: Pillar
-    Transform2DComponent:
-      Position: [20, -6.5, 0]
+      Position: [10, -6.5, 0]
       Rotation: 0
       Scale: [1, 8]
     RigidBody2DComponent:
@@ -241,11 +95,11 @@ Objects:
         ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 17568630165194497668
+  - Entity: 12789667045006573725
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
-      Position: [10, -6.5, 0]
+      Position: [20, -6.5, 0]
       Rotation: 0
       Scale: [1, 8]
     RigidBody2DComponent:
@@ -261,56 +115,202 @@ Objects:
         ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 13164760565101997395
+  - Entity: 4189047165466491587
     TagComponent:
-      Tag: bird
+      Tag: Pillar
     Transform2DComponent:
-      Position: [0, -0.25, 1]
-      Rotation: 0
-      Scale: [1.41600001, 1]
-    ScriptComponent:
-      ScriptActive: true
-      ScriptName: class BirdScript
+      Position: [20, 6.5, 0]
+      Rotation: 180
+      Scale: [1, 8]
     RigidBody2DComponent:
-      Type: Dynamic
+      Type: Static
     BoxCollider2DComponent:
-      Size: [0.349999994, 0.349999994]
-      Density: 0.200000003
+      Size: [0.5, 0.5]
+      Density: 1
       Friction: 0.300000012
       Restitution: 0
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        ResourceID: 4855337914940871302
+        ResourceID: 9289331653196552355
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 8154006424767514121
+  - Entity: 18204241134393458218
+    TagComponent:
+      Tag: Pillar
+    Transform2DComponent:
+      Position: [30, -6.5, 0]
+      Rotation: 0
+      Scale: [1, 8]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 9289331653196552355
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 608594939993781728
+    TagComponent:
+      Tag: Pillar
+    Transform2DComponent:
+      Position: [30, 6.5, 0]
+      Rotation: 180
+      Scale: [1, 8]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 9289331653196552355
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 2879408657904103908
+    TagComponent:
+      Tag: Floor
+    Transform2DComponent:
+      Position: [0, -8.39999962, 0.5]
+      Rotation: 0
+      Scale: [10, 1]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 3323281954826050416
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 8120513386865572024
+    TagComponent:
+      Tag: Skybox
+    Transform2DComponent:
+      Position: [0, 9, 0]
+      Rotation: 0
+      Scale: [10, 1]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+  - Entity: 15498692396540144430
     TagComponent:
       Tag: Background
     Transform2DComponent:
-      Position: [0, 0, -0.5]
+      Position: [10, 0, -0.5]
       Rotation: 0
       Scale: [10, 17.7777786]
-    ScriptComponent:
-      ScriptActive: true
-      ScriptName: class BackgroundScript
     Sprite2DComponent:
       Texture:
         ResourceID: 3874022383595756532
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 11786186107443961375
+  - Entity: 9099734326440738584
     TagComponent:
-      Tag: Camera
+      Tag: Background
     Transform2DComponent:
-      Position: [0, 0, 0]
+      Position: [-10, 0, -0.5]
       Rotation: 0
-      Scale: [1, 1]
-    Camera2DComponent:
-      Zoom: 17.5
-      AspectRatio: 1.5219512
-      YScale: 1
-      NearClip: -1
-      FarClip: 1
-      Resizeable: true
-      Primary: true
+      Scale: [10, 17.7777786]
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 3874022383595756532
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 17092832116788378862
+    TagComponent:
+      Tag: Floor
+    Transform2DComponent:
+      Position: [10, -8.39999962, 0.5]
+      Rotation: 0
+      Scale: [10, 1]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 3323281954826050416
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 7306591404399475779
+    TagComponent:
+      Tag: Floor
+    Transform2DComponent:
+      Position: [-10, -8.39999962, 0.5]
+      Rotation: 0
+      Scale: [10, 1]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 3323281954826050416
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 8440524986258898521
+    TagComponent:
+      Tag: Pillar
+    Transform2DComponent:
+      Position: [40, 6.5, 0]
+      Rotation: 180
+      Scale: [1, 8]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 9289331653196552355
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 4910622945802663607
+    TagComponent:
+      Tag: Pillar
+    Transform2DComponent:
+      Position: [40, -6.5, 0]
+      Rotation: 0
+      Scale: [1, 8]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 9289331653196552355
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1

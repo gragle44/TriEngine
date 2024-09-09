@@ -59,6 +59,9 @@ void TriEngine::ImGuiLayer::OnAttach()
 	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
 	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
+	io.SetClipboardTextFn = [](void*, const char* text) { glfwSetClipboardString(static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow()), text); };
+	io.GetClipboardTextFn = [](void*) -> const char* { return glfwGetClipboardString(static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow())); };
+
 	ImGui::StyleColorsDark();
 
 	// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
@@ -75,9 +78,6 @@ void TriEngine::ImGuiLayer::OnAttach()
 	// Setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 450");
-
-	io.SetClipboardTextFn = [](void*, const char* text) { glfwSetClipboardString(static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow()), text); };
-	io.GetClipboardTextFn = [](void*) -> const char* { return glfwGetClipboardString(static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow())); };
 }
 
 void TriEngine::ImGuiLayer::OnDetach()

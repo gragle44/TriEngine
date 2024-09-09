@@ -133,6 +133,7 @@ private:
 };
 
 EditorLayer::EditorLayer()
+	:m_Data(new EditorData), m_FileMenu(m_Data)
 {
 	ScriptRegistry::Register<TestScript>();
 	ScriptRegistry::Register<NewScript>();
@@ -241,80 +242,81 @@ void EditorLayer::OnAttach()
 {
 	RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
 
-	m_ViewPortSize = { 1280, 720 };
+	m_Data->ViewPortSize = { 1280, 720 };
 
-	m_EditorScene = Scene::Create();
-	m_ActiveScene = m_EditorScene;
-	m_SceneModule.SetScene(m_EditorScene);
+	m_Data->EditorScene = Scene::Create();
+	m_Data->ActiveScene = m_Data->EditorScene;
+	m_SceneModule.SetScene(m_Data->EditorScene);
 
-	m_Camera = std::make_shared<EditorCamera>();
-	m_EditorScene->SetEditorCamera(m_Camera);
+	m_Data->Camera = std::make_shared<EditorCamera>();
+	m_Data->EditorScene->SetEditorCamera(m_Data->Camera);
 
 	TextureSettings playbuttonSettings;
 	playbuttonSettings.Filter = TextureFilter::Linear;
 
-	m_PlayTexture = Texture2D::Create("assets/playbutton.png", playbuttonSettings);
-	m_PauseTexture = Texture2D::Create("assets/pausebutton.png", playbuttonSettings);
+	m_Data->PlayTexture = Texture2D::Create("assets/icons/playbutton.png", playbuttonSettings);
+	m_Data->PauseTexture = Texture2D::Create("assets/icons/pausebutton.png", playbuttonSettings);
+	m_Data->FolderTexture = Texture2D::Create("assets/icons/folder.png", playbuttonSettings);
 
 	SetupImGuiStyle();
-
 }
 
 void EditorLayer::OnDetach()
 {
-	m_ActiveScene->Stop();
+	m_Data->ActiveScene->Stop();
+	delete m_Data;
 }
 
 void EditorLayer::OnUpdate(float deltaTime)
 {
 	m_DebugModule.OnUpdate(deltaTime);
-	if (m_PrevViewPortSize.x != m_ViewPortSize.x || m_PrevViewPortSize.y != m_ViewPortSize.y && m_ViewPortSize.x > 0 && m_ViewPortSize.y > 0) {
-		m_PrevViewPortSize = m_ViewPortSize;
+	if (m_Data->PrevViewPortSize.x != m_Data->ViewPortSize.x || m_Data->PrevViewPortSize.y != m_Data->ViewPortSize.y && m_Data->ViewPortSize.x > 0 && m_Data->ViewPortSize.y > 0) {
+		m_Data->PrevViewPortSize = m_Data->ViewPortSize;
 
-		if (m_SceneRunning) {
-			m_ActiveScene->OnViewportResized((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-			m_ActiveScene->OnUpdate(deltaTime);
+		if (m_Data->SceneRunning) {
+			m_Data->ActiveScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
+			m_Data->ActiveScene->OnUpdate(deltaTime);
 		}
 		else {
-			m_EditorScene->OnViewportResized((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-			m_EditorScene->OnEditorUpdate(deltaTime);
+			m_Data->EditorScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
+			m_Data->EditorScene->OnEditorUpdate(deltaTime);
 		}
 	}
-	else if (m_SceneRunning)
-		m_ActiveScene->OnUpdate(deltaTime);
+	else if (m_Data->SceneRunning)
+		m_Data->ActiveScene->OnUpdate(deltaTime);
 
-	else if (!m_SceneRunning)
-		m_EditorScene->OnEditorUpdate(deltaTime);
+	else if (!m_Data->SceneRunning)
+		m_Data->EditorScene->OnEditorUpdate(deltaTime);
 }
 
 void EditorLayer::OnEvent(Event& e)
 {
-	m_Camera->OnEvent(e);
-	if (m_SceneRunning)
-		m_ActiveScene->OnEvent(e);
+	m_Data->Camera->OnEvent(e);
+	if (m_Data->SceneRunning)
+		m_Data->ActiveScene->OnEvent(e);
 	else
-		m_EditorScene->OnEvent(e);
+		m_Data->EditorScene->OnEvent(e);
 }
 
 void EditorLayer::StartScene()
 {
-	m_SceneRunning = true;
-	m_ActiveScene = m_EditorScene->Copy();
-	m_ActiveScene->Start();
+	m_Data->SceneRunning = true;
+	m_Data->ActiveScene = m_Data->EditorScene->Copy();
+	m_Data->ActiveScene->Start();
 }
 
 void EditorLayer::StopScene()
 {
-	m_SceneRunning = false;
-	m_ActiveScene->Stop();
+	m_Data->SceneRunning = false;
+	m_Data->ActiveScene->Stop();
 }
 
 void EditorLayer::LoadEmptyScene()
 {
 	StopScene();
-	m_EditorScene = Scene::Create();
-	m_EditorScene->SetEditorCamera(m_Camera);
-	m_ActiveScene = m_EditorScene;
+	m_Data->EditorScene = Scene::Create();
+	m_Data->EditorScene->SetEditorCamera(m_Data->Camera);
+	m_Data->ActiveScene = m_Data->EditorScene;
 }
 
 void EditorLayer::LoadProject(const std::string& path)
@@ -349,13 +351,13 @@ void EditorLayer::SaveProject(const std::string& path)
 void EditorLayer::LoadScene(const std::string& path)
 {
 	StopScene();
-	TriEngine::SceneSerializer s(m_EditorScene);
+	TriEngine::SceneSerializer s(m_Data->EditorScene);
 	s.Deserialize(path);
 }
 
 void EditorLayer::SaveScene(const std::string& path)
 {
-	TriEngine::SceneSerializer s(m_EditorScene);
+	TriEngine::SceneSerializer s(m_Data->EditorScene);
 	s.Serialize(path);
 }
 
@@ -422,7 +424,7 @@ void EditorLayer::OnImGuiRender()
 	if(ImGui::Begin("Viewport")) {
 
 		//TODO: allow modules to pause/unpause the viewport if needed
-		m_SceneViewPaused = false;
+		m_Data->SceneViewPaused = false;
 
 		/*
 		if (ImGui::IsWindowHovered()) {
@@ -433,17 +435,17 @@ void EditorLayer::OnImGuiRender()
 		}
 		*/
 
-		ImGui::CaptureMouseFromApp(m_SceneViewPaused);
-		ImGui::CaptureKeyboardFromApp(m_SceneViewPaused);
+		ImGui::CaptureMouseFromApp(m_Data->SceneViewPaused);
+		ImGui::CaptureKeyboardFromApp(m_Data->SceneViewPaused);
 
 		//Consider moving to scene
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-		m_ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
+		m_Data->ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
 
-		if (m_SceneRunning)
-			m_ActiveScene->OnEditorRender();
+		if (m_Data->SceneRunning)
+			m_Data->ActiveScene->OnEditorRender();
 		else
-			m_EditorScene->OnEditorRender();
+			m_Data->EditorScene->OnEditorRender();
 
 	}
 
@@ -457,7 +459,7 @@ void EditorLayer::OnImGuiRender()
 
 void EditorLayer::PromptLoadProject()
 {
-	if (m_NoProjectLoaded) {
+	if (m_Data->NoProjectLoaded) {
 		if (!ImGui::IsPopupOpen("Load Project"))
 			ImGui::OpenPopup("Load Project");
 
@@ -472,7 +474,7 @@ void EditorLayer::PromptLoadProject()
 
 				if (result == NFD_OKAY) {
 					LoadProject(output);
-					m_NoProjectLoaded = false;
+					m_Data->NoProjectLoaded = false;
 					delete output;
 				}
 
@@ -490,7 +492,7 @@ void EditorLayer::PromptLoadProject()
 			if (ImGui::Button("New", { 60, 0 })) {
 				ProjectManager::CreateNew();
 				LoadEmptyScene();
-				m_NoProjectLoaded = false;
+				m_Data->NoProjectLoaded = false;
 			}
 			ImGui::EndPopup();
 		}
@@ -512,11 +514,11 @@ void EditorLayer::RenderPlaybuttons()
 	ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
 
 
-	Reference<Texture2D>& currentTexture = m_SceneRunning ? m_PauseTexture : m_PlayTexture;
+	Reference<Texture2D>& currentTexture = m_Data->SceneRunning ? m_Data->PauseTexture : m_Data->PlayTexture;
 
 	if (ImGui::ImageButton((ImTextureID)currentTexture->GetID(), { size, size })) {
-		m_SceneRunning = !m_SceneRunning;
-		if (m_SceneRunning)
+		m_Data->SceneRunning = !m_Data->SceneRunning;
+		if (m_Data->SceneRunning)
 			StartScene();
 		else {
 			StopScene();

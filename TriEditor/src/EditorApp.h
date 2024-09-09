@@ -1,6 +1,6 @@
 #pragma once
 
-#include <TriEngine.h>
+#include "EditorData.h"
 
 #include "Modules/SceneModule.h"
 #include "Modules/DebugModule.h"
@@ -61,27 +61,10 @@ private:
 	void StartScene();
 	void StopScene();
 
+	EditorData* m_Data;
+
 	//Editor components
 	SceneModule m_SceneModule;
 	DebugModule m_DebugModule;
 	FileMenu m_FileMenu;
-
-	Reference<EditorCamera> m_Camera;
-	Reference<Texture2D> m_PlayTexture;
-	Reference<Texture2D> m_PauseTexture;
-
-	glm::vec2 m_ViewPortSize;
-	glm::vec2 m_PrevViewPortSize;
-
-	Reference<Scene> m_EditorScene;
-	Reference<Scene> m_ActiveScene;
-
-
-	ImFont* m_EditorFont;
-	
-	bool m_NoProjectLoaded = true;
-
-	bool m_SceneViewPaused = false;
-	bool m_SceneRunning = false;
-
 };

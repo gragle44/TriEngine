@@ -8,7 +8,20 @@
 #include <unordered_map>
 
 namespace TriEngine {
+
+	namespace Utils {
+		inline std::string ExtensionFromResourceType(ResourceType type) {
+			switch (type)
+			{
+			case TriEngine::ResourceType::Texture: return "png";
+			case TriEngine::ResourceType::Scene: return "tscn";
+			default: return "";
+			}
+		}
+	}
+
 	class ResourceManager {
+
 	public:
 		static void Init();
 		static void Shutdown();
@@ -20,6 +33,8 @@ namespace TriEngine {
 		static void Remove(ResourceID id);
 
 		static void SaveResourceMetadata(Reference<Resource> resource);
+
+		static const std::unordered_map<ResourceID, ResourceMetadata>& GetResourceRegistry() { return s_ResourceMetadataCache; }
 
 		static ResourceID GetIDFromPath(const std::string& path);
 		static Reference<Resource> Get(ResourceID id);

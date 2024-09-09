@@ -165,6 +165,7 @@ project "TriEditor"
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.box2D}",
 		"%{IncludeDir.nativefiledialog}",
+		"%{IncludeDir.magic_enum}",
 		"TriEngine/src"
 	}
 
@@ -220,6 +221,7 @@ project "TriRuntime"
 		"%{IncludeDir.nameof}",
 		"%{IncludeDir.box2D}",
 		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.magic_enum}",
 		"TriEngine/src"
 	}
 
