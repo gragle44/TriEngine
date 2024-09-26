@@ -26,15 +26,15 @@ namespace TriEngine {
 		static void Init();
 		static void Shutdown();
 
-		static bool ResourceExists(ResourceID id) { return s_ResourceMetadataCache.contains(id); }
+		static bool ResourceExists(ResourceID id) { return s_ResourceRegistry.contains(id); }
 		static bool ResourceLoaded(ResourceID id) { return s_Resources.contains(id); }
 		
 		static Reference<Resource> Load(ResourceMetadata& metadata);
 		static void Remove(ResourceID id);
 
-		static void SaveResourceMetadata(Reference<Resource> resource);
+		static void SaveResource(Reference<Resource> resource);
 
-		static const std::unordered_map<ResourceID, ResourceMetadata>& GetResourceRegistry() { return s_ResourceMetadataCache; }
+		static const std::unordered_map<ResourceID, ResourceMetadata>& GetResourceRegistry() { return s_ResourceRegistry; }
 
 		static ResourceID GetIDFromPath(const std::string& path);
 		static Reference<Resource> Get(ResourceID id);
@@ -49,20 +49,20 @@ namespace TriEngine {
 			metadata.Type = GetTypeFromExtension(filePath);
 			metadata.Filepath = filePath;
 
-			s_ResourceMetadataCache[metadata.ID] = metadata;
+			s_ResourceRegistry[metadata.ID] = metadata;
 			SaveResourceRegistry();
 
 			Reference<T> resource = std::reinterpret_pointer_cast<T>(Load(metadata));
 
 			s_Resources[metadata.ID] = resource;
-			SaveResourceMetadata(resource);
+			SaveResource(resource);
 
 			return resource;
 		}
 
 	private:
 		static std::unordered_map<ResourceID, Reference<Resource>> s_Resources;
-		static std::unordered_map<ResourceID, ResourceMetadata> s_ResourceMetadataCache;
+		static std::unordered_map<ResourceID, ResourceMetadata> s_ResourceRegistry;
 
 		static std::filesystem::path s_ResourceRegistryPath;
 

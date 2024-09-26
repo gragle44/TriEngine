@@ -56,7 +56,7 @@ namespace TriEngine {
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		#ifdef TRI_DEBUG_GL
-				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 		#endif
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);

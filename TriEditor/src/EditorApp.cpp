@@ -133,7 +133,7 @@ private:
 };
 
 EditorLayer::EditorLayer()
-	:m_Data(new EditorData), m_FileMenu(m_Data)
+	:m_Data(new EditorData), m_FileMenu(m_Data), m_SceneModule(m_Data)
 {
 	ScriptRegistry::Register<TestScript>();
 	ScriptRegistry::Register<NewScript>();
@@ -291,11 +291,28 @@ void EditorLayer::OnUpdate(float deltaTime)
 
 void EditorLayer::OnEvent(Event& e)
 {
+	EventDispatcher dispatcher(e);
+	dispatcher.Dispatch<KeyPressedEvent>(TRI_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+
 	m_Data->Camera->OnEvent(e);
 	if (m_Data->SceneRunning)
 		m_Data->ActiveScene->OnEvent(e);
 	else
 		m_Data->EditorScene->OnEvent(e);
+}
+
+bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
+{
+	if (e.GetKeyCode() == TRI_KEY_Z) {
+		if (Input::IsKeyPressed(TRI_KEY_LEFT_CONTROL) || Input::IsKeyPressed(TRI_KEY_RIGHT_CONTROL))
+			m_Data->CmdHistory.Undo();
+	}
+
+	else if (e.GetKeyCode() == TRI_KEY_Y) {
+		if (Input::IsKeyPressed(TRI_KEY_LEFT_CONTROL) || Input::IsKeyPressed(TRI_KEY_RIGHT_CONTROL))
+			m_Data->CmdHistory.Redo();
+	}
+	return false;
 }
 
 void EditorLayer::StartScene()

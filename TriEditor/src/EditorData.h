@@ -1,6 +1,7 @@
 #pragma once
 
 #include <TriEngine.h>
+#include "CommandHistory.h"
 
 #include <imgui.h>
 
@@ -18,6 +19,10 @@ struct EditorData {
 
 	Reference<Scene> EditorScene;
 	Reference<Scene> ActiveScene;
+
+	std::vector<Reference<Resource>> ModifiedResources;
+
+	CommandHistory CmdHistory;
 
 	bool NoProjectLoaded = true;
 

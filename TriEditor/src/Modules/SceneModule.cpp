@@ -31,10 +31,15 @@ namespace TriEngine {
 		m_SelectedItem = duplicatedObject;
 	}
 
-	SceneModule::SceneModule(const Reference<Scene>& scene)
-		:m_Scene(scene)
+	SceneModule::SceneModule(EditorData* data, const Reference<Scene>& scene)
+		:m_Data(data), m_Scene(scene)
 	{
 		m_SpriteBackground = Texture2D::Create("assets/sprite2Dbg.png");
+	}
+
+	SceneModule::SceneModule(EditorData* data)
+		:m_Data(data)
+	{
 	}
 
 	void SceneModule::SetScene(const Reference<Scene>& scene)
@@ -55,6 +60,8 @@ namespace TriEngine {
 		}
 
 		if (ImGui::Button("Create Object")) {
+			//m_Data->CmdHistory.Add(new AddGameObjectCommand(m_Scene));
+
 			GameObject object = m_Scene->CreateGameObject("Object");
 			m_SelectedItem = object;
 		}

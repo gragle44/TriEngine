@@ -29,12 +29,14 @@ namespace TriEngine {
 	Scene::Scene()
 		:m_Name("Scene")
 	{
+		MetaData.Type = ResourceType::Scene;
 		InitRender();
 	}
 
 	Scene::Scene(const std::string& name)
 		:m_Name(name)
 	{
+		MetaData.Type = ResourceType::Scene;
 		InitRender();
 	}
 
@@ -334,6 +336,11 @@ namespace TriEngine {
 			TRI_CORE_ERROR("Tried to set main camera to an object without a CameraComponent or a TransformComponent!");
 			return;
 		}
+	}
+
+	bool Scene::IsObjectValid(GameObject object)
+	{
+		return m_Registry.valid(object.GetHandle());
 	}
 
 	GameObject Scene::CreateGameObject(const std::string& tag)

@@ -9,13 +9,13 @@ namespace TriEngine {
 	using ResourceID = UUID;
 
 	enum class ResourceType : uint8_t {
-		None,
+		None = 0,
 		Texture,
 		Scene
 	};
 
 	struct ResourceMetadata {
-		ResourceType Type;
+		ResourceType Type = ResourceType::None;
 		ResourceID ID;
 		std::string Filepath;
 	};

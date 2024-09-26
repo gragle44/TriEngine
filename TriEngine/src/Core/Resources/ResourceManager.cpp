@@ -9,7 +9,7 @@
 namespace TriEngine {
 
 	std::unordered_map<ResourceID, Reference<Resource>> ResourceManager::s_Resources;
-	std::unordered_map<ResourceID, ResourceMetadata> ResourceManager::s_ResourceMetadataCache;
+	std::unordered_map<ResourceID, ResourceMetadata> ResourceManager::s_ResourceRegistry;
 
 	std::filesystem::path ResourceManager::s_ResourceRegistryPath;
 
@@ -22,7 +22,7 @@ namespace TriEngine {
 	void ResourceManager::Shutdown()
 	{
 		s_Resources.clear();
-		s_ResourceMetadataCache.clear();
+		s_ResourceRegistry.clear();
 	}
 
 	Reference<Resource> ResourceManager::Load(ResourceMetadata& metadata)
@@ -35,26 +35,26 @@ namespace TriEngine {
 	void ResourceManager::Remove(ResourceID id)
 	{
 		if (ResourceExists(id)) {
-			ResourceMetadata metadata = s_ResourceMetadataCache[id];
+			ResourceMetadata metadata = s_ResourceRegistry[id];
 
 			std::string resourceMetadataPath = metadata.Filepath + ".meta";
 
 			if (std::filesystem::exists(resourceMetadataPath))
 				std::filesystem::remove(resourceMetadataPath);
 
-			s_ResourceMetadataCache.erase(id);
+			s_ResourceRegistry.erase(id);
 			SaveResourceRegistry();
 		}
 	}
 
-	void ResourceManager::SaveResourceMetadata(Reference<Resource> resource)
+	void ResourceManager::SaveResource(Reference<Resource> resource)
 	{
 		ResourceLoader::Save(resource);
 	}
 
 	ResourceID ResourceManager::GetIDFromPath(const std::string& path)
 	{
-		for (const auto& [id, metadata] : s_ResourceMetadataCache) {
+		for (const auto& [id, metadata] : s_ResourceRegistry) {
 			if (metadata.Filepath == path)
 				return metadata.ID;
 		}
@@ -83,7 +83,7 @@ namespace TriEngine {
 
 	ResourceMetadata& ResourceManager::GetMetadata(ResourceID id)
 	{
-		return s_ResourceMetadataCache.at(id);
+		return s_ResourceRegistry.at(id);
 	}
 
 	ResourceType ResourceManager::GetTypeFromExtension(const std::filesystem::path& filePath)
@@ -126,7 +126,7 @@ namespace TriEngine {
 			metadata.ID = data["ID"].as<uint64_t>();
 			metadata.Filepath = ProjectManager::GetCurrent()->GetAbsolutePath(data["Filepath"].as<std::string>()).string();
 			metadata.Type = magic_enum::enum_cast<ResourceType>(data["Type"].as<std::string>()).value_or(ResourceType::None);
-			s_ResourceMetadataCache[metadata.ID] = metadata;
+			s_ResourceRegistry[metadata.ID] = metadata;
 		}
 	}
 
@@ -138,7 +138,7 @@ namespace TriEngine {
 
 		out << YAML::BeginSeq;
 
-		for (const auto& [id, metadata] : s_ResourceMetadataCache) {
+		for (const auto& [id, metadata] : s_ResourceRegistry) {
 			out << YAML::BeginMap;
 			out << YAML::Key << "ID" << YAML::Value << id;
 			out << YAML::Key << "Filepath" << YAML::Value << std::filesystem::relative(metadata.Filepath, ProjectManager::GetCurrent()->GetWorkingDirectory()).string();

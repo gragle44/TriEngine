@@ -14,7 +14,7 @@ namespace TriEngine {
 }
 
 namespace TriEngine {
-	class Scene {
+	class Scene : public Resource {
 	public:
 		Scene();
 		Scene(const std::string& name);
@@ -41,6 +41,7 @@ namespace TriEngine {
 
 		const std::unordered_map<uint64_t, GameObject>& GetAllObjects() const { return m_GameObjcts; }
 
+		bool IsObjectValid(GameObject object);
 		GameObject CreateGameObject(const std::string& tag = std::string());
 		GameObject CreateGameObjectUUID(uint64_t uuid, const std::string& tag = std::string());
 		GameObject DuplicateObject(GameObject object);
@@ -56,7 +57,6 @@ namespace TriEngine {
 
 		void ShouldReset();
 
-
 		std::string m_Name;
 
 		entt::registry m_Registry;
@@ -71,8 +71,8 @@ namespace TriEngine {
 
 		glm::vec2 m_ViewportSize;
 
-		bool m_ShouldReset = false;
-
 		Reference<Renderpass> m_MainRenderpass;
+
+		bool m_ShouldReset = false;
 	};
 }

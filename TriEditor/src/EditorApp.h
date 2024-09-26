@@ -29,6 +29,7 @@ public:
 	virtual void OnImGuiRender() final;
 	void UpdateTitleBar();
 	void OnEvent(Event& e) final;
+	bool OnKeyPressed(KeyPressedEvent& e);
 private:
 	template<FontType::Font T>
 	ImFont* GetFont() {
