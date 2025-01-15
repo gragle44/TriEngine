@@ -31,8 +31,6 @@ namespace TriEngine {
 
 		void OnEvent(Event& e);
 		void OnUpdate(float deltaTime);
-		void OnEditorUpdate(float deltaTime);
-		void OnEditorRender();
 		void OnViewportResized(uint32_t width, uint32_t height);
 		const std::string& GetName() const { return m_Name; }
 
@@ -50,10 +48,8 @@ namespace TriEngine {
 	private:
 		friend class GameObject;
 		friend class SceneModule;
+		friend class GameRenderer;
 		friend class SceneSerializer;
-
-		void InitRender();
-		void OnRender(float deltaTime);
 
 		void ShouldReset();
 
@@ -70,8 +66,6 @@ namespace TriEngine {
 		Reference<EditorCamera> m_CameraObject = nullptr;
 
 		glm::vec2 m_ViewportSize;
-
-		Reference<Renderpass> m_MainRenderpass;
 
 		bool m_ShouldReset = false;
 	};

@@ -1,9 +1,12 @@
 #version 450 core
 			
 layout(location = 0) out vec4 FragColor;
+layout(location = 1) out int ObjectID;
+
 in vec2 v_TexCoord;
 in vec4 v_Color;
 in flat int v_TexIndex;
+in flat int v_ObjectID;
 
 uniform sampler2D u_Samplers[32];
 
@@ -51,4 +54,6 @@ void main()
 	}
 
 	FragColor = texColor * v_Color;
+
+	ObjectID = v_ObjectID;
 }

@@ -20,6 +20,7 @@ namespace TriEngine {
 
 		glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &caps.MaxFramebufferSize);
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &caps.MaxSamplers);
+		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &caps.MaxColorAttachments);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -83,7 +84,7 @@ namespace TriEngine {
 		uint32_t count = vertexCount ? vertexCount : vertexArray->GetVertexBuffers()[vertexBufferIndex]->GetVertexCount();
 
 		uint32_t vbOffset = 0;
-		for (uint32_t x = 0; x > vertexBufferIndex; x++) {
+		for (uint32_t x = 0; x < vertexBufferIndex; x++) {
 			vbOffset += vertexArray->GetVertexBuffers()[x]->GetSize();
 		}
 

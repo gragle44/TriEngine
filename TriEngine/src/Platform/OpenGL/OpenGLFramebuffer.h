@@ -9,23 +9,26 @@ namespace TriEngine {
 	class OpenGLFrameBuffer : public FrameBuffer {
 	public:
 		OpenGLFrameBuffer(const FrameBufferSettings& settings);
-		virtual ~OpenGLFrameBuffer() final;
+		virtual ~OpenGLFrameBuffer() override;
 
-		virtual void Bind() final;
-		virtual void UnBind() final;
+		virtual void Bind() override;
+		virtual void UnBind() override;
 
-		virtual uint32_t GetWidth() final { return m_Settings.Width; }
-		virtual uint32_t GetHeight() final { return m_Settings.Height; }
+		virtual uint32_t GetWidth() override { return m_Settings.Width; }
+		virtual uint32_t GetHeight() override { return m_Settings.Height; }
 
-		virtual void ReSize(uint32_t width, uint32_t height) final;
+		virtual int32_t ReadPixel(uint32_t attachment, int32_t x, int32_t y) override;
 
-		virtual bool OnWindowResize(WindowResizeEvent& e) final;
+		virtual void ReSize(uint32_t width, uint32_t height) override;
 
-		virtual RID GetColorAttachment(uint32_t index) const { return m_ColorAttachments[index]; }
-		virtual void BindColorAttachment(uint32_t slot, uint32_t index) const;
+		virtual bool OnWindowResize(WindowResizeEvent& e) override;
 
-		virtual RID GetDepthAttachment() const { return m_DepthAttachment; }
-		virtual void BindDepthAttachment(uint32_t slot) const;
+		virtual RID GetColorAttachment(uint32_t index) const override { return m_ColorAttachments[index]; }
+		virtual void BindColorAttachment(uint32_t slot, uint32_t index) const override;
+		virtual void ClearColorAttachment(uint32_t index, float clearValue = 0.0f) const override;
+
+		virtual RID GetDepthAttachment() const override { return m_DepthAttachment; }
+		virtual void BindDepthAttachment(uint32_t slot) const override;
 
 		void Recreate();
 	private:

@@ -27,24 +27,13 @@ namespace TriEngine {
 	}
 
 	void SceneModule::DuplicateObject(GameObject object) {
-		GameObject duplicatedObject = m_Scene->DuplicateObject(object);
-		m_SelectedItem = duplicatedObject;
-	}
-
-	SceneModule::SceneModule(EditorData* data, const Reference<Scene>& scene)
-		:m_Data(data), m_Scene(scene)
-	{
-		m_SpriteBackground = Texture2D::Create("assets/sprite2Dbg.png");
+		GameObject duplicatedObject = m_Data->ActiveScene->DuplicateObject(object);
+		m_Data->SelectedItem = duplicatedObject;
 	}
 
 	SceneModule::SceneModule(EditorData* data)
 		:m_Data(data)
 	{
-	}
-
-	void SceneModule::SetScene(const Reference<Scene>& scene)
-	{
-		m_Scene = scene;
 		m_SpriteBackground = Texture2D::Create("assets/sprite2Dbg.png");
 	}
 
@@ -53,33 +42,33 @@ namespace TriEngine {
 		// SCENE VIEWER //
 		ImGui::Begin("Scene Viewer");
 
-		auto view = m_Scene->m_Registry.group<TagComponent>();
+		auto view = m_Data->ActiveScene->m_Registry.group<TagComponent>();
 
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
-			m_SelectedItem = {};
+			m_Data->SelectedItem = {};
 		}
 
 		if (ImGui::Button("Create Object")) {
 			//m_Data->CmdHistory.Add(new AddGameObjectCommand(m_Scene));
 
-			GameObject object = m_Scene->CreateGameObject("Object");
-			m_SelectedItem = object;
+			GameObject object = m_Data->ActiveScene->CreateGameObject("Object");
+			m_Data->SelectedItem = object;
 		}
 
 		for (auto entity : view) {
-			GameObject object{ entity, m_Scene.get() };
+			GameObject object{ entity, m_Data->ActiveScene.get() };
 			DrawNode(object);
 		}
 
 		if (Input::IsKeyPressed(TRI_KEY_DELETE))
-			if (m_SelectedItem) {
-				m_Scene->DeleteGameObject(m_SelectedItem);
-				m_SelectedItem = {};
+			if (m_Data->SelectedItem) {
+				m_Data->ActiveScene->DeleteGameObject(m_Data->SelectedItem);
+				m_Data->SelectedItem = {};
 			}
 
 		if (Input::IsKeyPressed(TRI_KEY_LEFT_CONTROL) || Input::IsKeyPressed(TRI_KEY_RIGHT_CONTROL)) {
 			if (Input::IsKeyPressed(TRI_KEY_D))
-				DuplicateObject(m_SelectedItem);
+				DuplicateObject(m_Data->SelectedItem);
 		}
 
 		ImGui::End();
@@ -87,8 +76,8 @@ namespace TriEngine {
 
 		// PROPERTY INSPECTOR // 
 		if (ImGui::Begin("Property Inspector")) {
-			if (m_SelectedItem)
-				DrawComponents(m_SelectedItem);
+			if (m_Data->SelectedItem)
+				DrawComponents(m_Data->SelectedItem);
 			else {
 				constexpr char message[] = "No selected object";
 				float windowWidth = ImGui::GetWindowSize().x;
@@ -107,12 +96,12 @@ namespace TriEngine {
 	{
 		auto& tag = object.GetComponent<TagComponent>();
 
-		ImGuiTreeNodeFlags flags = ((m_SelectedItem == object) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+		ImGuiTreeNodeFlags flags = ((m_Data->SelectedItem == object) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 		bool expanded = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)object.GetHandle(), flags, tag.Tag.c_str());
 
 		if (ImGui::IsItemClicked()) {
-			m_SelectedItem = object;
+			m_Data->SelectedItem = object;
 		}
 
 		static bool renaming;
@@ -123,13 +112,13 @@ namespace TriEngine {
 			auto& tag = object.GetComponent<TagComponent>();
 
 			if (ImGui::MenuItem("Add Component", "Ctrl + A")) {
-				m_RightSelectedItem = object;
+				m_Data->RightSelectedItem = object;
 				addingComponent = true;
 				ImGui::CloseCurrentPopup();
 			}
 
 			if (ImGui::MenuItem("Rename", "Ctrl + R")) {
-				m_RightSelectedItem = object;
+				m_Data->RightSelectedItem = object;
 				renaming = true;
 				ImGui::CloseCurrentPopup();
 			}
@@ -140,7 +129,7 @@ namespace TriEngine {
 			}
 
 			if (ImGui::MenuItem("Delete", "Del")) {
-				m_RightSelectedItem = object;
+				m_Data->RightSelectedItem = object;
 				deleting = true;
 				ImGui::CloseCurrentPopup();
 			}
@@ -148,7 +137,7 @@ namespace TriEngine {
 			ImGui::EndPopup();
 		}
 
-		if (addingComponent && m_RightSelectedItem == object) {
+		if (addingComponent && m_Data->RightSelectedItem == object) {
 			if (!ImGui::IsPopupOpen("Add Component"))
 				ImGui::OpenPopup("Add Component");
 
@@ -167,7 +156,7 @@ namespace TriEngine {
 			}
 		}
 
-		if (renaming && m_RightSelectedItem == object) {
+		if (renaming && m_Data->RightSelectedItem == object) {
 			if (!ImGui::IsPopupOpen("Renaming..."))
 				ImGui::OpenPopup("Renaming...");
 
@@ -198,7 +187,7 @@ namespace TriEngine {
 		if (expanded)
 			ImGui::TreePop();
 
-		if (deleting && m_RightSelectedItem == object) {
+		if (deleting && m_Data->RightSelectedItem == object) {
 			if (!ImGui::IsPopupOpen("Delete Object"))
 				ImGui::OpenPopup("Delete Object");
 
@@ -208,7 +197,7 @@ namespace TriEngine {
 
 				ImGui::Text("Are you sure you want to delete this object? This action cannot be undone.");
 				if (ImGui::Button("Delete")) {
-					m_Scene->DeleteGameObject(object);
+					m_Data->ActiveScene->DeleteGameObject(object);
 					deleting = false;
 				}
 				ImGui::EndPopup();
@@ -221,7 +210,7 @@ namespace TriEngine {
 	{
 		if (!object.HasComponent<T>())
 			if (ImGui::Button(name.data())) {
-				m_RightSelectedItem.AddComponent<T>();
+				m_Data->RightSelectedItem.AddComponent<T>();
 				ImGui::CloseCurrentPopup();
 				*stayOpen = false;
 			}

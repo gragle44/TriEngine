@@ -10,44 +10,21 @@
 #include <glm/glm.hpp>
 
 namespace TriEngine {
-	struct SubTexturedQuad {
-		glm::vec2 Position = glm::vec2(0.0f);
-		glm::vec2 Size = glm::vec2(1.0f);
-		Reference<SubTexture2D> Texture;
-		glm::ivec2 AtlasIndex = glm::ivec2(0);
-		glm::vec4 Tint = glm::vec4(1.0f);
-		float Rotation = 0.0f;
-		float SortingOrder = 0.0f;
-		float TilingFactor = 1.0f;
-	};
 
-	struct ColoredQuad {
-		glm::vec2 Position;
-		glm::vec2 Size;
-		glm::vec4 Color;
-		float Rotation = 0.0f;
-		float SortingOrder = 0.0f;
-		float TilingFactor = 1.0f;
-
-		ColoredQuad() = default;
-
-		ColoredQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color,
-			float rotation = 0.0f, float sortingOrder = 0.0f, float tilingFactor = 1.0f)
-			: Position(position), Size(size), Color(color), Rotation(rotation), SortingOrder(sortingOrder), TilingFactor(tilingFactor) {}
-	};
-
-	struct TexturedQuadn {
+	struct TexturedQuad {
 		glm::mat4 Transform;
 		glm::vec4 Tint = glm::vec4(1.0f);
 		Reference<Texture2D> Texture;
 		float TilingFactor = 1.0f;
+		int32_t EntityId = -1;
 		bool Transparent = false;
 	};
 
-	struct ColoredQuadn {
+	struct ColoredQuad {
 		glm::mat4 Transform;
 		glm::vec4 Tint = glm::vec4(1.0f);
 		float TilingFactor = 1.0f;
+		int32_t EntityId = -1;
 		bool Transparent = false;
 	};
 
@@ -62,10 +39,8 @@ namespace TriEngine {
 		static void End();
 		static void Flush();
 
-		static void SubmitQuad(const SubTexturedQuad& quad);
-
-		static void SubmitQuad(const TexturedQuadn& quad);
-		static void SubmitQuad(const ColoredQuadn& quad);
+		static void SubmitQuad(const TexturedQuad& quad);
+		static void SubmitQuad(const ColoredQuad& quad);
 
 		struct RenderStats {
 			uint32_t DrawCalls = 0;
@@ -89,8 +64,9 @@ namespace TriEngine {
 			glm::vec3 Position;
 			glm::vec4 Color;
 			glm::vec2 TexCoord;
-
 			uint32_t TexIndex;
+
+			int32_t ObjectID;
 		};
 
 		struct BatchSettings {

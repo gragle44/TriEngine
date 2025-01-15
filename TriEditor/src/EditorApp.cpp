@@ -244,12 +244,14 @@ void EditorLayer::OnAttach()
 
 	m_Data->ViewPortSize = { 1280, 720 };
 
-	m_Data->EditorScene = Scene::Create();
-	m_Data->ActiveScene = m_Data->EditorScene;
-	m_SceneModule.SetScene(m_Data->EditorScene);
-
 	m_Data->Camera = std::make_shared<EditorCamera>();
+	m_Data->Renderer = std::make_shared<GameRenderer>();
+	m_Data->Renderer->SetEditorCamera(m_Data->Camera);
+
+	m_Data->EditorScene = Scene::Create();
 	m_Data->EditorScene->SetEditorCamera(m_Data->Camera);
+
+	m_Data->ActiveScene = m_Data->EditorScene;
 
 	TextureSettings playbuttonSettings;
 	playbuttonSettings.Filter = TextureFilter::Linear;
@@ -274,19 +276,56 @@ void EditorLayer::OnUpdate(float deltaTime)
 		m_Data->PrevViewPortSize = m_Data->ViewPortSize;
 
 		if (m_Data->SceneRunning) {
+			m_Data->Renderer->SetViewportSize((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
 			m_Data->ActiveScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
 			m_Data->ActiveScene->OnUpdate(deltaTime);
+			m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
+
 		}
 		else {
-			m_Data->EditorScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
-			m_Data->EditorScene->OnEditorUpdate(deltaTime);
+			m_Data->Camera->OnUpdate(deltaTime);
+			m_Data->Renderer->SetViewportSize((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
+			m_Data->ActiveScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
+			m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
 		}
 	}
-	else if (m_Data->SceneRunning)
+	else if (m_Data->SceneRunning) {
 		m_Data->ActiveScene->OnUpdate(deltaTime);
+		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
+	}
 
 	else if (!m_Data->SceneRunning)
-		m_Data->EditorScene->OnEditorUpdate(deltaTime);
+		m_Data->Camera->OnUpdate(deltaTime);
+		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
+
+		if (Input::IsMouseButtonPressed(TRI_MOUSE_BUTTON_LEFT)) {
+			auto pos = ImGui::GetMousePos();
+
+			if (pos.x >= m_Data->ViewPortBoundsMin.x && pos.y >= m_Data->ViewPortBoundsMin.y && pos.x <= m_Data->ViewPortBoundsMax.x && pos.y <= m_Data->ViewPortBoundsMax.y) {
+
+				int X = (pos.x - m_Data->ViewPortBoundsMin.x);
+				int Y = (pos.y - m_Data->ViewPortBoundsMin.y);
+				Y = m_Data->ViewPortSize.y - Y;
+
+				int32_t pixel = m_Data->Renderer->GetFinalFramebuffer()->ReadPixel(1, X, Y);
+
+				if (pixel >= 0) {
+					GameObject pickedObject = GameObject((entt::entity)pixel, m_Data->ActiveScene.get());
+					m_Data->SelectedItem = pickedObject;
+				}
+
+				TRI_CORE_TRACE("Mouse pos: {0}, {1}", pos.x, pos.y);
+				TRI_CORE_TRACE("Mouse pos adjusted: {0}, {1}", X, Y);
+				TRI_CORE_TRACE("Min bounds: {0}, {1}", m_Data->ViewPortBoundsMin.x, m_Data->ViewPortBoundsMin.y);
+				TRI_CORE_TRACE("Max bounds: {0}, {1}", m_Data->ViewPortBoundsMax.x, m_Data->ViewPortBoundsMax.y);
+				TRI_CORE_TRACE("ID: {0}", pixel);
+			}
+		}
+}
+
+void EditorLayer::OnRender(float deltaTime)
+{
+
 }
 
 void EditorLayer::OnEvent(Event& e)
@@ -295,10 +334,7 @@ void EditorLayer::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyPressedEvent>(TRI_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
 
 	m_Data->Camera->OnEvent(e);
-	if (m_Data->SceneRunning)
-		m_Data->ActiveScene->OnEvent(e);
-	else
-		m_Data->EditorScene->OnEvent(e);
+	m_Data->ActiveScene->OnEvent(e);
 }
 
 bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
@@ -317,23 +353,32 @@ bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
 
 void EditorLayer::StartScene()
 {
+	m_Data->SelectedItem = {};
+	m_Data->RightSelectedItem = {};
+
 	m_Data->SceneRunning = true;
-	m_Data->ActiveScene = m_Data->EditorScene->Copy();
+	m_Data->SceneCurrentState = EditorState::Play;
+	m_Data->EditorScene = m_Data->ActiveScene->Copy();
 	m_Data->ActiveScene->Start();
 }
 
 void EditorLayer::StopScene()
 {
+	m_Data->SelectedItem = {};
+	m_Data->RightSelectedItem = {};
+
 	m_Data->SceneRunning = false;
+	m_Data->SceneCurrentState = EditorState::Edit;
 	m_Data->ActiveScene->Stop();
+	m_Data->ActiveScene = m_Data->EditorScene->Copy();
 }
 
 void EditorLayer::LoadEmptyScene()
 {
 	StopScene();
-	m_Data->EditorScene = Scene::Create();
-	m_Data->EditorScene->SetEditorCamera(m_Data->Camera);
-	m_Data->ActiveScene = m_Data->EditorScene;
+	m_Data->ActiveScene = Scene::Create();
+	m_Data->ActiveScene->SetEditorCamera(m_Data->Camera);
+	m_Data->EditorScene = m_Data->ActiveScene->Copy();
 }
 
 void EditorLayer::LoadProject(const std::string& path)
@@ -368,13 +413,14 @@ void EditorLayer::SaveProject(const std::string& path)
 void EditorLayer::LoadScene(const std::string& path)
 {
 	StopScene();
-	TriEngine::SceneSerializer s(m_Data->EditorScene);
+	TriEngine::SceneSerializer s(m_Data->ActiveScene);
 	s.Deserialize(path);
 }
 
 void EditorLayer::SaveScene(const std::string& path)
 {
-	TriEngine::SceneSerializer s(m_Data->EditorScene);
+	StopScene();
+	TriEngine::SceneSerializer s(m_Data->ActiveScene);
 	s.Serialize(path);
 }
 
@@ -438,7 +484,7 @@ void EditorLayer::OnImGuiRender()
 	m_DebugModule.OnImGuiRender();
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	if(ImGui::Begin("Viewport")) {
+	if (ImGui::Begin("Viewport")) {
 
 		//TODO: allow modules to pause/unpause the viewport if needed
 		m_Data->SceneViewPaused = false;
@@ -455,15 +501,24 @@ void EditorLayer::OnImGuiRender()
 		ImGui::CaptureMouseFromApp(m_Data->SceneViewPaused);
 		ImGui::CaptureKeyboardFromApp(m_Data->SceneViewPaused);
 
-		//Consider moving to scene
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_Data->ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
 
-		if (m_Data->SceneRunning)
-			m_Data->ActiveScene->OnEditorRender();
-		else
-			m_Data->EditorScene->OnEditorRender();
+		ImVec2 viewportMinRegion = ImGui::GetWindowContentRegionMin();
+		ImVec2 viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+		ImVec2 viewportOffset = ImGui::GetWindowPos();
 
+		m_Data->ViewPortBoundsMin = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+		m_Data->ViewPortBoundsMax = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
+
+		if (m_Data->SceneRunning) {
+			ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+			ImGui::Image((void*)(intptr_t)m_Data->Renderer->GetFinalFramebuffer()->GetColorAttachment(0), viewportSize, ImVec2{0, 1}, ImVec2{1, 0});
+		}
+		else {
+			ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+			ImGui::Image((void*)(intptr_t)m_Data->Renderer->GetFinalFramebuffer()->GetColorAttachment(0), viewportSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+		}
 	}
 
 	PromptLoadProject();

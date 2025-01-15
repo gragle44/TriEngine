@@ -6,6 +6,7 @@
 #include "Components.h"
 #include "GameObject.h"
 #include "Script.h"
+#include "Core/Base/Input.h"
 
 #include "box2d/b2_world.h"
 #include "box2d/b2_body.h"
@@ -30,19 +31,18 @@ namespace TriEngine {
 		:m_Name("Scene")
 	{
 		MetaData.Type = ResourceType::Scene;
-		InitRender();
 	}
 
 	Scene::Scene(const std::string& name)
 		:m_Name(name)
 	{
 		MetaData.Type = ResourceType::Scene;
-		InitRender();
 	}
 
 	Scene::~Scene()
 	{
 		delete m_PhysicsWorld;
+		delete m_ContactListener;
 	}
 
 	Reference<Scene> Scene::Create()
@@ -145,7 +145,6 @@ namespace TriEngine {
 
 		m_Registry.clear();
 		m_GameObjcts.clear();
-
 	}
 
 	void Scene::Reset() 
@@ -212,23 +211,11 @@ namespace TriEngine {
 
 		}
 
-		OnRender(deltaTime);
-
 		ShouldReset();
-	}
-
-	void Scene::OnEditorUpdate(float deltaTime)
-	{
-		OnRender(deltaTime);
 	}
 
 	void Scene::OnViewportResized(uint32_t width, uint32_t height)
 	{
-		m_ViewportSize = { width, height };
-		if (m_MainRenderpass->Target != nullptr) {
-			m_MainRenderpass->Target->ReSize(width, height);
-		}
-
 		if (m_CameraObject)
 			m_CameraObject->SetViewportSize(width, height);
 
@@ -252,67 +239,6 @@ namespace TriEngine {
 
 	}
 
-	void Scene::InitRender()
-	{
-		FrameBufferSettings fbSettings;
-		fbSettings.Width = 1280;
-		fbSettings.Height = 720;
-		fbSettings.Samples = 1;
-		fbSettings.Attachments = { RenderAttachmentType::Color, RenderAttachmentType::DepthStencil };
-
-		Reference<FrameBuffer> mainFB = FrameBuffer::Create(fbSettings);
-
-		m_MainRenderpass = std::make_shared<Renderpass>(mainFB);
-		m_MainRenderpass->DepthTest = true;
-	}
-
-	void Scene::OnRender(float deltaTime)
-	{
-		//2D rendering
-		glm::mat4 cameraTransform;
-		glm::mat4 cameraProjection;
-
-		if (m_CameraObject != nullptr) {
-			m_CameraObject->OnUpdate(deltaTime);
-			cameraTransform = m_CameraObject->GetTransform();
-			cameraProjection = m_CameraObject->GetProjection();
-		}
-		else {
-			auto cameraView = m_Registry.view<Transform2DComponent, Camera2DComponent>();
-
-			for (auto entity : cameraView) {
-				GameObject object = { entity, this };
-				auto [transform, camera] = cameraView.get<Transform2DComponent, Camera2DComponent>(entity);
-				if (camera.Primary) {
-					cameraTransform = transform.GetTransform();
-					cameraProjection = camera.Camera.GetProjection();
-				}
-			}
-		}
-
-		Renderer2D::Begin(cameraProjection, cameraTransform, m_MainRenderpass);
-
-		auto group = m_Registry.group<Transform2DComponent>(entt::get<Sprite2DComponent>);
-
-		for (auto entity : group) {
-			auto [transform, sprite] = group.get<Transform2DComponent, Sprite2DComponent>(entity);
-
-			bool empty = sprite.Texture->GetData().empty();
-			if (!empty) {
-				Renderer2D::SubmitQuad({ .Transform = transform.GetTransform(), .Tint = sprite.Tint, .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor, .Transparent = sprite.HasTransparency()});
-			}
-			else {
-				Renderer2D::SubmitQuad(ColoredQuadn(transform.GetTransform(), sprite.Tint, sprite.TilingFactor, sprite.HasTransparency()));
-			}
-
-		}
-
-		Renderer2D::End();
-
-		//TODO: Postprocess
-	}
-
-
 	GameObject Scene::DuplicateObject(GameObject object)
 	{
 
@@ -321,13 +247,6 @@ namespace TriEngine {
 		CopyAllComponents(newObject, object);
 
 		return newObject;
-	}
-
-	void Scene::OnEditorRender()
-	{
-		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-
-		ImGui::Image((void*)(intptr_t)m_MainRenderpass->Target->GetColorAttachment(0), viewportSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 	}
 
 	void Scene::SetMainCamera(GameObject camera)
@@ -352,9 +271,8 @@ namespace TriEngine {
 	{
 		Reference<Scene> newScene = Scene::Create(m_Name);
 
-		//newScene->m_CameraObject = m_CameraObject;
+		newScene->m_CameraObject = m_CameraObject;
 		newScene->m_ViewportSize = m_ViewportSize;
-		newScene->m_MainRenderpass = m_MainRenderpass;
 
 		auto idView = m_Registry.view<IDComponent>();
 

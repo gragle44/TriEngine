@@ -10,9 +10,6 @@ namespace TriEngine {
 	class SceneModule {
 	public:
 		SceneModule(EditorData* data);
-		SceneModule(EditorData* data, const Reference<Scene>& scene);
-
-		void SetScene(const Reference<Scene>& scene);
 
 		void OnImGuiRender();
 	private:
@@ -30,8 +27,6 @@ namespace TriEngine {
 		EditorData* m_Data;
 
 		Reference<Scene> m_Scene;
-		GameObject m_SelectedItem;
-		GameObject m_RightSelectedItem;
 
 		//Used to render the background for the Sprite2D node
 		Reference<Texture2D> m_SpriteBackground;

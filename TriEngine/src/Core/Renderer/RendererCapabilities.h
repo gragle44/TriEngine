@@ -10,5 +10,6 @@ namespace TriEngine {
 
 		int32_t MaxSamplers = 0;
 		int32_t MaxFramebufferSize = 0;
+		int32_t MaxColorAttachments = 0;
 	};
 }

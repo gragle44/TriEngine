@@ -6,6 +6,18 @@
 
 
 namespace TriEngine {
+
+    static GLenum AttachmentTypeToGLType(RenderAttachmentType type) {
+        switch (type)
+        {
+        case TriEngine::RenderAttachmentType::Color: return GL_RGBA;
+        case TriEngine::RenderAttachmentType::DepthStencil: return GL_DEPTH_STENCIL;
+        case TriEngine::RenderAttachmentType::Depth: return GL_DEPTH_COMPONENT;
+        case TriEngine::RenderAttachmentType::RedInteger:  return GL_RED_INTEGER;
+        default: return GL_NONE;
+        }
+    }
+
     void OpenGLFrameBuffer::AttachColorTexture(RID id, GLenum format, int index)
     {
         bool multisampled = m_Settings.Samples > 1;
@@ -55,11 +67,13 @@ namespace TriEngine {
             switch (setting.Type)
             {
             case RenderAttachmentType::Color:
-                m_ColorAttachmentSettings.emplace_back(setting);
+                m_ColorAttachmentSettings.emplace_back(setting); break;
+            case RenderAttachmentType::RedInteger:
+                m_ColorAttachmentSettings.emplace_back(setting); break;
             case RenderAttachmentType::Depth:
-                m_DepthAttachmentSettings = setting;
+                m_DepthAttachmentSettings = setting; break;
             case RenderAttachmentType::DepthStencil:
-                m_DepthAttachmentSettings = setting;
+                m_DepthAttachmentSettings = setting; break;
             }
         }
 
@@ -75,6 +89,14 @@ namespace TriEngine {
 
     void OpenGLFrameBuffer::Bind()
     {
+        GLenum drawbuffers[8];
+
+        for (int32_t index = 0; index < m_ColorAttachments.size(); index++) {
+            drawbuffers[index] = GL_COLOR_ATTACHMENT0 + index;
+        }
+
+        glNamedFramebufferDrawBuffers(m_BufferID, m_ColorAttachments.size(), drawbuffers);
+
         glBindFramebuffer(GL_FRAMEBUFFER, m_BufferID);
         glViewport(0, 0, m_Settings.Width, m_Settings.Height);
     }
@@ -82,6 +104,20 @@ namespace TriEngine {
     void OpenGLFrameBuffer::UnBind()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    int32_t OpenGLFrameBuffer::ReadPixel(uint32_t attachment, int32_t x, int32_t y)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, m_BufferID);
+
+        glNamedFramebufferReadBuffer(m_BufferID, GL_COLOR_ATTACHMENT0 + attachment);
+
+        int32_t buff;
+        glReadnPixels(x, y, 1, 1, AttachmentTypeToGLType(m_ColorAttachmentSettings[attachment].Type), GL_INT, sizeof(buff), &buff);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        return buff;
     }
 
     void OpenGLFrameBuffer::ReSize(uint32_t width, uint32_t height)
@@ -112,6 +148,12 @@ namespace TriEngine {
         glBindTextureUnit(slot, m_ColorAttachments[index]);
     }
 
+    void OpenGLFrameBuffer::ClearColorAttachment(uint32_t index, float clearValue) const
+    {
+        const auto& settings = m_ColorAttachmentSettings[index];
+        glClearTexImage(m_ColorAttachments[index], 0, AttachmentTypeToGLType(settings.Type), GL_INT, &clearValue);
+    }
+
 
     void OpenGLFrameBuffer::BindDepthAttachment(uint32_t slot) const
     {
@@ -136,7 +178,14 @@ namespace TriEngine {
 
             for (size_t i = 0; i < m_ColorAttachments.size(); i++)
             {
-                AttachColorTexture(m_ColorAttachments[i], GL_RGBA8, i);
+                switch (m_ColorAttachmentSettings[i].Type)
+                {
+                case RenderAttachmentType::Color:
+                    AttachColorTexture(m_ColorAttachments[i], GL_RGBA8, i); break;
+                case RenderAttachmentType::RedInteger:
+                    AttachColorTexture(m_ColorAttachments[i], GL_R32I, i); break;
+                }
+
             }
         }
 

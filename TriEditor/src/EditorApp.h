@@ -26,6 +26,7 @@ public:
 	virtual void OnDetach() final;
 
 	void OnUpdate(float deltaTime) final;
+	void OnRender(float deltaTime);
 	virtual void OnImGuiRender() final;
 	void UpdateTitleBar();
 	void OnEvent(Event& e) final;
