@@ -20,6 +20,8 @@ namespace TriEngine {
 
         m_MainRenderpass = std::make_shared<Renderpass>(mainFB);
         m_MainRenderpass->DepthTest = true;
+
+		ParticleSystem::Init();
     }
 
     void GameRenderer::RenderScene(Scene* scene) {
@@ -55,6 +57,11 @@ namespace TriEngine {
 
 		}
 		Renderer2D::End();
+
+		glm::mat4 viewProj = cameraProjection * glm::inverse(cameraTransform);
+
+		ParticleSystem::Render(viewProj);
+
     }
 
     void GameRenderer::RenderSceneEditor(Scene* scene) {
@@ -78,6 +85,7 @@ namespace TriEngine {
 			}
 		}
 
+		m_MainRenderpass->Target->Bind();
 		Renderer2D::Begin(cameraProjection, cameraTransform, m_MainRenderpass);
 
 		auto group = scene->m_Registry.group<Transform2DComponent>(entt::get<Sprite2DComponent>);
@@ -96,5 +104,13 @@ namespace TriEngine {
 		}
 
 		Renderer2D::End();
+
+;		glm::mat4 viewProj = cameraProjection * glm::inverse(cameraTransform);
+
+		ParticleSystem::Render(viewProj);
+
+		m_MainRenderpass->Target->UnBind();
+
     }
+
 }

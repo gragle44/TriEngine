@@ -14,6 +14,8 @@
 #include "box2d/b2_polygon_shape.h"
 
 #include "Renderer/Renderer2D.h"
+#include "Renderer/Particle.h"
+#include "Renderer/RenderCommand.h"
 
 namespace TriEngine {
 
@@ -68,6 +70,7 @@ namespace TriEngine {
 		CopyComponent<ScriptComponent>(newObject, oldObject);
 		CopyComponent<Camera2DComponent>(newObject, oldObject);
 		CopyComponent<Sprite2DComponent>(newObject, oldObject);
+		CopyComponent<ParticleEmmiterComponent>(newObject, oldObject);
 	}
 
 	void Scene::Start()
@@ -210,6 +213,42 @@ namespace TriEngine {
 			transform.Rotation = glm::degrees(body->GetAngle());
 
 		}
+
+		auto particleView = m_Registry.view<ParticleEmmiterComponent, Transform2DComponent>();
+
+		ParticleSystem::GetData().ShouldRender = false;
+		ParticleSystem::GetData().ParticleBuffer->Bind(0);
+		ParticleSystem::GetData().FreelistBuffer->Bind(1);
+
+		// Particle spawn updates
+		ParticleSystem::GetData().EmmisionShader->Bind();
+
+		for (auto entity : particleView) {
+			GameObject object = { entity, this };
+
+			auto& emmiter = object.GetComponent<ParticleEmmiterComponent>();
+			auto& transform = object.GetComponent<Transform2DComponent>();
+
+			ParticleSystem::UpdateEmmitter(deltaTime, emmiter, transform);
+		}
+
+		RenderCommand::MemoryBarrier();
+
+		// Particle Updates
+
+		ParticleSystem::GetData().UpdateShader->Bind();
+
+		for (auto entity : particleView) {
+			GameObject object = { entity, this };
+
+			auto& emmiter = object.GetComponent<ParticleEmmiterComponent>();
+			auto& transform = object.GetComponent<Transform2DComponent>();
+
+			ParticleSystem::Update(deltaTime);
+		}
+		RenderCommand::MemoryBarrier();
+
+
 
 		ShouldReset();
 	}

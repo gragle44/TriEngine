@@ -28,8 +28,10 @@ namespace TriEngine {
 		virtual uint32_t GetHeight() const final { return m_Settings.SizeY; };
 
 		virtual RID GetID() const final { return m_TextureID; };
+		virtual uint64_t GetHandle() const override { return m_BindlessHandle; }
 	private:
 		RID m_TextureID;
+		uint64_t m_BindlessHandle = 0;
 		
 		TextureSettings m_Settings;
 

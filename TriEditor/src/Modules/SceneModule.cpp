@@ -151,6 +151,7 @@ namespace TriEngine {
 				RenderComponentSelection<RigidBody2DComponent>("RigidBody2D", object, &addingComponent);
 				RenderComponentSelection<BoxCollider2DComponent>("BoxCollider2D", object, &addingComponent);
 				RenderComponentSelection<Camera2DComponent>("Camera2D", object, &addingComponent);
+				RenderComponentSelection<ParticleEmmiterComponent>("ParticleEmmitter", object, &addingComponent);
 
 				ImGui::End();
 			}
@@ -263,6 +264,49 @@ namespace TriEngine {
 			ImGui::DragFloat("Rotation", &component.Rotation);
 			ImGui::DragFloat2("Scale", glm::value_ptr(component.Scale));
 		});
+
+		DrawComponent<ParticleEmmiterComponent>("ParticleEmmitter", object, [](ParticleEmmiterComponent& component)
+			{
+				ImGui::ColorEdit4("Min Color", glm::value_ptr(component.MinColor));
+				ImGui::ColorEdit4("Max Color", glm::value_ptr(component.MaxColor));
+
+				ImGui::DragFloat3("Min Offset", glm::value_ptr(component.MinOffset));
+				ImGui::DragFloat3("Max Offset", glm::value_ptr(component.MaxOffset));
+
+				ImGui::DragFloat2("Min Velocity", glm::value_ptr(component.MinVelocity));
+				ImGui::DragFloat2("Max Velocity", glm::value_ptr(component.MaxVelocity));
+
+				ImGui::DragFloat2("Min Accel", glm::value_ptr(component.MinAccel));
+				ImGui::DragFloat2("Max Accel", glm::value_ptr(component.MaxAccel));
+
+				ImGui::DragFloat("Min Life", &component.MinLife);
+				ImGui::DragFloat("Max Life", &component.MaxLife);
+
+				ImGui::DragFloat("Spawn Interval", &component.SpawnInterval);
+
+				if (ImGui::Button("Texture")) {
+					char* output;
+					auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
+					nfdresult_t result = NFD_OpenDialog("png", cwd.string().c_str(), &output);
+
+					if (result == NFD_OKAY) {
+						TriEngine::ResourceID resourceID = TriEngine::ResourceManager::GetIDFromPath(output);
+						if (!TriEngine::ResourceManager::ResourceExists(resourceID))
+							component.Texture = TriEngine::ResourceManager::Create<Texture2D>(output, output);
+						else
+							component.Texture = std::reinterpret_pointer_cast<Texture2D>(TriEngine::ResourceManager::Get(resourceID));
+						delete output;
+					}
+
+					else if (result == NFD_CANCEL) {
+						TRI_CORE_TRACE("Canceled file dialog");
+					}
+
+					else if (result == NFD_ERROR) {
+						TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
+					}
+				}
+			});
 		
 		DrawComponent<Sprite2DComponent>("Sprite2D", object, [&](Sprite2DComponent& sprite)
 		{

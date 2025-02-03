@@ -1,0 +1,26 @@
+TriEngine Scene File
+---
+Scene: Scene
+Objects:
+  - Entity: 5719054442407036939
+    TagComponent:
+      Tag: Object
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    ParticleEmmiterComponent:
+      MinColor: [1, 0, 0, 1]
+      MaxColor: [0, 1, 0.89783287, 1]
+      MinOffset: [-5, -5, 0]
+      MaxOffset: [5, 5, 0]
+      MinVelocity: [-11, -11]
+      MaxVelocity: [11, 11]
+      MinAccel: [-0.200000003, -0.200000003]
+      MaxAccel: [0.200000003, 0.200000003]
+      MinLife: 4
+      MaxLife: 5.5
+      SpawnInterval: 9.99999975e-05
+      SpawnTimer: 0
+      Texture:
+        ResourceID: 0

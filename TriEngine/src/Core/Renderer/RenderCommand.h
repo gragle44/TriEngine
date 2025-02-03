@@ -13,6 +13,10 @@ namespace TriEngine {
 			s_RendererAPI->DrawElements(vertexArray, count);
 		}
 
+		static void DrawElementsInstanced(const Reference<VertexArray>& vertexArray, uint32_t elementCount, uint32_t instanceCount) {
+			s_RendererAPI->DrawElementsInstanced(vertexArray, elementCount, instanceCount);
+		}
+
 		static void DrawArrays(const Reference<VertexArray>& vertexArray, uint32_t vertexBufferIndex = 0, uint32_t vertexCount = 0) {
 			s_RendererAPI->DrawArrays(vertexArray, vertexBufferIndex, vertexCount);
 		}
@@ -35,6 +39,10 @@ namespace TriEngine {
 
 		static void EnableWireframes(bool enabled) {
 			s_RendererAPI->EnableWireframes(enabled);
+		}
+
+		static void MemoryBarrier() {
+			s_RendererAPI->MemoryBarrier();
 		}
 
 		static uint32_t GetMaxTextureSlots() {

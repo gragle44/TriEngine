@@ -216,9 +216,6 @@ namespace TriEngine {
 			// TODO: save other parameters from the texture
 			out << YAML::Key << "Texture" << YAML::Value << YAML::BeginMap;
 
-			std::filesystem::path texturePath = component.Texture->GetFilePath();
-			const std::filesystem::path& projectPath = ProjectManager::GetCurrent()->GetWorkingDirectory();
-
 			out << YAML::Key << "ResourceID" << YAML::Value << component.Texture->MetaData.ID;
 			out << YAML::EndMap;
 
@@ -226,6 +223,41 @@ namespace TriEngine {
 			out << YAML::Key << "TilingFactor" << YAML::Value << component.TilingFactor;
 
 			out << YAML::EndMap;
+		}
+
+		if (object.HasComponent<ParticleEmmiterComponent>()) {
+			auto& component = object.GetComponent<ParticleEmmiterComponent>();
+			out << YAML::Key << "ParticleEmmiterComponent" << YAML::Value << YAML::BeginMap;
+
+			out << YAML::Key << "MinColor" << YAML::Value << component.MinColor;
+			out << YAML::Key << "MaxColor" << YAML::Value << component.MaxColor;
+
+			out << YAML::Key << "MinOffset" << YAML::Value << component.MinOffset;
+			out << YAML::Key << "MaxOffset" << YAML::Value << component.MaxOffset;
+
+			out << YAML::Key << "MinVelocity" << YAML::Value << component.MinVelocity;
+			out << YAML::Key << "MaxVelocity" << YAML::Value << component.MaxVelocity;
+
+			out << YAML::Key << "MinAccel" << YAML::Value << component.MinAccel;
+			out << YAML::Key << "MaxAccel" << YAML::Value << component.MaxAccel;
+
+			out << YAML::Key << "MinLife" << YAML::Value << component.MinLife;
+			out << YAML::Key << "MaxLife" << YAML::Value << component.MaxLife;
+
+			out << YAML::Key << "SpawnInterval" << YAML::Value << component.SpawnInterval;
+			out << YAML::Key << "SpawnTimer" << YAML::Value << component.SpawnTimer;
+
+			// TODO: save other parameters from the texture
+			out << YAML::Key << "Texture" << YAML::Value << YAML::BeginMap;
+
+			auto resID = component.Texture != nullptr ? component.Texture->MetaData.ID : ResourceID(0);
+			out << YAML::Key << "ResourceID" << YAML::Value << resID;
+			out << YAML::EndMap;
+
+
+			out << YAML::EndMap;
+
+
 		}
 
 		out << YAML::EndMap;
@@ -298,6 +330,37 @@ namespace TriEngine {
 			}
 			sprite.Tint = entity["Sprite2DComponent"]["Tint"].as<glm::vec4>();
 			sprite.TilingFactor = entity["Sprite2DComponent"]["TilingFactor"].as<float>();
+		}
+
+		if (entity["ParticleEmmiterComponent"]) {
+			auto& component = newEntity.AddComponent<ParticleEmmiterComponent>();
+			uint64_t resourceid = entity["ParticleEmmiterComponent"]["Texture"]["ResourceID"].as<uint64_t>();
+			if (ResourceManager::ResourceExists(resourceid)) {
+				component.Texture = std::reinterpret_pointer_cast<Texture2D>(ResourceManager::Get(resourceid));
+			}
+			else {
+				component.Texture = nullptr;
+			}
+
+			component.MinColor = entity["ParticleEmmiterComponent"]["MinColor"].as<glm::vec4>();
+			component.MaxColor = entity["ParticleEmmiterComponent"]["MaxColor"].as<glm::vec4>();
+
+			component.MinOffset = entity["ParticleEmmiterComponent"]["MinOffset"].as<glm::vec3>();
+			component.MaxOffset = entity["ParticleEmmiterComponent"]["MaxOffset"].as<glm::vec3>();
+
+			component.MinVelocity = entity["ParticleEmmiterComponent"]["MinVelocity"].as<glm::vec2>();
+			component.MaxVelocity = entity["ParticleEmmiterComponent"]["MaxVelocity"].as<glm::vec2>();
+
+			component.MinAccel = entity["ParticleEmmiterComponent"]["MinAccel"].as<glm::vec2>();
+			component.MaxAccel = entity["ParticleEmmiterComponent"]["MaxAccel"].as<glm::vec2>();
+
+			component.MinLife = entity["ParticleEmmiterComponent"]["MinLife"].as<float>();
+			component.MaxLife = entity["ParticleEmmiterComponent"]["MaxLife"].as<float>();
+
+			component.SpawnInterval = entity["ParticleEmmiterComponent"]["SpawnInterval"].as<float>();
+			component.SpawnTimer = entity["ParticleEmmiterComponent"]["SpawnTimer"].as<float>();
+
+
 		}
 
 	}

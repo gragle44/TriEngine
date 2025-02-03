@@ -53,7 +53,7 @@ namespace TriEngine {
 
 		virtual ByteBuffer& GetData() = 0;
 
-
+		virtual uint64_t GetHandle() const = 0;
 		virtual RID GetID() const = 0;
 	};
 

@@ -1,0 +1,38 @@
+TriEngine Scene File
+---
+Scene: Scene
+Objects:
+  - Entity: 8576688395585172527
+    TagComponent:
+      Tag: Object
+    Transform2DComponent:
+      Position: [0, 3.70000005, 0.600000024]
+      Rotation: 0
+      Scale: [16, 8]
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 11546768677555150207
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 15124305446482352098
+    TagComponent:
+      Tag: rain
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    ParticleEmmiterComponent:
+      MinColor: [0.535603702, 0.535603702, 0.535603702, 1]
+      MaxColor: [0.535603702, 0.535603702, 0.535603702, 1]
+      MinOffset: [-6, 0, 0]
+      MaxOffset: [6, 0, 0]
+      MinVelocity: [0, -4]
+      MaxVelocity: [0, -5]
+      MinAccel: [0, 0]
+      MaxAccel: [0, 0]
+      MinLife: 2.5
+      MaxLife: 2.5
+      SpawnInterval: 0.180000007
+      SpawnTimer: 0
+      Texture:
+        ResourceID: 10063043351118733001

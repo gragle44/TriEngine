@@ -65,6 +65,10 @@ namespace TriEngine {
 		m_Context = new OpenGLContext(m_Window);
 		m_Context->Init();
 
+		if (!glfwExtensionSupported("GL_ARB_bindless_texture")) {
+			//TRI_CORE_ASSERT(false, "Bindless Texture support is required!");
+		}
+
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(VsyncMode::On);
 

@@ -3,6 +3,7 @@
 #include "Core/Base/Core.h"
 #include "Core/GameObjects/Script.h"
 #include "Core/Renderer/Texture.h"
+#include "Core/Renderer/ShaderStorageBuffer.h"
 #include "Core/Renderer/OrthographicCamera.h"
 #include "entt/entt.hpp"
 
@@ -108,7 +109,6 @@ namespace TriEngine {
 
 	};
 
-
 	struct ScriptComponent {
 		std::unique_ptr<Script> ScriptInstance;
 
@@ -161,5 +161,20 @@ namespace TriEngine {
 		Sprite2DComponent(Reference<Texture2D> texture2D)
 			:Texture(texture2D) {}
 		Sprite2DComponent(const Sprite2DComponent&) = default;
+	};
+
+	struct ParticleEmmiterComponent {
+		glm::vec4 MinColor = { 1.0f, 1.0f, 1.0f, 1.0f }, MaxColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glm::vec3 MinOffset, MaxOffset;
+		glm::vec2 MinVelocity, MaxVelocity;
+		glm::vec2 MinAccel, MaxAccel;
+		float MinLife = 1.0f, MaxLife = 1.0f;
+
+		float SpawnInterval = 0.5, SpawnTimer;
+
+		Reference<Texture2D> Texture = nullptr;
+
+		ParticleEmmiterComponent() = default;
+		ParticleEmmiterComponent(const ParticleEmmiterComponent&) = default;
 	};
 }

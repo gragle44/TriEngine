@@ -21,6 +21,9 @@ namespace TriEngine {
 		glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &caps.MaxFramebufferSize);
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &caps.MaxSamplers);
 		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &caps.MaxColorAttachments);
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &caps.MaxComputeGroupSizeX);
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &caps.MaxComputeGroupSizeY);
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &caps.MaxComputeGroupSizeZ);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -66,6 +69,11 @@ namespace TriEngine {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
+	void OpenGLRendererAPI::MemoryBarrier() const{
+		//TODO: Expand functionality
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	}
+
 	void OpenGLRendererAPI::SetViewPort(const glm::ivec4& dimensions) const
 	{
 		glViewport(dimensions.x, dimensions.y, dimensions.z, dimensions.w);
@@ -89,6 +97,13 @@ namespace TriEngine {
 		}
 
 		glDrawArrays(GL_TRIANGLES, vbOffset, count);
+	}
+
+	void OpenGLRendererAPI::DrawElementsInstanced(const Reference<VertexArray>& vertexArray, uint32_t elementCount, uint32_t instanceCount) const
+	{
+		vertexArray->Bind();
+		uint32_t count = elementCount ? elementCount : vertexArray->GetIndexBuffer()->GetCount();
+		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, instanceCount);
 	}
 
 	uint32_t OpenGLRendererAPI::GetMaxTextureSlots() const

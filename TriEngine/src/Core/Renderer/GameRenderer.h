@@ -3,6 +3,7 @@
 #include "Framebuffer.h"
 #include "Core/GameObjects/Scene.h"
 #include "Core/GameObjects/EditorCamera.h"
+#include "Particle.h"
 
 namespace TriEngine {
 

@@ -1,0 +1,14 @@
+TriEngine Resource Registry
+---
+- ID: 1558547626144683833
+  Filepath: smoke.png
+  Type: Texture
+- ID: 10063043351118733001
+  Filepath: rain.png
+  Type: Texture
+- ID: 11546768677555150207
+  Filepath: cloud.png
+  Type: Texture
+- ID: 12943088241585453480
+  Filepath: sparkle.png
+  Type: Texture

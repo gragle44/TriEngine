@@ -115,9 +115,6 @@ namespace TriEngine {
 	{
 		s_RenderData.CurrentPass = renderPass;
 
-		if (renderPass->Target)
-			renderPass->Target->Bind();
-
 		if (renderPass->Clear)
 			RenderCommand::Clear();
 		
@@ -138,21 +135,6 @@ namespace TriEngine {
 	void Renderer2D::End()
 	{
 		Flush();
-
-		if (s_RenderData.CurrentPass->Target != nullptr) {
-			s_RenderData.CurrentPass->Target->UnBind();
-			//RenderCommand::Clear();
-			//RenderCommand::DepthTest(false);
-			//
-			//s_RenderData.ScreenShader->Bind();
-			//s_RenderData.CurrentPass->Target->BindColorAttachment(0, 0);
-			//
-			//RenderCommand::DrawArrays(s_RenderData.ScreenVertexArray);
-		}
-		else {
-			RenderCommand::Clear();
-			RenderCommand::DepthTest(false);
-		}
 	}
 
 	void Renderer2D::Flush()

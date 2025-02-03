@@ -294,7 +294,7 @@ void EditorLayer::OnUpdate(float deltaTime)
 		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
 	}
 
-	else if (!m_Data->SceneRunning)
+	else if (!m_Data->SceneRunning) {
 		m_Data->Camera->OnUpdate(deltaTime);
 		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
 
@@ -313,14 +313,9 @@ void EditorLayer::OnUpdate(float deltaTime)
 					GameObject pickedObject = GameObject((entt::entity)pixel, m_Data->ActiveScene.get());
 					m_Data->SelectedItem = pickedObject;
 				}
-
-				TRI_CORE_TRACE("Mouse pos: {0}, {1}", pos.x, pos.y);
-				TRI_CORE_TRACE("Mouse pos adjusted: {0}, {1}", X, Y);
-				TRI_CORE_TRACE("Min bounds: {0}, {1}", m_Data->ViewPortBoundsMin.x, m_Data->ViewPortBoundsMin.y);
-				TRI_CORE_TRACE("Max bounds: {0}, {1}", m_Data->ViewPortBoundsMax.x, m_Data->ViewPortBoundsMax.y);
-				TRI_CORE_TRACE("ID: {0}", pixel);
 			}
 		}
+	}
 }
 
 void EditorLayer::OnRender(float deltaTime)
@@ -419,7 +414,8 @@ void EditorLayer::LoadScene(const std::string& path)
 
 void EditorLayer::SaveScene(const std::string& path)
 {
-	StopScene();
+	if (m_Data->SceneRunning)
+		return;
 	TriEngine::SceneSerializer s(m_Data->ActiveScene);
 	s.Serialize(path);
 }
