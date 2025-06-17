@@ -390,10 +390,10 @@ void EditorLayer::LoadProject(const std::string& path)
 	TriEngine::ResourceManager::Init();
 
 	const TriEngine::ProjectData& projectData = TriEngine::ProjectManager::GetCurrent()->GetProjectData();
-	if (!projectData.StartupScene.empty()) {
-		std::filesystem::path fullStartupScenePath = TriEngine::ProjectManager::GetCurrent()->GetAbsolutePath(projectData.StartupScene.string());
+	if (ResourceManager::ResourceExists(projectData.StartupSceneID)) {
+		//std::filesystem::path fullStartupScenePath = TriEngine::ProjectManager::GetCurrent()->GetAbsolutePath(projectData.StartupScene.string());
 
-		LoadScene(fullStartupScenePath.string());
+		LoadScene(projectData.StartupSceneID);
 	}
 	else {
 		LoadEmptyScene();
@@ -407,17 +407,37 @@ void EditorLayer::SaveProject(const std::string& path)
 
 void EditorLayer::LoadScene(const std::string& path)
 {
+	const TriEngine::ProjectData& projectData = TriEngine::ProjectManager::GetCurrent()->GetProjectData();
+
+	if (!ResourceManager::ResourceExists(projectData.StartupSceneID)) {
+		LoadEmptyScene();
+		return;
+	}
+
 	StopScene();
-	TriEngine::SceneSerializer s(m_Data->ActiveScene);
-	s.Deserialize(path);
+	m_Data->ActiveScene = std::reinterpret_pointer_cast<Scene>(ResourceManager::Get(projectData.StartupSceneID));
+}
+
+void EditorLayer::LoadScene(ResourceID id)
+{
+	StopScene();
+	m_Data->ActiveScene = std::reinterpret_pointer_cast<Scene>(ResourceManager::Get(id));
 }
 
 void EditorLayer::SaveScene(const std::string& path)
 {
 	if (m_Data->SceneRunning)
 		return;
-	TriEngine::SceneSerializer s(m_Data->ActiveScene);
-	s.Serialize(path);
+
+	if (!ResourceManager::ResourceExists(m_Data->ActiveScene->MetaData.ID)) {
+		//TODO: Resource manager needs existing file to create a resource, probably fix this later
+		TriEngine::SceneSerializer s(m_Data->ActiveScene);
+		s.Serialize(path);
+		ResourceManager::Create<Scene>(path);
+		return;
+	}
+
+	ResourceManager::SaveResource(m_Data->ActiveScene);
 }
 
 

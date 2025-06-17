@@ -3,10 +3,13 @@
 #include <string>
 #include <filesystem>
 
+#include "Core/Resources/Resource.h"
+
 namespace TriEngine {
 	struct ProjectData {
 		std::string Name = "Untitled Project";
 		std::filesystem::path StartupScene;
+		ResourceID StartupSceneID = 0;
 	};
 
 	class Project {

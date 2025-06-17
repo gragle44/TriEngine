@@ -8,10 +8,10 @@
 namespace TriEngine {
 	Reference<Resource> TriEngine::SceneLoader::Load(ResourceMetadata& metadata)
 	{
-		Reference<Scene> scene;
+		Reference<Scene> scene = Scene::Create();
 		TriEngine::SceneSerializer s(scene);
 		s.Deserialize(metadata.Filepath);
-		scene->MetaData = metadata;
+ 		scene->MetaData = metadata;
 		return scene;
 	}
 

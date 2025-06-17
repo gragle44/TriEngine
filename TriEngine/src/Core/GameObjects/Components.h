@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include "Core/Base/Core.h"
 #include "Core/GameObjects/Script.h"
 #include "Core/Renderer/Texture.h"

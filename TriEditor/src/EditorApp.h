@@ -58,6 +58,7 @@ private:
 	void SaveProject(const std::string& path);
 
 	void LoadScene(const std::string& path);
+	void LoadScene(ResourceID id);
 	void SaveScene(const std::string& path);
 
 	void StartScene();

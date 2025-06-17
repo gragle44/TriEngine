@@ -1,0 +1,11 @@
+TriEngine Scene File
+---
+Scene: Scene
+Objects:
+  - Entity: 16842323357730859995
+    TagComponent:
+      Tag: Object
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]

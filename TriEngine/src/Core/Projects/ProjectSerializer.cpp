@@ -28,7 +28,7 @@ namespace TriEngine {
 
 		out MAP_START;
 		out KEYVAL("Project", data.Name);
-		out KEYVAL("StartupScene", data.StartupScene.string());
+		out KEYVAL("StartupSceneID", data.StartupSceneID);
 		out MAP_END;
 
 		TRI_CORE_ASSERT(out.good(), "Failed to serialize scene");
@@ -54,6 +54,6 @@ namespace TriEngine {
 		ProjectData& data = m_Project->GetProjectData();
 
 		data.Name = project[1]["Project"].as<std::string>();
-		data.StartupScene = project[1]["StartupScene"].as<std::string>();
+		data.StartupSceneID = project[1]["StartupSceneID"].as<uint64_t>();
 	}
 }
