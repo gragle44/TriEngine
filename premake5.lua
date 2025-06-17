@@ -102,6 +102,23 @@ project "TriEngine"
 	filter "files:TriEngine/vendor/ImGuizmo/**.cpp"
 		flags {"NoPCH"}
 
+	filter "system:linux"
+		systemversion "latest"
+		pic "on"
+
+		defines 
+		{
+			"GLFW_INCLUDE_NONE"
+		}
+
+		links { 
+			"GLU",
+			"GL",
+			"X11",
+			"pthread",
+			"dl"
+		}
+
 	filter "system:windows"
 		systemversion "latest"
 
@@ -134,7 +151,7 @@ project "TriEngine"
 
 		flags 
 		{
-			"LinkTimeOptimization"
+			"linktimeoptimization"
 		}
 
 
@@ -178,6 +195,25 @@ project "TriEditor"
 
 	filter "system:windows"
 		systemversion "latest"
+
+	filter "system:linux"
+		systemversion "latest"
+
+		links 
+		{
+			"GLU",
+			"GL",
+			"X11",
+			"pthread",
+			"dl",
+			"GLFW",
+			"Glad",
+			"ImGui",
+			"box2D",
+			"yaml_cpp",
+			"nativefiledialog"
+		}
+
 
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"

@@ -2,7 +2,7 @@
 
 #include "OpenGLBuffers.h"
 
-#include <Glad/glad.h>
+#include "glad/glad.h"
 
 namespace TriEngine {
 	//Vertex Buffer

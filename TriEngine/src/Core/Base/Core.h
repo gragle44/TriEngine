@@ -13,7 +13,7 @@
 	#error "Apple is not supported"
 
 #elif defined(__linux__)
-	#error "Linux is not currently supported"
+	#define TRI_PLATFORM_LINUX
 
 #elif defined (__ANDROID__)
 	#error "Android is not currently supported"

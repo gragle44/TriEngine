@@ -8,7 +8,7 @@
 namespace TriEngine {
 
 	struct GameRendererData {
-		Reference<EditorCamera> EditorCamera;
+		Reference<EditorCamera> editorCamera;
 		Reference<Renderpass> MainRenderpass;
 		glm::vec2 ViewportSize;
 	};

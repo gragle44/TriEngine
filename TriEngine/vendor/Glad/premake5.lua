@@ -8,9 +8,9 @@ project "Glad"
 
 	files
 	{
-        "include/Glad/Glad.h",
+        "include/glad/glad.h",
         "include/KHR/khrplatform.h",
-        "src/Glad.c",
+        "src/glad.c",
     }
     
     includedirs
@@ -20,6 +20,10 @@ project "Glad"
 
 	filter "system:windows"
         systemversion "latest"
+
+    filter "system:linux"
+        systemversion "latest"
+        pic "on"
 
     filter "configurations:Debug"
 		defines "TRI_DEBUG"

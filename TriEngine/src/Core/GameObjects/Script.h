@@ -24,7 +24,7 @@ namespace TriEngine {
 	protected:
 		template <typename T, typename... Args>
 		T& AddComponent(Args&&... args) {
-			return m_Object.AddComponent<T>(args);
+			return m_Object.AddComponent<T>(std::forward<Args>(args)...);
 		}
 
 		template<typename T>

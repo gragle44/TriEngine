@@ -4,8 +4,8 @@
 
 #include "OpenGLContext.h"
 
-#include <GLAD/glad.h>
-#include <GLFW/glfw3.h>
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 
 namespace TriEngine {
 	static void glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam) {

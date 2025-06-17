@@ -23,7 +23,7 @@ namespace TriEngine {
 		EventCategoryJoystick = BIT(5)
 	};
 
-	#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
+	#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
 									virtual EventType GetEventType() const final { return GetStaticType(); }\
 									virtual const char* GetName() const final { return #type; }
 

@@ -172,7 +172,7 @@ namespace TriEngine {
 
 				char buffer[64];
 				memset(buffer, 0, sizeof(buffer));
-				strncpy_s(buffer, sizeof(buffer), tag.Tag.c_str(), sizeof(buffer));
+				strncpy(buffer, tag.Tag.c_str(), sizeof(buffer));
 
 				ImGuiInputTextFlags flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue;
 				if (ImGui::InputText("##", buffer, sizeof(buffer), flags)) {

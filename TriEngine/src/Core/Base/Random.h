@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Random> 
+#include <random>
+#include "tripch.h"
 
 namespace TriEngine {
 	class Random {

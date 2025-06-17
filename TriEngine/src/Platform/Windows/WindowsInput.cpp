@@ -2,7 +2,7 @@
 #include "Core/Base/Input.h"
 
 #include "Base/Application.h"
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
 namespace TriEngine {
 	bool Input::IsKeyPressed(int keycode)

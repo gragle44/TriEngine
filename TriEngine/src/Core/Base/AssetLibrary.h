@@ -15,7 +15,7 @@ namespace TriEngine {
 		AssetLibrary() = default;
 		~AssetLibrary() = default;
 
-		template <typename T, typename... Args>
+		template <typename... Args>
 		Reference<T> Create(const std::string& name, Args &&...args) {
 			if (Exists(name)) {
 				TRI_CORE_WARN("AssetLibrary::Load({0}) - overwriting asset with same name", name);

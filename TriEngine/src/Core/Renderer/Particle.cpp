@@ -44,9 +44,9 @@ namespace TriEngine {
 		m_Data.TextureSlots.resize(32);
 		m_Data.TextureSlots[0] = m_Data.DefaultTexture;
 
-		m_Data.RenderShader = Shader::Create("ParticleRenderShader", "src/shaders/particle_vs.glsl", "src/shaders/particle_fs.glsl");
-		m_Data.UpdateShader = ComputeShader::Create("ParticleUpdateShader", "src/shaders/particleUpdate_cs.glsl");
-		m_Data.EmmisionShader = ComputeShader::Create("ParticleEmmisionShader", "src/shaders/particleSpawner_cs.glsl");
+		m_Data.RenderShader = Shader::Create("ParticleRenderShader", "src/Shaders/particle_vs.glsl", "src/Shaders/particle_fs.glsl");
+		m_Data.UpdateShader = ComputeShader::Create("ParticleUpdateShader", "src/Shaders/particleUpdate_cs.glsl");
+		m_Data.EmmisionShader = ComputeShader::Create("ParticleEmmisionShader", "src/Shaders/particleSpawner_cs.glsl");
 
 		int32_t* samplers = new int32_t[32];
 		for (int32_t i = 0; i < 32; i++)
@@ -57,16 +57,16 @@ namespace TriEngine {
 
 		delete[] samplers;
 
-		m_Data.VertexArray = VertexArray::Create();
+		m_Data.vertexArray = VertexArray::Create();
 
-		m_Data.VertexBuffer = VertexBuffer::Create((float*)& baseQuadPositions, sizeof(baseQuadPositions));
+		m_Data.vertexBuffer = VertexBuffer::Create((float*)& baseQuadPositions, sizeof(baseQuadPositions));
 
 		{
 			TriEngine::BufferLayout layout = {
 				{ "a_Position", TriEngine::ShaderDataType::Float2 }
 			};
 
-			m_Data.VertexBuffer->SetLayout(layout);
+			m_Data.vertexBuffer->SetLayout(layout);
 		}
 
 		uint32_t quadIndices[] = {0, 1, 2, 2, 3, 0};
@@ -74,7 +74,7 @@ namespace TriEngine {
 
 		Reference<IndexBuffer> indexBuffer = IndexBuffer::Create(quadIndices, 6);
 
-		m_Data.VertexArray->AddVertexAndIndexBuffers(m_Data.VertexBuffer, indexBuffer);
+		m_Data.vertexArray->AddVertexAndIndexBuffers(m_Data.vertexBuffer, indexBuffer);
 	}
 
 	void ParticleSystem::Update(float deltaTime)
@@ -173,7 +173,7 @@ namespace TriEngine {
 			m_Data.TextureSlots[i]->Bind(i);
 		}
 
-		RenderCommand::DrawElementsInstanced(m_Data.VertexArray, 6, m_Data.MaxParticles);
+		RenderCommand::DrawElementsInstanced(m_Data.vertexArray, 6, m_Data.MaxParticles);
 
 		m_Data.ShouldRender = false;
 	}

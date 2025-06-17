@@ -1,8 +1,8 @@
 #pragma once
 
-#ifdef TRI_PLATFORM_WINDOWS
+#if defined(TRI_PLATFORM_WINDOWS) || defined(TRI_PLATFORM_LINUX)
 
-extern TriEngine::Application * TriEngine::CreateApplication();
+extern TriEngine::Application* TriEngine::CreateApplication();
 
 int main(int argc, char** argv)
 {

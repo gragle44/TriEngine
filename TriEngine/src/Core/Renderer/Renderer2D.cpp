@@ -150,7 +150,7 @@ namespace TriEngine {
 		uint32_t transparentSize = std::distance(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr);
 		
 		s_RenderData.QuadVertexBuffer->SetData(s_RenderData.VertexData.data(), size * sizeof(QuadVertex));
-		s_RenderData.QuadVertexBuffer->SetData(s_RenderData.TransparentVertexDataBegin._Ptr, transparentSize * sizeof(QuadVertex), size * sizeof(QuadVertex));
+		s_RenderData.QuadVertexBuffer->SetData(s_RenderData.TransparentVertexDataBegin.base(), transparentSize * sizeof(QuadVertex), size * sizeof(QuadVertex));
 
 		//Update bound textures
 		for (uint32_t i = 0; i < s_RenderData.TextureSlotIndex; i++) {

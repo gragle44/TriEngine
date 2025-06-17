@@ -1,6 +1,7 @@
 project "nativefiledialog"
     kind "StaticLib"
     language "C++"
+    cppdialect "C++20"
     staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -11,17 +12,26 @@ project "nativefiledialog"
         "src/include"
     }
 
-	filter "system:windows"
-        systemversion "latest"
-        cppdialect "C++20"
+    files
+    {
+        "src/nfd_common.c",
+        "src/**.h",
+        "src/include/**.h",
+    }
 
+	filter "system:windows"
         files
         {
-            "src/nfd_win.cpp",
-            "src/nfd_common.c",
-            "src/**.h",
-            "src/include/**.h",
+            "src/nfd_win.cpp"
         }
+        systemversion "latest"
+
+    filter "system:linux"
+        files
+        {
+            "src/nfd_zenity.c"
+        }
+        systemversion "latest"
 
     filter "configurations:Debug"
 		defines "TRI_DEBUG"

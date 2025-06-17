@@ -23,9 +23,9 @@ namespace TriEngine {
 
 		Reference<Texture2D> DefaultTexture;
 
-		Reference<VertexArray> VertexArray;
-		Reference<VertexBuffer> VertexBuffer;
-		Reference<IndexBuffer> IndexBuffer;
+		Reference<VertexArray> vertexArray;
+		Reference<VertexBuffer> vertexBuffer;
+		Reference<IndexBuffer> indexBuffer;
 
 		bool ShouldRender = false;
 
