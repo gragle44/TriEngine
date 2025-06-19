@@ -26,7 +26,7 @@ struct EditorData {
 	glm::vec2 ViewPortBoundsMin;
 	glm::vec2 ViewPortBoundsMax;
 
-	Reference<Scene> EditorScene;
+	Reference<Scene> RestoreScene;
 	Reference<Scene> ActiveScene;
 	EditorState SceneCurrentState = EditorState::Edit;
 

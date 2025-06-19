@@ -114,8 +114,10 @@ namespace TriEngine {
 	void ResourceManager::LoadResourceRegistry()
 	{
 
-		if (!std::filesystem::exists(s_ResourceRegistryPath))
+		if (!std::filesystem::exists(s_ResourceRegistryPath)) {
+			TRI_CORE_WARN("Couldn't find Resource Registry: {0}", s_ResourceRegistryPath);
 			return;
+		}
 
 		auto registry = YAML::LoadAllFromFile(s_ResourceRegistryPath.generic_string());
 

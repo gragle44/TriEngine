@@ -310,6 +310,8 @@ namespace TriEngine {
 	{
 		Reference<Scene> newScene = Scene::Create(m_Name);
 
+		newScene->MetaData = MetaData;
+
 		newScene->m_CameraObject = m_CameraObject;
 		newScene->m_ViewportSize = m_ViewportSize;
 

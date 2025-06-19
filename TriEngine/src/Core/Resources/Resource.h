@@ -16,8 +16,8 @@ namespace TriEngine {
 
 	struct ResourceMetadata {
 		ResourceType Type = ResourceType::None;
-		ResourceID ID;
-		std::string Filepath;
+		ResourceID ID = 0;
+		std::string Filepath = "";
 	};
 
 	class Resource {
@@ -30,6 +30,10 @@ namespace TriEngine {
 
 		operator bool() const {
 			return MetaData.Type != ResourceType::None;
+		}
+
+		bool operator==(const Resource& other) const {
+			return MetaData.ID == other.MetaData.ID;
 		}
 
 		virtual ~Resource() = default;

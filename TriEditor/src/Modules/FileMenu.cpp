@@ -155,7 +155,7 @@ namespace TriEngine {
 
 				ImGui::Text(("Path: " + resourceMeta.Filepath).c_str());
 				ImGui::SameLine();
-				if (ImGui::ImageButton((ImTextureID)m_Data->FolderTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
+				if (ImGui::ImageButton("resource_editor_folder", (ImTextureID)m_Data->FolderTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
 					std::string newPath = OpenFileDialog(Utils::ExtensionFromResourceType(resourceMeta.Type));
 				}
 

@@ -177,7 +177,6 @@ void EditorLayer::SetupImGuiStyle()
 	style.GrabRounding = 0.0f;
 	style.TabRounding = 0.0f;
 	style.TabBorderSize = 0.0f;
-	style.TabMinWidthForCloseButton = 0.0f;
 	style.ColorButtonPosition = ImGuiDir_Right;
 	style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
 	style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
@@ -248,10 +247,10 @@ void EditorLayer::OnAttach()
 	m_Data->Renderer = std::make_shared<GameRenderer>();
 	m_Data->Renderer->SetEditorCamera(m_Data->Camera);
 
-	m_Data->EditorScene = Scene::Create();
-	m_Data->EditorScene->SetEditorCamera(m_Data->Camera);
+	m_Data->RestoreScene = Scene::Create();
+	m_Data->RestoreScene->SetEditorCamera(m_Data->Camera);
 
-	m_Data->ActiveScene = m_Data->EditorScene;
+	m_Data->ActiveScene = m_Data->RestoreScene;
 
 	TextureSettings playbuttonSettings;
 	playbuttonSettings.Filter = TextureFilter::Linear;
@@ -353,8 +352,11 @@ void EditorLayer::StartScene()
 
 	m_Data->SceneRunning = true;
 	m_Data->SceneCurrentState = EditorState::Play;
-	m_Data->EditorScene = m_Data->ActiveScene->Copy();
+	m_Data->RestoreScene = m_Data->ActiveScene->Copy();
 	m_Data->ActiveScene->Start();
+	TRI_CORE_ASSERT(*m_Data->ActiveScene == *m_Data->RestoreScene, "Active Scene and Restore Scene have different IDs")
+
+	//todo: when making a new project, set the new scene as startup
 }
 
 void EditorLayer::StopScene()
@@ -365,7 +367,8 @@ void EditorLayer::StopScene()
 	m_Data->SceneRunning = false;
 	m_Data->SceneCurrentState = EditorState::Edit;
 	m_Data->ActiveScene->Stop();
-	m_Data->ActiveScene = m_Data->EditorScene->Copy();
+	m_Data->ActiveScene = m_Data->RestoreScene->Copy();
+	TRI_CORE_ASSERT(*m_Data->ActiveScene == *m_Data->RestoreScene, "Active Scene and Restore Scene have different IDs")
 }
 
 void EditorLayer::LoadEmptyScene()
@@ -373,8 +376,36 @@ void EditorLayer::LoadEmptyScene()
 	StopScene();
 	m_Data->ActiveScene = Scene::Create();
 	m_Data->ActiveScene->SetEditorCamera(m_Data->Camera);
-	m_Data->EditorScene = m_Data->ActiveScene->Copy();
+	m_Data->RestoreScene = m_Data->ActiveScene->Copy();
+
 }
+
+void EditorLayer::NewProject(const std::string& path) {
+	TRI_CORE_ASSERT((path.ends_with(".tri")), "Attempting to create a new project with an invalid project file extension");
+
+	LoadEmptyScene();
+
+	TriEngine::SceneSerializer s(m_Data->ActiveScene);
+
+	std::string scenePath = path;
+	scenePath.erase(path.length()-3, 3);
+	scenePath.append("tscn");
+
+	// Create scene file so it can be imported by the resource manager
+	s.Serialize(scenePath);
+
+	ProjectManager::CreateNew(path);
+	ResourceManager::Init();
+
+	m_Data->ActiveScene = ResourceManager::Create<Scene>(scenePath);
+	m_Data->RestoreScene = m_Data->ActiveScene->Copy();
+
+	ProjectManager::GetCurrent()->GetProjectData().StartupSceneID = m_Data->ActiveScene->MetaData.ID;
+	SaveProject(path);
+
+	m_Data->NoProjectLoaded = false;
+}
+
 
 void EditorLayer::LoadProject(const std::string& path)
 {
@@ -391,31 +422,18 @@ void EditorLayer::LoadProject(const std::string& path)
 
 	const TriEngine::ProjectData& projectData = TriEngine::ProjectManager::GetCurrent()->GetProjectData();
 	if (ResourceManager::ResourceExists(projectData.StartupSceneID)) {
-		//std::filesystem::path fullStartupScenePath = TriEngine::ProjectManager::GetCurrent()->GetAbsolutePath(projectData.StartupScene.string());
-
 		LoadScene(projectData.StartupSceneID);
 	}
 	else {
 		LoadEmptyScene();
 	}
+	
+	m_Data->NoProjectLoaded = false;
 }
 
 void EditorLayer::SaveProject(const std::string& path)
 {
 	ProjectManager::Save(path);
-}
-
-void EditorLayer::LoadScene(const std::string& path)
-{
-	const TriEngine::ProjectData& projectData = TriEngine::ProjectManager::GetCurrent()->GetProjectData();
-
-	if (!ResourceManager::ResourceExists(projectData.StartupSceneID)) {
-		LoadEmptyScene();
-		return;
-	}
-
-	StopScene();
-	m_Data->ActiveScene = std::reinterpret_pointer_cast<Scene>(ResourceManager::Get(projectData.StartupSceneID));
 }
 
 void EditorLayer::LoadScene(ResourceID id)
@@ -433,12 +451,57 @@ void EditorLayer::SaveScene(const std::string& path)
 		//TODO: Resource manager needs existing file to create a resource, probably fix this later
 		TriEngine::SceneSerializer s(m_Data->ActiveScene);
 		s.Serialize(path);
+		
 		ResourceManager::Create<Scene>(path);
 		return;
 	}
-
 	ResourceManager::SaveResource(m_Data->ActiveScene);
 }
+
+std::string EditorLayer::OpenFileDialog(const char* initial_path, const char* filetype) {
+	nfdchar_t* output;
+	nfdresult_t result = NFD_OpenDialog(filetype, initial_path, &output);
+
+	std::string path;
+
+	if (result == NFD_OKAY) {
+		path = output;
+		delete output;
+	}
+
+	else if (result == NFD_CANCEL) {
+		TRI_CORE_TRACE("Canceled file dialog");
+	}
+
+	else if (result == NFD_ERROR) {
+		TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
+	}
+
+	return path;
+}
+
+std::string EditorLayer::SaveFileDialog(const char* initial_path, const char* filetype) {
+	nfdchar_t* output;
+	nfdresult_t result = NFD_SaveDialog(filetype, initial_path, &output);
+
+	std::string path;
+
+	if (result == NFD_OKAY) {
+		path = output;
+		delete output;
+	}
+
+	else if (result == NFD_CANCEL) {
+		TRI_CORE_TRACE("Canceled file dialog");
+	}
+
+	else if (result == NFD_ERROR) {
+		TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
+	}
+
+	return path;
+}
+
 
 
 void EditorLayer::OnImGuiRender()
@@ -514,8 +577,8 @@ void EditorLayer::OnImGuiRender()
 		}
 		*/
 
-		ImGui::CaptureMouseFromApp(m_Data->SceneViewPaused);
-		ImGui::CaptureKeyboardFromApp(m_Data->SceneViewPaused);
+		 ImGui::SetNextFrameWantCaptureKeyboard(m_Data->SceneViewPaused);
+		 ImGui::SetNextFrameWantCaptureMouse(m_Data->SceneViewPaused);
 
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_Data->ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
@@ -562,7 +625,6 @@ void EditorLayer::PromptLoadProject()
 
 				if (result == NFD_OKAY) {
 					LoadProject(output);
-					m_Data->NoProjectLoaded = false;
 					delete output;
 				}
 
@@ -578,9 +640,9 @@ void EditorLayer::PromptLoadProject()
 
 			ImGui::SameLine();
 			if (ImGui::Button("New", { 60, 0 })) {
-				ProjectManager::CreateNew();
-				LoadEmptyScene();
-				m_Data->NoProjectLoaded = false;
+				auto cwd = std::filesystem::current_path();
+				std::string path = SaveFileDialog(cwd.c_str(), "tri");
+				NewProject(path);
 			}
 			ImGui::EndPopup();
 		}
@@ -604,7 +666,7 @@ void EditorLayer::RenderPlaybuttons()
 
 	Reference<Texture2D>& currentTexture = m_Data->SceneRunning ? m_Data->PauseTexture : m_Data->PlayTexture;
 
-	if (ImGui::ImageButton((ImTextureID)currentTexture->GetID(), { size, size })) {
+	if (ImGui::ImageButton("play_pause_button", (ImTextureID)currentTexture->GetID(), { size, size })) {
 		m_Data->SceneRunning = !m_Data->SceneRunning;
 		if (m_Data->SceneRunning)
 			StartScene();
@@ -628,89 +690,35 @@ void EditorLayer::UpdateTitleBar()
 		//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
 
 		if (ImGui::MenuItem("Save project as")) {
-			char* output;
 			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-			nfdresult_t result = NFD_SaveDialog("tri", cwd.string().c_str(), &output);
-
-			if (result == NFD_OKAY) {
-				std::string path(output);
-				if (!path.ends_with(".tri"))
-					path.append(".tri");
-
-				SaveProject(path);
-				delete output;
-			}
-
-			else if (result == NFD_CANCEL) {
-				TRI_CORE_TRACE("Canceled file dialog");
-			}
-
-			else if (result == NFD_ERROR) {
-				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-			}
+			std::string path = SaveFileDialog(cwd.c_str(), "tri");
+			SaveProject(path);
 		}
 
 		if (ImGui::MenuItem("Load project")) {
-			nfdchar_t* output;
 			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-			nfdresult_t result = NFD_OpenDialog("tri", cwd.string().c_str(), &output);
-
-			if (result == NFD_OKAY) {
-				LoadProject(output);
-				delete output;
-			}
-
-			else if (result == NFD_CANCEL) {
-				TRI_CORE_TRACE("Canceled file dialog");
-			}
-
-			else if (result == NFD_ERROR) {
-				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-			}
-
+			std::string path = OpenFileDialog(cwd.c_str(), "tri");
+			LoadProject(path);
 		}
 
 		if (ImGui::MenuItem("Save scene as")) {
-			char* output;
 			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-			nfdresult_t result = NFD_SaveDialog("tscn", cwd.string().c_str(), &output);
 
+			std::string currentScenePath = m_Data->ActiveScene->MetaData.Filepath;
 
-			if (result == NFD_OKAY) {
-				std::string path(output);
-				if (!path.ends_with(".tscn"))
-					path.append(".tscn");
+			std::string startingPath = !(currentScenePath.empty()) ? currentScenePath : cwd.string();
 
-				SaveScene(path);
-				delete output;
-			}
+			std::string path = SaveFileDialog(startingPath.c_str(), "tscn");
 
-			else if (result == NFD_CANCEL) {
-				TRI_CORE_TRACE("Canceled file dialog");
-			}
+			SaveScene(path);
 
-			else if (result == NFD_ERROR) {
-				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-			}
 		}
 
 		if (ImGui::MenuItem("Load scene")) {
-			nfdchar_t* output;
 			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-			nfdresult_t result = NFD_OpenDialog("tscn", cwd.string().c_str(), &output);
+			std::string path = OpenFileDialog(cwd.c_str(), "tscn");
 
-			if (result == NFD_OKAY) {
-				LoadScene(output);
-				delete output;
-			}
-
-			else if (result == NFD_CANCEL) {
-				TRI_CORE_TRACE("Canceled file dialog");
-			}
-
-			else if (result == NFD_ERROR) {
-				TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-			}
+			LoadScene(ResourceManager::GetIDFromPath(path));
 		}
 
 		if (ImGui::MenuItem("Exit")) Application::Get().Close();

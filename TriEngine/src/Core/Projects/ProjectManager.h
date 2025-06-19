@@ -8,8 +8,8 @@
 namespace TriEngine {
 	class ProjectManager {
 	public:
-		static Reference<Project> CreateNew();
-		static Reference<Project> Load(std::filesystem::path& path);
+		static Reference<Project> CreateNew(const std::filesystem::path& path);
+		static Reference<Project> Load(const std::filesystem::path& path);
 		static void Save(std::string_view path);
 
 		static Reference<Project> GetCurrent() { return s_LoadedProject; }

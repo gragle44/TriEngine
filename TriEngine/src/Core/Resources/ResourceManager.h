@@ -60,6 +60,9 @@ namespace TriEngine {
 			return resource;
 		}
 
+		static void LoadResourceRegistry();
+		static void SaveResourceRegistry();
+
 	private:
 		static std::unordered_map<ResourceID, Reference<Resource>> s_Resources;
 		static std::unordered_map<ResourceID, ResourceMetadata> s_ResourceRegistry;
@@ -70,8 +73,5 @@ namespace TriEngine {
 
 		static std::string GetStringFromType(ResourceType type);
 		static ResourceType GetTypeFromString(const std::string& type);
-
-		static void LoadResourceRegistry();
-		static void SaveResourceRegistry();
 	};
 }
