@@ -4,6 +4,7 @@
 
 #include "TextureLoader.h"
 #include "SceneLoader.h"
+#include "ScriptLoader.h"
 
 namespace TriEngine {
 	using LoadFunction = Reference<Resource>(*)(ResourceMetadata&);
@@ -11,12 +12,14 @@ namespace TriEngine {
 
 	static std::unordered_map<ResourceType, LoadFunction> s_LoadFunctions = {
 		{ResourceType::Texture, TextureLoader::Load},
-		{ResourceType::Scene, SceneLoader::Load}
+		{ResourceType::Scene, SceneLoader::Load},
+		{ResourceType::Script, ScriptLoader::Load},
 	};
 
 	static std::unordered_map<ResourceType, SaveFunction> s_SaveFunctions = {
 		{ResourceType::Texture, TextureLoader::Save},
-		{ResourceType::Scene, SceneLoader::Save}
+		{ResourceType::Scene, SceneLoader::Save},
+		{ResourceType::Script, ScriptLoader::Save},
 	};
 
 	Reference<Resource> ResourceLoader::Load(ResourceMetadata& metadata)

@@ -47,7 +47,7 @@ namespace TriEngine {
 			return !(*this == other);
 		}
 	private:
-		friend class Script;
+		friend class NativeScript;
 
 		entt::entity m_Handle = entt::null;
 		Scene* m_Scene = nullptr;

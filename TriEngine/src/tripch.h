@@ -15,6 +15,7 @@
 #include <unordered_map>
 
 #include "Core/Base/Log.h"
+#include "Core/Base/Assert.h"
 #include "Core/Base/Core.h"
 
 

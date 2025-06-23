@@ -8,10 +8,10 @@ namespace TriEngine {
 	//Forward declared
 	class Scene;
 
-	class Script {
+	class NativeScript {
 	public:
-		Script() = default;
-		virtual ~Script() = default;
+		NativeScript() = default;
+		virtual ~NativeScript() = default;
 
 		virtual void OnStart() {}
 
@@ -50,7 +50,7 @@ namespace TriEngine {
 	};
 
 	struct ScriptRegistry {
-		using FactoryFunction = std::unique_ptr<Script>(*)();
+		using FactoryFunction = std::unique_ptr<NativeScript>(*)();
 
 		static std::unordered_map<std::string, FactoryFunction>& Registry() {
 			static std::unordered_map<std::string, FactoryFunction> registry;
@@ -60,7 +60,7 @@ namespace TriEngine {
 		template<typename T>
 		static void Register() {
 			std::string scriptName = std::string(NAMEOF_TYPE(T));
-			FactoryFunction factoryFunction = []() -> std::unique_ptr<Script> { return std::make_unique<T>(); };
+			FactoryFunction factoryFunction = []() -> std::unique_ptr<NativeScript> { return std::make_unique<T>(); };
 			Registry().emplace(scriptName, factoryFunction);
 		}
 

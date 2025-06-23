@@ -1,4 +1,3 @@
-#pragma once
 #include "tripch.h"
 #include "Utils/PlatformUtils.h"
 

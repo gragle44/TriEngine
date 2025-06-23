@@ -16,15 +16,15 @@ namespace TriEngine {
 			GameObject objectA = *(GameObject*)bodyA->GetUserData().pointer;
 			GameObject objectB = *(GameObject*)bodyB->GetUserData().pointer;
 
-			if (objectA.HasComponent<ScriptComponent>()) {
-				auto& script = objectA.GetComponent<ScriptComponent>();
+			if (objectA.HasComponent<NativeScriptComponent>()) {
+				auto& script = objectA.GetComponent<NativeScriptComponent>();
 
 				if (script.ScriptActive && script.ScriptInstance != nullptr)
 					script.ScriptInstance->OnCollisionStart(objectB);
 			}
 
-			if (objectB.HasComponent<ScriptComponent>()) {
-				auto& script = objectB.GetComponent<ScriptComponent>();
+			if (objectB.HasComponent<NativeScriptComponent>()) {
+				auto& script = objectB.GetComponent<NativeScriptComponent>();
 
 				if (script.ScriptActive && script.ScriptInstance != nullptr)
 					script.ScriptInstance->OnCollisionStart(objectA);
@@ -41,8 +41,8 @@ namespace TriEngine {
 			GameObject objectA = *(GameObject*)bodyA->GetUserData().pointer;
 			GameObject objectB = *(GameObject*)bodyB->GetUserData().pointer;
 
-			if (objectA.HasComponent<ScriptComponent>()) {
-				auto& script = objectA.GetComponent<ScriptComponent>();
+			if (objectA.HasComponent<NativeScriptComponent>()) {
+				auto& script = objectA.GetComponent<NativeScriptComponent>();
 
 				if (script.ScriptActive && script.ScriptInstance != nullptr)
 					script.ScriptInstance->OnCollisionEnd(objectB);

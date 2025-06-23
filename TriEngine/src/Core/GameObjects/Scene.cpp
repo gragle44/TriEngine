@@ -67,6 +67,7 @@ namespace TriEngine {
 		CopyComponent<Transform2DComponent>(newObject, oldObject);
 		CopyComponent<RigidBody2DComponent>(newObject, oldObject);
 		CopyComponent<BoxCollider2DComponent>(newObject, oldObject);
+		CopyComponent<NativeScriptComponent>(newObject, oldObject);
 		CopyComponent<ScriptComponent>(newObject, oldObject);
 		CopyComponent<Camera2DComponent>(newObject, oldObject);
 		CopyComponent<Sprite2DComponent>(newObject, oldObject);
@@ -125,17 +126,21 @@ namespace TriEngine {
 
 			body->CreateFixture(&fixtureDef);
 		}
+
+		m_ScriptEngine = std::make_unique<ScriptEngine>();
+
+		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
+		{
+			m_ScriptEngine->BuildScript(sc.ScriptInstance);
+
+			if (sc.ScriptInstance)
+				m_ScriptEngine->StartScript(*sc.ScriptInstance);
+		}
 	}
 
 	void Scene::Stop()
 	{
-		delete m_PhysicsWorld;
-		m_PhysicsWorld = nullptr;
-
-		delete m_ContactListener;
-		m_ContactListener = nullptr;
-
-		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
+		for (auto&& [entity, sc] : m_Registry.view<NativeScriptComponent>().each())
 		{
 			if (sc.ScriptActive && sc.ScriptInstance) {
 				if (sc.ScriptInstance)
@@ -145,6 +150,22 @@ namespace TriEngine {
 				sc.ScriptInstance = nullptr;
 			}
 		}
+
+		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
+		{
+			if (sc.Active && sc.ScriptInstance) {
+				m_ScriptEngine->StopScript(*sc.ScriptInstance);
+			}
+			sc.ScriptInstance->ClearScriptBuild();
+		}
+
+		m_ScriptEngine.reset();
+
+		delete m_PhysicsWorld;
+		m_PhysicsWorld = nullptr;
+
+		delete m_ContactListener;
+		m_ContactListener = nullptr;
 
 		m_Registry.clear();
 		m_GameObjcts.clear();
@@ -179,7 +200,7 @@ namespace TriEngine {
 
 	void Scene::OnUpdate(float deltaTime)
 	{
-		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
+		for (auto&& [entity, sc] : m_Registry.view<NativeScriptComponent>().each())
 		{
 			if (sc.ScriptActive && sc.InstantiateScript != nullptr) {
 				if (!sc.ScriptInstance)
@@ -189,6 +210,13 @@ namespace TriEngine {
 					sc.ScriptInstance->OnStart();
 				}
 				sc.ScriptInstance->OnUpdate(deltaTime);
+			}
+		}
+
+		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
+		{
+			if (sc.Active && sc.ScriptInstance) {
+				m_ScriptEngine->UpdateScript(*sc.ScriptInstance, deltaTime);
 			}
 		}
 

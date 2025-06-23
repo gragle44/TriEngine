@@ -7,8 +7,9 @@
 #include "Core/Renderer/Texture.h"
 #include "Core/Renderer/ShaderStorageBuffer.h"
 #include "Core/Renderer/OrthographicCamera.h"
-#include "entt/entt.hpp"
+#include "Core/Scripting/Script.h"
 
+#include "entt/entt.hpp"
 #include "box2d/b2_body.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -112,7 +113,22 @@ namespace TriEngine {
 	};
 
 	struct ScriptComponent {
-		std::unique_ptr<Script> ScriptInstance;
+		std::shared_ptr<Script> ScriptInstance;
+
+		std::string ScriptName;
+
+		bool Active = true;
+
+		ScriptComponent() = default;
+		ScriptComponent(std::string_view name)
+			:ScriptName(name) {}
+		ScriptComponent(const ScriptComponent& other)
+			:ScriptInstance(other.ScriptInstance), ScriptName(other.ScriptName), Active(other.Active) {}
+
+	};
+
+	struct NativeScriptComponent {
+		std::unique_ptr<NativeScript> ScriptInstance;
 
 		ScriptRegistry::FactoryFunction InstantiateScript;
 
@@ -125,13 +141,13 @@ namespace TriEngine {
 			ScriptName = scriptName;
 		}
 
-		ScriptComponent() = default;
+		NativeScriptComponent() = default;
 
-		ScriptComponent(const ScriptComponent& other)
+		NativeScriptComponent(const NativeScriptComponent& other)
 			: ScriptInstance(nullptr), InstantiateScript(other.InstantiateScript),
 			ScriptName(other.ScriptName), ScriptActive(other.ScriptActive) {}
 
-		ScriptComponent& operator=(const ScriptComponent& other) {
+		NativeScriptComponent& operator=(const NativeScriptComponent& other) {
 			if (this != &other) {
 				InstantiateScript = other.InstantiateScript;
 				ScriptName = other.ScriptName;

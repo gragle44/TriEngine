@@ -11,7 +11,8 @@ namespace TriEngine {
 	enum class ResourceType : uint8_t {
 		None = 0,
 		Texture,
-		Scene
+		Scene,
+		Script
 	};
 
 	struct ResourceMetadata {

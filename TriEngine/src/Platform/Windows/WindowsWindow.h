@@ -18,6 +18,9 @@ namespace TriEngine {
 		virtual uint32_t GetWidth() const final { return m_Data.Width; }
 		virtual uint32_t GetHeight() const final { return m_Data.Height; }
 
+		virtual uint32_t GetMonitorScaleX() const override { return m_Data.MonScaleWidth; }
+		virtual uint32_t GetMonitorScaleY() const override { return m_Data.MonScaleHeight; }
+
 		// Window attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) final { m_Data.EventCallback = callback; }
 		virtual void SetVSync(VsyncMode mode) final;
@@ -35,6 +38,7 @@ namespace TriEngine {
 		{
 			std::string Title;
 			uint32_t Width, Height;
+			uint32_t MonScaleWidth, MonScaleHeight;
 			VsyncMode VSyncMode;
 
 			EventCallbackFn EventCallback;

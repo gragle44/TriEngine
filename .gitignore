@@ -3,20 +3,34 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+as.predefined
+
 Makefile
+*.mk
+makefile
+
+*.xcscheme
+*.xc
+*.xcworks
+*.pbxproj
+
+TriEngine/vendor/angelscript/docs
+TriEngine/vendor/angelscript/samples
+TriEngine/vendor/angelscript/angelscript/projects
 
 .vscode/
-
 
 *.log
 
 # Binary files
+bin-obj/
 .bin-obj/
 .bin/
 .bin-int/
 
 #Visual studio files
 *.vcxproj
+*.vcproj
 *.filters
 *.users
 *.sln

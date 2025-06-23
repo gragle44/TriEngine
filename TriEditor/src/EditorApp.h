@@ -58,9 +58,6 @@ private:
 	void LoadProject(const std::string& path);
 	void SaveProject(const std::string& path);
 
-	std::string OpenFileDialog(const char* initial_path, const char* filetype);
-	std::string SaveFileDialog(const char* initial_path, const char* filetype);
-
 	void LoadScene(ResourceID id);
 	void SaveScene(const std::string& path);
 

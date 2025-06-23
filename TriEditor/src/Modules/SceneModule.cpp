@@ -6,6 +6,8 @@
 #include "Core/GameObjects/Script.h"
 #include "Core/Renderer/Texture.h"
 #include "Core/Base/Input.h"
+#include "../EditorUtils.h"
+
 #include <imgui.h>
 #include <nfd.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -145,6 +147,7 @@ namespace TriEngine {
 			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
 			if (ImGui::BeginPopupModal("Add Component", &addingComponent)) {
+				//RenderComponentSelection<NativeScriptComponent>("NativeScript", object, &addingComponent);
 				RenderComponentSelection<ScriptComponent>("Script", object, &addingComponent);
 				RenderComponentSelection<Transform2DComponent>("Transform2D", object, &addingComponent);
 				RenderComponentSelection<Sprite2DComponent>("Sprite2D", object, &addingComponent);
@@ -408,6 +411,25 @@ namespace TriEngine {
 		});
 
 		DrawComponent<ScriptComponent>("Script", object, [](ScriptComponent& script)
+		{
+			if (ImGui::Button("Change script path")) {
+
+				std::string cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
+				auto output = OpenFileDialog(cwd, "as");
+
+				script.ScriptName = output.filename();
+
+				ResourceID resourceID = ResourceManager::GetIDFromPath(output);
+				if (!ResourceManager::ResourceExists(resourceID))
+					script.ScriptInstance = ResourceManager::Create<Script>(output);
+				else
+					script.ScriptInstance = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceID));
+			}
+
+			ImGui::Checkbox("Enabled", &script.Active);
+		});
+
+		DrawComponent<NativeScriptComponent>("NativeScript", object, [](NativeScriptComponent& script)
 		{
 			if (ImGui::BeginCombo("Select script", script.ScriptName.c_str())) {
 				for (const auto& pair : ScriptRegistry::Registry()) {

@@ -4,6 +4,8 @@
 #include "Core/Events/Event.h"
 #include "Core/Renderer/RenderPass.h"
 #include "Core/Physics/ContactListener.h"
+#include "Core/Scripting/ScriptEngine.h"
+
 #include "entt/entt.hpp"
 
 // Forward declared
@@ -62,6 +64,8 @@ namespace TriEngine {
 
 		b2World* m_PhysicsWorld = nullptr;
 		ContactListener* m_ContactListener = nullptr;
+
+		std::unique_ptr<ScriptEngine> m_ScriptEngine = nullptr;
 
 		Reference<EditorCamera> m_CameraObject = nullptr;
 

@@ -163,13 +163,24 @@ namespace TriEngine {
 			out << YAML::EndMap;
 		}
 
-		if (object.HasComponent<ScriptComponent>()) {
-			auto& component = object.GetComponent<ScriptComponent>();
-			out << YAML::Key << "ScriptComponent" << YAML::Value << YAML::BeginMap;
+		if (object.HasComponent<NativeScriptComponent>()) {
+			auto& component = object.GetComponent<NativeScriptComponent>();
+			out << YAML::Key << "NativeScriptComponent" << YAML::Value << YAML::BeginMap;
 
 			out << YAML::Key << "ScriptActive" << YAML::Value << component.ScriptActive;
 
 			out << YAML::Key << "ScriptName" << YAML::Value << component.ScriptName;
+
+			out << YAML::EndMap;
+		}
+
+		if (object.HasComponent<ScriptComponent>()) {
+			auto& component = object.GetComponent<ScriptComponent>();
+			out << YAML::Key << "ScriptComponent" << YAML::Value << YAML::BeginMap;
+
+			out << YAML::Key << "ScriptName" << YAML::Value << component.ScriptName;
+			out << YAML::Key << "Active" << YAML::Value << component.Active;
+			out << YAML::Key << "ResourceID" << YAML::Value << component.ScriptInstance->MetaData.ID;
 
 			out << YAML::EndMap;
 		}
@@ -280,15 +291,29 @@ namespace TriEngine {
 			transform.Scale = entity["Transform2DComponent"]["Scale"].as<glm::vec2>();
 		}
 
-		if (entity["ScriptComponent"]) {
-			std::string scriptName = entity["ScriptComponent"]["ScriptName"].as<std::string>();
+		if (entity["NativeScriptComponent"]) {
+			std::string scriptName = entity["NativeScriptComponent"]["ScriptName"].as<std::string>();
 			if (ScriptRegistry::Exists(scriptName)) {
-				auto& script = newEntity.AddComponent<ScriptComponent>();
-				script.ScriptActive = entity["ScriptComponent"]["ScriptActive"].as<bool>();
+				auto& script = newEntity.AddComponent<NativeScriptComponent>();
+				script.ScriptActive = entity["NativeScriptComponent"]["ScriptActive"].as<bool>();
 				script.Bind(scriptName);
 			}
 			else {
-				TRI_CORE_WARN("Could not find script \"{0}\" in registry, removing ScriptComponent from entity {1}" ,scriptName, name);
+				TRI_CORE_WARN("Could not find script \"{0}\" in registry, removing NativeScriptComponent from entity {1}" ,scriptName, name);
+			}
+		}
+
+		if (entity["ScriptComponent"]) {
+			uint64_t resourceid = entity["ScriptComponent"]["ResourceID"].as<uint64_t>();
+
+			if (ResourceManager::ResourceExists(resourceid)) {
+				auto& scriptComponent = newEntity.AddComponent<ScriptComponent>();
+				scriptComponent.Active = entity["ScriptComponent"]["Active"].as<bool>();
+				scriptComponent.ScriptName = entity["ScriptComponent"]["ScriptName"].as<std::string>();
+				scriptComponent.ScriptInstance = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceid));
+			}
+			else {
+				TRI_CORE_ERROR("Resource Manager couldn't find script with ID {0}", resourceid);
 			}
 		}
 

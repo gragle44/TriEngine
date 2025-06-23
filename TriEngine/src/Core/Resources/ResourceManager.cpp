@@ -4,7 +4,6 @@
 #include "Projects/ProjectManager.h"
 
 #include "magic_enum.hpp"
-#include <unordered_map>
 
 namespace TriEngine {
 
@@ -98,6 +97,7 @@ namespace TriEngine {
 		{
 			case TriEngine::ResourceType::Texture: return "Texture";
 			case TriEngine::ResourceType::Scene: return "Scene";
+			case TriEngine::ResourceType::Script: return "Script";
 			default: return "None";
 		}
 	}
@@ -105,9 +105,10 @@ namespace TriEngine {
 	ResourceType ResourceManager::GetTypeFromString(const std::string& type)
 	{
 		if (type == ".png") return ResourceType::Texture;
-		if (type == ".jpg") return ResourceType::Texture;
-		if (type == ".jpeg") return ResourceType::Texture;
-		if (type == ".tscn") return ResourceType::Scene;
+		else if (type == ".jpg") return ResourceType::Texture;
+		else if (type == ".jpeg") return ResourceType::Texture;
+		else if (type == ".tscn") return ResourceType::Scene;
+		else if (type == ".as") return ResourceType::Script;
 		else return ResourceType::None;
 	}
 

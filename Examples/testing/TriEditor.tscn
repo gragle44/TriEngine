@@ -2,18 +2,6 @@ TriEngine Scene File
 ---
 Scene: Scene
 Objects:
-  - Entity: 3951325876928953343
-    TagComponent:
-      Tag: Object
-    Transform2DComponent:
-      Position: [0, 0, 0]
-      Rotation: 0
-      Scale: [1, 1]
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 0
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
   - Entity: 926024934398938507
     TagComponent:
       Tag: Object
@@ -21,3 +9,19 @@ Objects:
       Position: [0, 0, 0]
       Rotation: 0
       Scale: [1, 1]
+  - Entity: 3951325876928953343
+    TagComponent:
+      Tag: Object
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    ScriptComponent:
+      ScriptName: test.as
+      Active: true
+      ResourceID: 4201423568182153978
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1

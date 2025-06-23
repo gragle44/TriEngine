@@ -27,6 +27,7 @@ IncludeDir["glm"] = "TriEngine/vendor/glm"
 IncludeDir["entt"] = "TriEngine/vendor/entt"
 IncludeDir["nameof"] = "TriEngine/vendor/nameof"
 IncludeDir["magic_enum"] = "TriEngine/vendor/magic_enum"
+IncludeDir["angelscript"] = "TriEngine/vendor/angelscript/angelscript/include"
 
 group "Dependancies"
 	include "TriEngine/vendor/GLFW"
@@ -35,6 +36,7 @@ group "Dependancies"
 	include "TriEngine/vendor/box2D"
 	include "TriEngine/vendor/yaml_cpp"
 	include "TriEngine/vendor/nativefiledialog"
+	include "TriEngine/vendor/angelscript"
 
 group ""
 
@@ -54,7 +56,8 @@ project "TriEngine"
 	defines 
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"YAML_CPP_STATIC_DEFINE"
+		"YAML_CPP_STATIC_DEFINE",
+		"GLFW_INCLUDE_NONE"
 	}
 
 	files
@@ -67,7 +70,23 @@ project "TriEngine"
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
 		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp",
-		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h"
+		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
+		"%{prj.name}/vendor/angelscript/add_on/datetime/**.cpp",
+		"%{prj.name}/vendor/angelscript/add_on/datetime/**.h",
+		"%{prj.name}/vendor/angelscript/add_on/scriptarray/**.cpp",
+		"%{prj.name}/vendor/angelscript/add_on/scriptarray/**.h",
+		"%{prj.name}/vendor/angelscript/add_on/scriptbuilder/**.cpp",
+		"%{prj.name}/vendor/angelscript/add_on/scriptbuilder/**.h",
+		"%{prj.name}/vendor/angelscript/add_on/scriptdictionary/**.cpp",
+		"%{prj.name}/vendor/angelscript/add_on/scriptdictionary/**.h",
+		"%{prj.name}/vendor/angelscript/add_on/scriptfile/**.cpp",
+		"%{prj.name}/vendor/angelscript/add_on/scriptfile/**.h",
+		"%{prj.name}/vendor/angelscript/add_on/scriptmath/**.cpp",
+		"%{prj.name}/vendor/angelscript/add_on/scriptmath/**.h",
+		"%{prj.name}/vendor/angelscript/add_on/scripthelper/**.cpp",
+		"%{prj.name}/vendor/angelscript/add_on/scripthelper/**.h",
+		"%{prj.name}/vendor/angelscript/add_on/scriptstdstring/**.cpp",
+		"%{prj.name}/vendor/angelscript/add_on/scriptstdstring/**.h"
 	}
 
 	includedirs
@@ -86,7 +105,9 @@ project "TriEngine"
 		"%{IncludeDir.nameof}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.nativefiledialog}",
-		"%{IncludeDir.magic_enum}"
+		"%{IncludeDir.magic_enum}",
+		"%{IncludeDir.angelscript}",
+		"TriEngine/vendor/angelscript/add_on"
 	}
 
 	links
@@ -96,7 +117,8 @@ project "TriEngine"
 		"ImGui",
 		"box2D",
 		"yaml_cpp",
-		"nativefiledialog"
+		"nativefiledialog",
+		"angelscript"
 	}
 
 	filter "files:TriEngine/vendor/ImGuizmo/**.cpp"
@@ -104,12 +126,6 @@ project "TriEngine"
 
 	filter "system:linux"
 		systemversion "latest"
-		pic "on"
-
-		defines 
-		{
-			"GLFW_INCLUDE_NONE"
-		}
 
 		links { 
 			"GLU",
@@ -121,11 +137,6 @@ project "TriEngine"
 
 	filter "system:windows"
 		systemversion "latest"
-
-		defines 
-		{
-			"GLFW_INCLUDE_NONE"
-		}
 
 		links 
 		{
@@ -183,6 +194,8 @@ project "TriEditor"
 		"%{IncludeDir.box2D}",
 		"%{IncludeDir.nativefiledialog}",
 		"%{IncludeDir.magic_enum}",
+		"%{IncludeDir.angelscript}",
+		"TriEngine/vendor/angelscript/add_on",
 		"TriEngine/src"
 	}
 
@@ -211,7 +224,8 @@ project "TriEditor"
 			"ImGui",
 			"box2D",
 			"yaml_cpp",
-			"nativefiledialog"
+			"nativefiledialog",
+			"angelscript"
 		}
 
 

@@ -25,6 +25,9 @@
 #include "Core/GameObjects/SceneSerializer.h"
 #include "Core/GameObjects/EditorCamera.h"
 
+//Scripting
+#include "Core/Scripting/Script.h"
+#include "Core/Scripting/ScriptEngine.h"
 
 //Graphics
 #include "Core/Renderer/GameRenderer.h"

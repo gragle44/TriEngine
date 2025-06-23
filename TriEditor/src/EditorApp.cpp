@@ -1,9 +1,13 @@
 #include "EditorApp.h"
 
-#include <nfd.h>
+#include "EditorUtils.h"
+
+#include "Core/Scripting/GenerateDefinitions.h"
+
 #include <filesystem>
 
-class TestScript : public Script {
+
+class TestScript : public NativeScript {
 public:
 	TestScript()
 	{
@@ -30,7 +34,7 @@ private:
 };
 
 
-class NewScript : public Script {
+class NewScript : public NativeScript {
 public:
 	void OnStart() final {
 		TRI_TRACE("created");
@@ -46,7 +50,7 @@ public:
 	}
 };
 
-class BirdScript : public Script {
+class BirdScript : public NativeScript {
 public:
 	void OnStart() final {
 	}
@@ -89,7 +93,7 @@ private:
 	float m_RotationVelocity = 0.0f;
 };
 
-class BackgroundScript : public Script {
+class BackgroundScript : public NativeScript {
 public:
 	void OnStart() final {
 		for (auto [id, object] : GetScene()->GetAllObjects()) {
@@ -151,6 +155,7 @@ void EditorLayer::SetupImGuiStyle()
 
 	SetFont<FontType::Bold>(io.Fonts->AddFontFromFileTTF("assets/fonts/droidsans/DroidSans-Bold.ttf", 18.0f));
 
+	style.FontScaleDpi = 1.2f;
 	style.Alpha = 1.0f;
 	style.DisabledAlpha = 1.0f;
 	style.WindowPadding = ImVec2(12.0f, 12.0f);
@@ -380,6 +385,14 @@ void EditorLayer::LoadEmptyScene()
 
 }
 
+static void GenerateScriptDefinitions() {
+	auto scriptDefinitionsPath = ProjectManager::GetCurrent()->GetAbsolutePath("as.predefined");
+	if (!std::filesystem::exists(scriptDefinitionsPath)) {
+		ScriptEngine engine;
+		ScriptUtils::GenerateScriptPredefined(engine.GetASEngine(), scriptDefinitionsPath);
+	}
+}
+
 void EditorLayer::NewProject(const std::string& path) {
 	TRI_CORE_ASSERT((path.ends_with(".tri")), "Attempting to create a new project with an invalid project file extension");
 
@@ -402,6 +415,8 @@ void EditorLayer::NewProject(const std::string& path) {
 
 	ProjectManager::GetCurrent()->GetProjectData().StartupSceneID = m_Data->ActiveScene->MetaData.ID;
 	SaveProject(path);
+
+	GenerateScriptDefinitions();
 
 	m_Data->NoProjectLoaded = false;
 }
@@ -427,6 +442,8 @@ void EditorLayer::LoadProject(const std::string& path)
 	else {
 		LoadEmptyScene();
 	}
+
+	GenerateScriptDefinitions();
 	
 	m_Data->NoProjectLoaded = false;
 }
@@ -457,52 +474,6 @@ void EditorLayer::SaveScene(const std::string& path)
 	}
 	ResourceManager::SaveResource(m_Data->ActiveScene);
 }
-
-std::string EditorLayer::OpenFileDialog(const char* initial_path, const char* filetype) {
-	nfdchar_t* output;
-	nfdresult_t result = NFD_OpenDialog(filetype, initial_path, &output);
-
-	std::string path;
-
-	if (result == NFD_OKAY) {
-		path = output;
-		delete output;
-	}
-
-	else if (result == NFD_CANCEL) {
-		TRI_CORE_TRACE("Canceled file dialog");
-	}
-
-	else if (result == NFD_ERROR) {
-		TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-	}
-
-	return path;
-}
-
-std::string EditorLayer::SaveFileDialog(const char* initial_path, const char* filetype) {
-	nfdchar_t* output;
-	nfdresult_t result = NFD_SaveDialog(filetype, initial_path, &output);
-
-	std::string path;
-
-	if (result == NFD_OKAY) {
-		path = output;
-		delete output;
-	}
-
-	else if (result == NFD_CANCEL) {
-		TRI_CORE_TRACE("Canceled file dialog");
-	}
-
-	else if (result == NFD_ERROR) {
-		TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-	}
-
-	return path;
-}
-
-
 
 void EditorLayer::OnImGuiRender()
 {
@@ -619,29 +590,15 @@ void EditorLayer::PromptLoadProject()
 		if (ImGui::BeginPopupModal("Load Project", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
 
 			if (ImGui::Button("Load", {60, 0})) {
-				nfdchar_t* output;
 				auto cwd = std::filesystem::current_path();
-				nfdresult_t result = NFD_OpenDialog("tri", cwd.string().c_str(), &output);
-
-				if (result == NFD_OKAY) {
-					LoadProject(output);
-					delete output;
-				}
-
-				else if (result == NFD_CANCEL) {
-					TRI_CORE_TRACE("Canceled file dialog");
-				}
-
-				else if (result == NFD_ERROR) {
-					TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-				}
-
+				auto path = OpenFileDialog(cwd.c_str(), "tri");
+				LoadProject(path);
 			}
 
 			ImGui::SameLine();
 			if (ImGui::Button("New", { 60, 0 })) {
 				auto cwd = std::filesystem::current_path();
-				std::string path = SaveFileDialog(cwd.c_str(), "tri");
+				auto path = SaveFileDialog(cwd.c_str(), "tri");
 				NewProject(path);
 			}
 			ImGui::EndPopup();
