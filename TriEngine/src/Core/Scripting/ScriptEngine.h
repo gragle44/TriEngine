@@ -12,18 +12,32 @@ namespace TriEngine {
         ScriptEngine();
         ~ScriptEngine();
 
-        void BuildScript(Reference<Script> script);
-        Reference<Script> GetScript(const std::string& name) { return m_Scripts.at(name); }
+        ScriptBuild BuildScript(Reference<Script> script, GameObject object);
 
-        void StartScript(const Script& script);
-        void StopScript(const Script& script);
-        void UpdateScript(const Script& script, float deltaTime);
+        void StartScript(ScriptBuild build);
+        void StopScript(ScriptBuild build);
+        void UpdateScript(ScriptBuild build, float deltaTime);
+        void OnCollisionStart(ScriptBuild build, GameObject collider);
+        void OnCollisionStop(ScriptBuild build, GameObject collider);
+
+        template<typename T>
+        void SetGlobalVariable(const ScriptBuild& build, std::string_view decl, T value) 
+        {
+            if (!build.Module)
+                return;
+                
+            int32_t varIndex = build.Module->GetGlobalVarIndexByDecl(decl.data());
+            if (varIndex < 0)
+                return;
+
+            T* var = reinterpret_cast<T*>(build.Module->GetAddressOfGlobalVar(varIndex));  
+            *var = value;
+        }
 
         const asIScriptEngine* GetASEngine() const { return m_Engine; }
     private:
         void ConfigureScriptEngine(asIScriptEngine* engine);
 
-        std::unordered_map<std::string, Reference<Script>> m_Scripts;
         asIScriptEngine* m_Engine;
         asIScriptContext* m_Context;
     };

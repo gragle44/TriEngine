@@ -3,12 +3,12 @@
 
 namespace TriEngine {
     thread_local std::random_device Random::s_Device;
+    thread_local std::mt19937 Random::s_Engine(s_Device());
 
     template<class T>
     T::result_type Random::Generate(T distribution)
     {
-        std::mt19937 engine(s_Device());
-        return distribution(engine);
+        return distribution(s_Engine);
     }
 
     float Random::Float(float min, float max)

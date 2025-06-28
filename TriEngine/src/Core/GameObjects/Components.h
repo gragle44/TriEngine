@@ -43,13 +43,13 @@ namespace TriEngine {
 
 		void* Body;
 
-		void ApplyVelocity(const glm::vec2& velocity) {
+		void ApplyVelocity(glm::vec2 velocity) {
 			b2Body* b2body = (b2Body*)Body;
 
 			b2body->ApplyLinearImpulseToCenter({ velocity.x, velocity.y }, true);
 		}
 
-		void SetVelocity(const glm::vec2& velocity) {
+		void SetVelocity(glm::vec2 velocity) {
 			b2Body* b2body = (b2Body*)Body;
 
 			b2body->SetLinearVelocity({ velocity.x, velocity.y });
@@ -61,7 +61,13 @@ namespace TriEngine {
 			b2body->SetAngularVelocity(velocity);
 		}
 
-		void SetPosition(const glm::vec2& pos) {
+		void ApplyAngularImpulse(float impulse, bool wake) {
+			b2Body* b2body = (b2Body*)Body;
+			
+			b2body->ApplyAngularImpulse(impulse, wake);
+		}
+
+		void SetPosition(glm::vec2 pos) {
 			b2Body* b2body = (b2Body*)Body;
 
 			b2body->SetTransform({ pos.x, pos.y }, b2body->GetAngle());
@@ -114,6 +120,8 @@ namespace TriEngine {
 
 	struct ScriptComponent {
 		std::shared_ptr<Script> ScriptInstance;
+
+		ScriptBuild Build;
 
 		std::string ScriptName;
 

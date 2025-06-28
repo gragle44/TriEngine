@@ -4,6 +4,9 @@
 
 namespace ScriptUtils
 {
+
+    // Code from https://github.com/sashi0034/angel-lsp
+
     template <class Stream>
     void printEnumList(const asIScriptEngine* engine, Stream& stream)
     {

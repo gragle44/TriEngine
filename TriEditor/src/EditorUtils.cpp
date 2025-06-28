@@ -12,7 +12,7 @@ std::filesystem::path OpenFileDialog(std::string_view initial_path, const char* 
 
 	if (result == NFD_OKAY) {
 		path = output;
-		delete output;
+		free(output);
 	}
 
 	else if (result == NFD_CANCEL) {
@@ -34,7 +34,7 @@ std::filesystem::path SaveFileDialog(std::string_view initial_path, const char* 
 
 	if (result == NFD_OKAY) {
 		path = output;
-		delete output;
+		free(output);
 	}
 
 	else if (result == NFD_CANCEL) {

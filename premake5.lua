@@ -28,6 +28,7 @@ IncludeDir["entt"] = "TriEngine/vendor/entt"
 IncludeDir["nameof"] = "TriEngine/vendor/nameof"
 IncludeDir["magic_enum"] = "TriEngine/vendor/magic_enum"
 IncludeDir["angelscript"] = "TriEngine/vendor/angelscript/angelscript/include"
+IncludeDir["asbind20"] = "TriEngine/vendor/asbind20/include"
 
 group "Dependancies"
 	include "TriEngine/vendor/GLFW"
@@ -107,6 +108,7 @@ project "TriEngine"
 		"%{IncludeDir.nativefiledialog}",
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.angelscript}",
+		"%{IncludeDir.asbind20}",
 		"TriEngine/vendor/angelscript/add_on"
 	}
 
@@ -195,6 +197,7 @@ project "TriEditor"
 		"%{IncludeDir.nativefiledialog}",
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.angelscript}",
+		"%{IncludeDir.asbind20}",
 		"TriEngine/vendor/angelscript/add_on",
 		"TriEngine/src"
 	}

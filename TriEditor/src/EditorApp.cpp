@@ -387,10 +387,8 @@ void EditorLayer::LoadEmptyScene()
 
 static void GenerateScriptDefinitions() {
 	auto scriptDefinitionsPath = ProjectManager::GetCurrent()->GetAbsolutePath("as.predefined");
-	if (!std::filesystem::exists(scriptDefinitionsPath)) {
-		ScriptEngine engine;
-		ScriptUtils::GenerateScriptPredefined(engine.GetASEngine(), scriptDefinitionsPath);
-	}
+	ScriptEngine engine;
+	ScriptUtils::GenerateScriptPredefined(engine.GetASEngine(), scriptDefinitionsPath);
 }
 
 void EditorLayer::NewProject(const std::string& path) {

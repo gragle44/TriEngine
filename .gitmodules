@@ -19,3 +19,6 @@
 [submodule "TriEngine/vendor/box2D"]
 	path = TriEngine/vendor/box2D
 	url = https://github.com/gragle44/box2d
+[submodule "TriEngine/vendor/asbind20"]
+	path = TriEngine/vendor/asbind20
+	url = https://github.com/HenryAWE/asbind20.git

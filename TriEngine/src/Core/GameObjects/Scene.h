@@ -72,5 +72,7 @@ namespace TriEngine {
 		glm::vec2 m_ViewportSize;
 
 		bool m_ShouldReset = false;
+
+		int32_t m_RefCount = 1;
 	};
 }

@@ -1,9 +1,22 @@
+GameObject gameObject;
+Scene@ scene;
+
 void on_start()
 {
-    log_info("Hello world!");
+    LogInfo("Hello from " + gameObject.GetTagComponent().Tag);
 }
 
 void on_update(float deltaTime)
 {
-    log_info(formatInt(RandInt(1, 100), 'l', 10));
+
+}
+
+void on_stop() 
+{
+    LogInfo("Stopping script");
+}
+
+void on_collision_start(GameObject gobject)
+{
+    LogWarn(gameObject.GetTagComponent().Tag + " -> " + gobject.GetTagComponent().Tag);
 }

@@ -23,7 +23,6 @@ namespace TriEngine {
 
 	class Resource {
 	public:
-
 		ResourceMetadata MetaData;
 
 		template<typename T>
@@ -37,6 +36,8 @@ namespace TriEngine {
 			return MetaData.ID == other.MetaData.ID;
 		}
 
+		Resource() = default;
+		Resource(const Resource& other) = default;
 		virtual ~Resource() = default;
 	};
 }

@@ -42,6 +42,16 @@ namespace TriEngine {
 
 		s_RenderData.ScreenVertexArray->AddVertexBuffer(s_RenderData.ScreenVertexBuffer);
 
+		constexpr char screenVertexShader[] = {
+			#embed "../../Shaders/screenvert.glsl"
+			, 0
+		};
+
+		constexpr char screenFragmentShader[] = {
+			#embed "../../Shaders/screenfrag.glsl"
+			, 0
+		};
+
 		s_RenderData.ScreenShader = Shader::Create("ScreenShader", "src/Shaders/screenvert.glsl", "src/Shaders/screenfrag.glsl");
 		s_RenderData.ScreenShader->SetInt("u_ScreenSampler", 0);
 		

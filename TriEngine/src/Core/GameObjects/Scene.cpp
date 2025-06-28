@@ -87,10 +87,12 @@ namespace TriEngine {
 			}
 		}
 
+		m_ScriptEngine = std::make_unique<ScriptEngine>();
+
 		//TODO: Adjustable gravity in project settings
 		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
 
-		m_ContactListener = new ContactListener();
+		m_ContactListener = new ContactListener(m_ScriptEngine.get());
 
 		m_PhysicsWorld->SetContactListener(m_ContactListener);
 
@@ -127,14 +129,18 @@ namespace TriEngine {
 			body->CreateFixture(&fixtureDef);
 		}
 
-		m_ScriptEngine = std::make_unique<ScriptEngine>();
-
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
-			m_ScriptEngine->BuildScript(sc.ScriptInstance);
 
-			if (sc.ScriptInstance)
-				m_ScriptEngine->StartScript(*sc.ScriptInstance);
+			GameObject object(entity, this);
+
+			sc.Build = m_ScriptEngine->BuildScript(sc.ScriptInstance, object);
+
+			if (sc.ScriptInstance) {
+				m_ScriptEngine->SetGlobalVariable<Scene*>(sc.Build, "Scene@ scene", this);
+				m_ScriptEngine->SetGlobalVariable<GameObject>(sc.Build, "GameObject gameObject", object);
+				m_ScriptEngine->StartScript(sc.Build);
+			}
 		}
 	}
 
@@ -154,9 +160,9 @@ namespace TriEngine {
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
 			if (sc.Active && sc.ScriptInstance) {
-				m_ScriptEngine->StopScript(*sc.ScriptInstance);
+				m_ScriptEngine->StopScript(sc.Build);
 			}
-			sc.ScriptInstance->ClearScriptBuild();
+			sc.Build.Clear();
 		}
 
 		m_ScriptEngine.reset();
@@ -216,7 +222,7 @@ namespace TriEngine {
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
 			if (sc.Active && sc.ScriptInstance) {
-				m_ScriptEngine->UpdateScript(*sc.ScriptInstance, deltaTime);
+				m_ScriptEngine->UpdateScript(sc.Build, deltaTime);
 			}
 		}
 
@@ -276,8 +282,6 @@ namespace TriEngine {
 		}
 		RenderCommand::MemoryBarrier();
 
-
-
 		ShouldReset();
 	}
 
@@ -308,7 +312,7 @@ namespace TriEngine {
 
 	GameObject Scene::DuplicateObject(GameObject object)
 	{
-
+		TRI_CORE_ASSERT(IsObjectValid(object), "Tried to duplicate an invalid object");
 		GameObject newObject = CreateGameObject(object.GetComponent<TagComponent>().Tag);
 
 		CopyAllComponents(newObject, object);
@@ -377,5 +381,4 @@ namespace TriEngine {
 		m_GameObjcts.erase(uuid);
 		m_Registry.destroy(object.GetHandle());
 	}
-
 }

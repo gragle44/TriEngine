@@ -7,6 +7,9 @@
 #include <string>
 
 namespace TriEngine {
+
+    class GameObject;
+
     struct ScriptBuild {
         asIScriptModule* Module = nullptr;
 
@@ -14,20 +17,21 @@ namespace TriEngine {
         asIScriptFunction* StopFunc = nullptr;
         asIScriptFunction* UpdateFunc = nullptr;
         asIScriptFunction* CollisionStartFunc = nullptr;
-        asIScriptFunction* CollisionEndFunc = nullptr;
+        asIScriptFunction* CollisionStopFunc = nullptr;
+
+        void Clear() {
+            *this = {};
+        }
     };
 
     class Script : public Resource {
     public:
         Script() = default;
+        Script(const Script& other)
+            :Name(other.Name), Resource(other) {}
+
         virtual ~Script() = default;
 
         std::string Name;
-
-        ScriptBuild Build;
-
-        void ClearScriptBuild() {
-            Build = {};
-        }
     };
 }

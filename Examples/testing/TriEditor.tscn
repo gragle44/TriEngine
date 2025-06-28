@@ -2,16 +2,40 @@ TriEngine Scene File
 ---
 Scene: Scene
 Objects:
-  - Entity: 926024934398938507
+  - Entity: 16005867555853944629
+    TagComponent:
+      Tag: Cube 2
+    Transform2DComponent:
+      Position: [-0.5, 3.25, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    ScriptComponent:
+      ScriptName: test.as
+      Active: true
+      ResourceID: 4201423568182153978
+    RigidBody2DComponent:
+      Type: Dynamic
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [0, 0.746593952, 1, 1]
+      TilingFactor: 1
+  - Entity: 4604812592230179770
     TagComponent:
       Tag: Object
     Transform2DComponent:
       Position: [0, 0, 0]
       Rotation: 0
       Scale: [1, 1]
-  - Entity: 3951325876928953343
+  - Entity: 6709232589343982246
     TagComponent:
-      Tag: Object
+      Tag: Cube
     Transform2DComponent:
       Position: [0, 0, 0]
       Rotation: 0
@@ -20,6 +44,38 @@ Objects:
       ScriptName: test.as
       Active: true
       ResourceID: 4201423568182153978
+    RigidBody2DComponent:
+      Type: Dynamic
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [1, 0, 0, 1]
+      TilingFactor: 1
+  - Entity: 1475855452372730673
+    TagComponent:
+      Tag: Floor
+    Transform2DComponent:
+      Position: [0, -4, 0]
+      Rotation: 0
+      Scale: [-22, 1]
+    ScriptComponent:
+      ScriptName: test.as
+      Active: true
+      ResourceID: 4201423568182153978
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
         ResourceID: 0

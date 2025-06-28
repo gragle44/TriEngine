@@ -1,10 +1,12 @@
 #include "tripch.h"
 
 #include "ScriptEngine.h"
+
 #include "ScriptBinding.h"
+#include "Core/GameObjects/GameObject.h"
+#include "Core/GameObjects/Components.h"
 
 #include "scriptbuilder/scriptbuilder.h"
-
 
 static void MessageCallback(const asSMessageInfo* msg, void* param)
 {
@@ -43,43 +45,52 @@ namespace TriEngine {
         m_Engine->ShutDownAndRelease();
     }
 
-    void ScriptEngine::BuildScript(Reference<Script> script) 
+    ScriptBuild ScriptEngine::BuildScript(Reference<Script> script, GameObject object) 
     {
-        std::string scriptName = std::filesystem::path(script->MetaData.Filepath).filename();
-
-        if (m_Scripts.contains(scriptName)) {
-            TRI_CORE_TRACE("Tried to build a script that has already been built: {0}", scriptName);
+        if (!std::filesystem::exists(script->MetaData.Filepath)) {
+            TRI_CORE_WARN("Couldn't build script '{0}': invalid file path", script->MetaData.Filepath);
+            return {};
         }
+        std::string scriptName(std::to_string(object.GetComponent<IDComponent>().ID));
 
         CScriptBuilder builder;
         int32_t r = builder.StartNewModule(m_Engine, scriptName.c_str()); 
         TRI_CORE_ASSERT(r >= 0, "Unrecoverable error while starting a new module");
 
         r = builder.AddSectionFromFile(script->MetaData.Filepath.c_str());
-        TRI_CORE_ASSERT(r >= 0, "Please correct the errors in the script and try again");
-
+        if (r < 0) {
+            TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
+            return {};
+        }
+        
         r = builder.BuildModule();
-        TRI_CORE_ASSERT(r >= 0, "Please correct the errors in the script and try again");
+        if (r < 0) {
+            TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
+            return {};
+        }
 
         script->Name = scriptName;
-        script->Build.Module = m_Engine->GetModule(scriptName.c_str());
-        script->Build.StartFunc = script->Build.Module->GetFunctionByDecl("void on_start()");
-        script->Build.StopFunc = script->Build.Module->GetFunctionByDecl("void on_stop()");
-        script->Build.UpdateFunc = script->Build.Module->GetFunctionByDecl("void on_update(float)");
-        // TODO: collision functions
 
-        m_Scripts[scriptName] = script;
+        ScriptBuild build;
+        build.Module = m_Engine->GetModule(scriptName.c_str());
+        build.StartFunc = build.Module->GetFunctionByDecl("void on_start()");
+        build.StopFunc = build.Module->GetFunctionByDecl("void on_stop()");
+        build.UpdateFunc = build.Module->GetFunctionByDecl("void on_update(float)");
+        build.CollisionStartFunc = build.Module->GetFunctionByDecl("void on_collision_start(GameObject)");
+        build.CollisionStopFunc= build.Module->GetFunctionByDecl("void on_collision_stop(GameObject)");
+
+        return build;
     }
 
-    void ScriptEngine::StartScript(const Script& script)
+    void ScriptEngine::StartScript(ScriptBuild build)
     {
-        if (!script.Build.StartFunc)
+        if (!build.StartFunc)
             return;
 
         //TODO: line callback
 
         int32_t r;
-        r = m_Context->Prepare(script.Build.StartFunc);
+        r = m_Context->Prepare(build.StartFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
 
         r = m_Context->Execute();
@@ -94,15 +105,15 @@ namespace TriEngine {
         m_Context->Unprepare();
     }
 
-    void ScriptEngine::StopScript(const Script& script) 
+    void ScriptEngine::StopScript(ScriptBuild build) 
     {
-       if (!script.Build.StopFunc)
+       if (!build.StopFunc)
             return;
 
         //TODO: line callback
 
         int32_t r;
-        r = m_Context->Prepare(script.Build.StopFunc);
+        r = m_Context->Prepare(build.StopFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
 
         r = m_Context->Execute();
@@ -117,18 +128,64 @@ namespace TriEngine {
         m_Context->Unprepare();
     }
 
-    void ScriptEngine::UpdateScript(const Script& script, float deltaTime) 
+    void ScriptEngine::UpdateScript(ScriptBuild build, float deltaTime) 
     {
-        if (!script.Build.UpdateFunc)
+        if (!build.UpdateFunc)
             return;
 
         //TODO: line callback
 
         int32_t r;
-        r = m_Context->Prepare(script.Build.UpdateFunc);
+        r = m_Context->Prepare(build.UpdateFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
 
         m_Context->SetArgFloat(0, deltaTime);
+
+        r = m_Context->Execute();
+        if( r != asEXECUTION_FINISHED )
+        {
+            if( r == asEXECUTION_EXCEPTION )
+            {
+                TRI_CORE_ERROR("An exception '{0}' occurred. Please correct the code and try again.", m_Context->GetExceptionString());
+            }
+        }
+
+        m_Context->Unprepare();
+    }
+
+    void ScriptEngine::OnCollisionStart(ScriptBuild build, GameObject collider) 
+    {
+        if (!build.CollisionStartFunc)
+            return;
+        
+        int32_t r;
+        r = m_Context->Prepare(build.CollisionStartFunc);
+        TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
+
+        m_Context->SetArgObject(0, &collider);
+
+        r = m_Context->Execute();
+        if( r != asEXECUTION_FINISHED )
+        {
+            if( r == asEXECUTION_EXCEPTION )
+            {
+                TRI_CORE_ERROR("An exception '{0}' occurred. Please correct the code and try again.", m_Context->GetExceptionString());
+            }
+        }
+
+        m_Context->Unprepare();
+    }
+
+    void ScriptEngine::OnCollisionStop(ScriptBuild build, GameObject collider) 
+    {
+        if (!build.CollisionStopFunc)
+            return;
+        
+        int32_t r;
+        r = m_Context->Prepare(build.CollisionStopFunc);
+        TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
+
+        m_Context->SetArgObject(0, &collider);
 
         r = m_Context->Execute();
         if( r != asEXECUTION_FINISHED )
