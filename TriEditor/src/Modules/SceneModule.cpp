@@ -181,7 +181,7 @@ namespace TriEngine {
 				if (ImGui::InputText("##", buffer, sizeof(buffer), flags)) {
 					tag.Tag = std::string(buffer);
 					renaming = false;
-					TRI_CORE_INFO("Renamed object {0} to {1}", oldName, tag.Tag);
+					TRI_CORE_TRACE("Renamed object {0} to {1}", oldName, tag.Tag);
 				}
 				ImGui::Text("Characters remaining: %i", sizeof(buffer) - strlen(buffer));
 				ImGui::EndPopup();
@@ -414,14 +414,14 @@ namespace TriEngine {
 		{
 			if (ImGui::Button("Change script path")) {
 
-				std::string cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-				auto output = OpenFileDialog(cwd, "as");
+				auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
+				auto output = OpenFileDialog(cwd.string(), "as");
 
-				script.ScriptName = output.filename();
+				script.ScriptName = output.filename().string();
 
-				ResourceID resourceID = ResourceManager::GetIDFromPath(output);
+				ResourceID resourceID = ResourceManager::GetIDFromPath(output.string());
 				if (!ResourceManager::ResourceExists(resourceID))
-					script.ScriptInstance = ResourceManager::Create<Script>(output);
+					script.ScriptInstance = ResourceManager::Create<Script>(output.string());
 				else
 					script.ScriptInstance = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceID));
 			}

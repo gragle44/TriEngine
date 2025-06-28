@@ -2,17 +2,28 @@ TriEngine Scene File
 ---
 Scene: Scene
 Objects:
-  - Entity: 2031616244582470749
+  - Entity: 12887682590543963324
     TagComponent:
-      Tag: InvertedPillar
+      Tag: Top Collider
     Transform2DComponent:
-      Position: [50, 10, 0.25]
-      Rotation: 180
-      Scale: [2, 16]
-    ScriptComponent:
-      ScriptName: pillar.as
-      Active: true
-      ResourceID: 13834338315665630903
+      Position: [0, 9.5, 0]
+      Rotation: 0
+      Scale: [20, 1]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+  - Entity: 8021736279988149905
+    TagComponent:
+      Tag: Bottom Collider
+    Transform2DComponent:
+      Position: [0, -9.5, 0.400000006]
+      Rotation: 0
+      Scale: [12, 4]
     RigidBody2DComponent:
       Type: Static
     BoxCollider2DComponent:
@@ -23,14 +34,14 @@ Objects:
       RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        ResourceID: 4257225564271971941
+        ResourceID: 3414357080157574144
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 15722243592761488023
+  - Entity: 264835392634241090
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
-      Position: [50, -10, 0.25]
+      Position: [35, -10, 0.25]
       Rotation: 0
       Scale: [2, 16]
     ScriptComponent:
@@ -50,79 +61,43 @@ Objects:
         ResourceID: 4257225564271971941
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 9131840282174165158
+  - Entity: 11859054310458544112
     TagComponent:
-      Tag: InvertedPillar
+      Tag: Background
     Transform2DComponent:
-      Position: [35, 10, 0.25]
-      Rotation: 180
-      Scale: [2, 16]
-    ScriptComponent:
-      ScriptName: pillar.as
-      Active: true
-      ResourceID: 13834338315665630903
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 4257225564271971941
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 4927194364788472814
-    TagComponent:
-      Tag: Pillar
-    Transform2DComponent:
-      Position: [20, -10, 0.25]
+      Position: [0, 0, -0.5]
       Rotation: 0
-      Scale: [2, 16]
-    ScriptComponent:
-      ScriptName: pillar.as
-      Active: true
-      ResourceID: 13834338315665630903
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
+      Scale: [10, 17.7800007]
     Sprite2DComponent:
       Texture:
-        ResourceID: 4257225564271971941
+        ResourceID: 9815572501052349791
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 6093858125177512101
+  - Entity: 4777501210863664462
     TagComponent:
-      Tag: InvertedPillar
+      Tag: Background
     Transform2DComponent:
-      Position: [20, 10, 0.25]
-      Rotation: 180
-      Scale: [2, 16]
-    ScriptComponent:
-      ScriptName: pillar.as
-      Active: true
-      ResourceID: 13834338315665630903
-    RigidBody2DComponent:
-      Type: Static
-    BoxCollider2DComponent:
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.300000012
-      Restitution: 0
-      RestitutionThreshold: 1
+      Position: [-10, 0, -0.5]
+      Rotation: 0
+      Scale: [10, 17.7800007]
     Sprite2DComponent:
       Texture:
-        ResourceID: 4257225564271971941
+        ResourceID: 9815572501052349791
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 10707454182037127679
+  - Entity: 3815399393625188502
+    TagComponent:
+      Tag: Background
+    Transform2DComponent:
+      Position: [10, 0, -0.5]
+      Rotation: 0
+      Scale: [10, 17.7800007]
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 9815572501052349791
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 16763143009995985483
     TagComponent:
       Tag: Birdy
     Transform2DComponent:
@@ -154,48 +129,108 @@ Objects:
         ResourceID: 9652873989147379302
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 2604810254662579450
+  - Entity: 8626613563401063646
     TagComponent:
-      Tag: Background
+      Tag: InvertedPillar
     Transform2DComponent:
-      Position: [10, 0, -0.5]
-      Rotation: 0
-      Scale: [10, 17.7800007]
+      Position: [20, 10, 0.25]
+      Rotation: 180
+      Scale: [2, 16]
+    ScriptComponent:
+      ScriptName: pillar.as
+      Active: true
+      ResourceID: 13834338315665630903
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
     Sprite2DComponent:
       Texture:
-        ResourceID: 9815572501052349791
+        ResourceID: 4257225564271971941
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 15294725730965921139
-    TagComponent:
-      Tag: Background
-    Transform2DComponent:
-      Position: [-10, 0, -0.5]
-      Rotation: 0
-      Scale: [10, 17.7800007]
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 9815572501052349791
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 9675760225236170301
-    TagComponent:
-      Tag: Background
-    Transform2DComponent:
-      Position: [0, 0, -0.5]
-      Rotation: 0
-      Scale: [10, 17.7800007]
-    Sprite2DComponent:
-      Texture:
-        ResourceID: 9815572501052349791
-      Tint: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 2898734519316114149
+  - Entity: 14314997868100978894
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
-      Position: [35, -10, 0.25]
+      Position: [20, -10, 0.25]
       Rotation: 0
+      Scale: [2, 16]
+    ScriptComponent:
+      ScriptName: pillar.as
+      Active: true
+      ResourceID: 13834338315665630903
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 4257225564271971941
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 630756102644746723
+    TagComponent:
+      Tag: InvertedPillar
+    Transform2DComponent:
+      Position: [35, 10, 0.25]
+      Rotation: 180
+      Scale: [2, 16]
+    ScriptComponent:
+      ScriptName: pillar.as
+      Active: true
+      ResourceID: 13834338315665630903
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 4257225564271971941
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 5387109754791411906
+    TagComponent:
+      Tag: Pillar
+    Transform2DComponent:
+      Position: [50, -10, 0.25]
+      Rotation: 0
+      Scale: [2, 16]
+    ScriptComponent:
+      ScriptName: pillar.as
+      Active: true
+      ResourceID: 13834338315665630903
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 4257225564271971941
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 6034706327098903331
+    TagComponent:
+      Tag: InvertedPillar
+    Transform2DComponent:
+      Position: [50, 10, 0.25]
+      Rotation: 180
       Scale: [2, 16]
     ScriptComponent:
       ScriptName: pillar.as

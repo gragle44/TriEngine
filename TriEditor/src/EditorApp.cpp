@@ -388,7 +388,7 @@ void EditorLayer::LoadEmptyScene()
 static void GenerateScriptDefinitions() {
 	auto scriptDefinitionsPath = ProjectManager::GetCurrent()->GetAbsolutePath("as.predefined");
 	ScriptEngine engine;
-	ScriptUtils::GenerateScriptPredefined(engine.GetASEngine(), scriptDefinitionsPath);
+	ScriptUtils::GenerateScriptPredefined(engine.GetASEngine(), scriptDefinitionsPath.string());
 }
 
 void EditorLayer::NewProject(const std::string& path) {
@@ -588,16 +588,16 @@ void EditorLayer::PromptLoadProject()
 		if (ImGui::BeginPopupModal("Load Project", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
 
 			if (ImGui::Button("Load", {60, 0})) {
-				auto cwd = std::filesystem::current_path();
-				auto path = OpenFileDialog(cwd.c_str(), "tri");
-				LoadProject(path);
+				std::filesystem::path cwd = std::filesystem::current_path();
+				std::filesystem::path path = OpenFileDialog((const char*)cwd.c_str(), "tri");
+				LoadProject(path.string());
 			}
 
 			ImGui::SameLine();
 			if (ImGui::Button("New", { 60, 0 })) {
 				auto cwd = std::filesystem::current_path();
-				auto path = SaveFileDialog(cwd.c_str(), "tri");
-				NewProject(path);
+				auto path = SaveFileDialog((const char*)cwd.c_str(), "tri");
+				NewProject(path.string());
 			}
 			ImGui::EndPopup();
 		}
@@ -646,13 +646,13 @@ void EditorLayer::UpdateTitleBar()
 
 		if (ImGui::MenuItem("Save project as")) {
 			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-			std::string path = SaveFileDialog(cwd.c_str(), "tri");
+			std::string path = SaveFileDialog((const char*)cwd.c_str(), "tri").string();
 			SaveProject(path);
 		}
 
 		if (ImGui::MenuItem("Load project")) {
 			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-			std::string path = OpenFileDialog(cwd.c_str(), "tri");
+			std::string path = OpenFileDialog((const char*)cwd.c_str(), "tri").string();
 			LoadProject(path);
 		}
 
@@ -663,7 +663,7 @@ void EditorLayer::UpdateTitleBar()
 
 			std::string startingPath = !(currentScenePath.empty()) ? currentScenePath : cwd.string();
 
-			std::string path = SaveFileDialog(startingPath.c_str(), "tscn");
+			std::string path = SaveFileDialog((const char*)startingPath.c_str(), "tscn").string();
 
 			SaveScene(path);
 
@@ -671,7 +671,7 @@ void EditorLayer::UpdateTitleBar()
 
 		if (ImGui::MenuItem("Load scene")) {
 			auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-			std::string path = OpenFileDialog(cwd.c_str(), "tscn");
+			std::string path = OpenFileDialog((const char*)cwd.c_str(), "tscn").string();
 
 			LoadScene(ResourceManager::GetIDFromPath(path));
 		}

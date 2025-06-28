@@ -126,6 +126,9 @@ project "TriEngine"
 	filter "files:TriEngine/vendor/ImGuizmo/**.cpp"
 		flags {"NoPCH"}
 
+	filter "files:TriEngine/vendor/angelscript/add_on/**.cpp"
+		flags {"NoPCH"}
+
 	filter "system:linux"
 		systemversion "latest"
 

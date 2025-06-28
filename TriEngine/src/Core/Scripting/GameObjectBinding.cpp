@@ -140,11 +140,11 @@ namespace TriEngine {
         return this_->GetComponent<T>();
     }
 
-    #define REGISTER_COMPONENT_METHODS(goClass, C) \
-    goClass.method("bool Has"#C"()", &HasComponentProxy<C>); \
-    goClass.method(#C"@ Add"#C"()", &AddComponentProxy<C>); \
-    goClass.method(#C"@ Get"#C"()", &GetComponentProxy<C>); \
-    goClass.method("void Remove"#C"()", &RemoveComponentProxy<C>);
+    #define REGISTER_COMPONENT_METHODS(C) \
+    .method("bool Has"#C"()", &HasComponentProxy<C>) \
+    .method(#C"@ Add"#C"()", &AddComponentProxy<C>) \
+    .method(#C"@ Get"#C"()", &GetComponentProxy<C>) \
+    .method("void Remove"#C"()", &RemoveComponentProxy<C>)
 
     static void BindObjectAndScene(asIScriptEngine* engine) {
         auto& gameObjectClass = asbind20::value_class<GameObject>(
@@ -154,17 +154,16 @@ namespace TriEngine {
         )
             .behaviours_by_traits()
             .opEquals()
-            .opImplConv<bool>();
-
-        REGISTER_COMPONENT_METHODS(gameObjectClass, IDComponent);
-        REGISTER_COMPONENT_METHODS(gameObjectClass, TagComponent);
-        REGISTER_COMPONENT_METHODS(gameObjectClass, RigidBody2DComponent);
-        REGISTER_COMPONENT_METHODS(gameObjectClass, BoxCollider2DComponent);
-        REGISTER_COMPONENT_METHODS(gameObjectClass, ScriptComponent);
-        REGISTER_COMPONENT_METHODS(gameObjectClass, Transform2DComponent);
-        REGISTER_COMPONENT_METHODS(gameObjectClass, Sprite2DComponent);
-        REGISTER_COMPONENT_METHODS(gameObjectClass, Camera2DComponent);
-        REGISTER_COMPONENT_METHODS(gameObjectClass, ParticleEmmiterComponent);
+            .opImplConv<bool>()
+            REGISTER_COMPONENT_METHODS(IDComponent)
+            REGISTER_COMPONENT_METHODS(TagComponent)
+            REGISTER_COMPONENT_METHODS(RigidBody2DComponent)
+            REGISTER_COMPONENT_METHODS(BoxCollider2DComponent)
+            REGISTER_COMPONENT_METHODS(ScriptComponent)
+            REGISTER_COMPONENT_METHODS(Transform2DComponent)
+            REGISTER_COMPONENT_METHODS(Sprite2DComponent)
+            REGISTER_COMPONENT_METHODS(Camera2DComponent)
+            REGISTER_COMPONENT_METHODS(ParticleEmmiterComponent);
 
         asbind20::ref_class<Scene>(engine, "Scene", asOBJ_NOCOUNT)
             .method("void Reset()", &Scene::Reset)

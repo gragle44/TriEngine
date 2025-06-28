@@ -38,3 +38,7 @@ void on_update(float deltaTime)
 		rigidBody.SetVelocity(0.0f, m_UpVelocity * deltaTime);
 		rigidBody.SetAngularVelocity(m_RotationVelocity * deltaTime);
 }
+
+void on_collision_start(GameObject collider) {
+    scene.Reset();
+}

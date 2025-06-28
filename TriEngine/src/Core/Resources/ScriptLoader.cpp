@@ -10,7 +10,7 @@ namespace TriEngine {
 	Reference<Resource> TriEngine::ScriptLoader::Load(ResourceMetadata& metadata)
 	{
 		Script script;
-		script.Name = std::filesystem::path(metadata.Filepath).filename();
+		script.Name = std::filesystem::path(metadata.Filepath).filename().string();
 		script.MetaData = metadata;
 
 		return std::make_shared<Script>(script);
