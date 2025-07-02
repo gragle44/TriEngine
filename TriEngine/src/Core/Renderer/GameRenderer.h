@@ -19,16 +19,13 @@ namespace TriEngine {
 		~GameRenderer() = default;
 
 		void RenderScene(Scene* scene);
-		void RenderSceneEditor(Scene* scene);
+		void RenderSceneEditor(Scene* scene, const EditorCamera* editorCamera);
 
 		void SetViewportSize(uint32_t width, uint32_t height) { m_MainRenderpass->Target->ReSize(width, height); }
-
-		void SetEditorCamera(Reference<EditorCamera> camera) { m_EditorCamera = camera; }
 
 		const Reference<FrameBuffer> GetFinalFramebuffer() { return m_MainRenderpass->Target; }
 
 	private:
-		Reference<EditorCamera> m_EditorCamera;
 		glm::vec2 m_ViewportSize;
 		Reference<Renderpass> m_MainRenderpass;
 	};

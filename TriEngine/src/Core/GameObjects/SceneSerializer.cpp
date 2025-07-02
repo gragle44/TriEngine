@@ -135,6 +135,7 @@ namespace TriEngine {
 		if (type == "Static") return RigidBody2DComponent::BodyType::Static;
 		else if (type == "Dynamic") return RigidBody2DComponent::BodyType::Dynamic;
 		else if (type == "Kinematic") return RigidBody2DComponent::BodyType::Kinematic;
+		else { TRI_CORE_ASSERT(false, "Invalid RigidBody Type string"); return RigidBody2DComponent::BodyType::None; }
 	}
 
 	void SceneSerializer::SerializeEntity(YAML::Emitter& out, GameObject& object)
@@ -214,7 +215,7 @@ namespace TriEngine {
 			out << YAML::Key << "YScale" << YAML::Value << component.Camera.m_YScale;
 			out << YAML::Key << "NearClip" << YAML::Value << component.Camera.m_NearClip;
 			out << YAML::Key << "FarClip" << YAML::Value << component.Camera.m_FarClip;
-			out << YAML::Key << "Resizeable" << YAML::Value << component.Resizeable;
+			out << YAML::Key << "Resizable" << YAML::Value << component.Resizable;
 			out << YAML::Key << "Primary" << YAML::Value << component.Primary;
 
 			out << YAML::EndMap;
@@ -338,7 +339,7 @@ namespace TriEngine {
 			camera.Camera.m_YScale = entity["Camera2DComponent"]["YScale"].as<float>();
 			camera.Camera.m_NearClip = entity["Camera2DComponent"]["NearClip"].as<float>();
 			camera.Camera.m_FarClip = entity["Camera2DComponent"]["FarClip"].as<float>();
-			camera.Resizeable = entity["Camera2DComponent"]["Resizeable"].as<bool>();
+			camera.Resizable = entity["Camera2DComponent"]["Resizable"].as<bool>();
 			camera.Primary = entity["Camera2DComponent"]["Primary"].as<bool>();
 		}
 

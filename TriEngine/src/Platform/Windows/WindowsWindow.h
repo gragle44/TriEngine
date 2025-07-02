@@ -40,6 +40,7 @@ namespace TriEngine {
 			uint32_t Width, Height;
 			uint32_t MonScaleWidth, MonScaleHeight;
 			VsyncMode VSyncMode;
+			bool Resizable;
 
 			EventCallbackFn EventCallback;
 		};

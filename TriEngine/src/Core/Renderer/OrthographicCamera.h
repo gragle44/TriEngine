@@ -7,6 +7,7 @@ namespace TriEngine {
 	class OrthographicCamera : public Camera {
 	public:
 		OrthographicCamera();
+		OrthographicCamera(const OrthographicCamera& other) = default;
 		virtual ~OrthographicCamera() override = default;
 
 		void SetSize(float zoom, float nearClip = -1.0f, float farClip = 1.0f);

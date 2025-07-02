@@ -15,10 +15,17 @@ int main(int argc, char** argv);
 
 namespace TriEngine {
 
+	struct ApplicationConfiguration {
+		std::string Name = "App";
+		uint32_t WindowWidth = 1280;
+		uint32_t WindowHeight = 720;
+		bool Resizable = true;
+	};
+
 	class Application
 	{
 	public:
-		Application(const std::string& name);
+		Application(const ApplicationConfiguration& config);
 		virtual ~Application() = default;
 
 		void Close() { m_Running = false; }
@@ -30,6 +37,8 @@ namespace TriEngine {
 
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
+
+		const ApplicationConfiguration& GetConfig() const { return m_Config; }
 
 		Window& GetWindow() { return *m_Window; }
 
@@ -43,6 +52,7 @@ namespace TriEngine {
 
 		void InitRenderer();
 
+		ApplicationConfiguration m_Config;
 		std::unique_ptr<Window> m_Window;
 		LayerStack m_LayerStack;
 		ImGuiLayer* m_ImGuiLayer;
@@ -57,7 +67,7 @@ namespace TriEngine {
 	};
 
 	//Created in client
-	Application* CreateApplication();
+	Application* CreateApplication(int argc, char** argv);
 
 }
 

@@ -7118,5 +7118,5 @@ Objects:
       YScale: 0
       NearClip: -1
       FarClip: 1
-      Resizeable: true
+      Resizable: true
       Primary: true

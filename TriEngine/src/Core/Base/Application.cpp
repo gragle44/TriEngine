@@ -11,13 +11,13 @@
 namespace TriEngine {
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application(const std::string& name)
-		:m_Paused(false), m_Running(true), m_Minimized(false)
+	Application::Application(const ApplicationConfiguration& config)
+		:m_Config(config), m_Paused(false), m_Running(true), m_Minimized(false)
 	{
 		TRI_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
-		m_Window = std::unique_ptr<Window>(Window::Create(WindowProps(name)));
+		m_Window = std::unique_ptr<Window>(Window::Create(WindowProps(m_Config.Name, m_Config.WindowWidth, m_Config.WindowHeight, m_Config.Resizable)));
 		m_Window->SetEventCallback(TRI_BIND_EVENT_FN(Application::OnEvent));
 
 		InitRenderer();

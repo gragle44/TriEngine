@@ -64,14 +64,14 @@ namespace TriEngine {
 
     }
 
-    void GameRenderer::RenderSceneEditor(Scene* scene) {
+    void GameRenderer::RenderSceneEditor(Scene* scene, const EditorCamera* editorCamera) {
 		//2D rendering
 		glm::mat4 cameraTransform;
 		glm::mat4 cameraProjection;
 
-		if (m_EditorCamera != nullptr) {
-			cameraTransform = m_EditorCamera->GetTransform();
-			cameraProjection = m_EditorCamera->GetProjection();
+		if (editorCamera != nullptr) {
+			cameraTransform = editorCamera->GetTransform();
+			cameraProjection = editorCamera->GetProjection();
 		}
 		else {
 			auto cameraView = scene->m_Registry.view<Transform2DComponent, Camera2DComponent>();

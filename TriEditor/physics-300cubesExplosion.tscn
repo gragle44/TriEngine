@@ -15,7 +15,7 @@ Objects:
       YScale: 1
       NearClip: -1
       FarClip: 1
-      Resizeable: true
+      Resizable: true
       Primary: true
   - Entity: 8731757198289237669
     TagComponent:

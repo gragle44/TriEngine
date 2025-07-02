@@ -238,6 +238,7 @@ project "TriEditor"
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
 		symbols "on"
+		optimize "debug"
 		runtime "Debug"
 
 	filter "configurations:Release"
@@ -250,7 +251,7 @@ project "TriEditor"
 		optimize "speed"
 		symbols "off"
 		runtime "Release"
-		flags "LinkTimeOptimization"
+		flags "linktimeoptimization"
 	
 project "TriRuntime"
 	location "TriRuntime"
@@ -264,20 +265,25 @@ project "TriRuntime"
 
 	files
 	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/**.h",
+		"%{prj.name}/**.cpp",
 	}
 
 	includedirs
 	{
 		"TriEngine/vendor/spdlog/include",
 		"TriEngine/vendor/imgui",
+		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.nameof}",
-		"%{IncludeDir.box2D}",
 		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.box2D}",
+		"%{IncludeDir.nativefiledialog}",
 		"%{IncludeDir.magic_enum}",
+		"%{IncludeDir.angelscript}",
+		"%{IncludeDir.asbind20}",
+		"TriEngine/vendor/angelscript/add_on",
 		"TriEngine/src"
 	}
 
@@ -291,9 +297,29 @@ project "TriRuntime"
 	filter "system:windows"
 		systemversion "latest"
 
+	filter "system:linux"
+		systemversion "latest"
+
+		links 
+		{
+			"GLU",
+			"GL",
+			"X11",
+			"pthread",
+			"dl",
+			"GLFW",
+			"Glad",
+			"ImGui",
+			"box2D",
+			"yaml_cpp",
+			"angelscript"
+		}
+
+
 	filter "configurations:Debug"
 		defines "TRI_DEBUG"
 		symbols "on"
+		optimize "debug"
 		runtime "Debug"
 
 	filter "configurations:Release"
@@ -306,4 +332,4 @@ project "TriRuntime"
 		optimize "speed"
 		symbols "off"
 		runtime "Release"
-		flags "LinkTimeOptimization"
+		flags "linktimeoptimization"

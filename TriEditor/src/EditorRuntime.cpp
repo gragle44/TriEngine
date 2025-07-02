@@ -5,8 +5,8 @@
 
 class EditorRuntime : public TriEngine::Application {
 public:
-    EditorRuntime() 
-        :Application("TriEditor")
+    EditorRuntime(const ApplicationConfiguration& config) 
+        :Application(config)
     {
         PushLayer(new EditorLayer());
     }
@@ -16,6 +16,7 @@ public:
     }
 };
 
-TriEngine::Application* TriEngine::CreateApplication() {
-    return new EditorRuntime();
+TriEngine::Application* TriEngine::CreateApplication(int argc, char** argv) {
+    ApplicationConfiguration config{.Name = "TriEditor"};
+    return new EditorRuntime(config);
 }

@@ -19,7 +19,7 @@ struct EditorData {
 	Reference<Texture2D> FolderTexture;
 
 	Reference<GameRenderer> Renderer;
-	Reference<EditorCamera> Camera;
+	std::unique_ptr<EditorCamera> Camera;
 	glm::vec2 ViewPortSize;
 	glm::vec2 PrevViewPortSize;
 

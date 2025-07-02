@@ -1,6 +1,6 @@
 #pragma once
 
-#include <TriEngine.h>
+#include "TriEngine.h"
 
 using namespace TriEngine;
 
@@ -14,9 +14,9 @@ public:
 	virtual void OnDetach() final;
 
 	void OnUpdate(float deltaTime) final;
-	virtual void OnImGuiRender() final;
 	void OnEvent(Event& e) final;
 	bool OnWindowResized(WindowResizeEvent& e);
 private:
+	std::unique_ptr<GameRenderer> m_Renderer;
 	Reference<Scene> m_ActiveScene;
 };

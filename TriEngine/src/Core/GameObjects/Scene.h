@@ -35,11 +35,9 @@ namespace TriEngine {
 		void OnUpdate(float deltaTime);
 		void OnViewportResized(uint32_t width, uint32_t height);
 		const std::string& GetName() const { return m_Name; }
-
-		void SetEditorCamera(Reference<EditorCamera> camera);
 		void SetMainCamera(GameObject camera);
 
-		const std::unordered_map<uint64_t, GameObject>& GetAllObjects() const { return m_GameObjcts; }
+		const std::unordered_map<uint64_t, GameObject>& GetAllObjects() const { return m_GameObjects; }
 
 		bool IsObjectValid(GameObject object);
 		GameObject CreateGameObject(const std::string& tag = std::string());
@@ -58,7 +56,7 @@ namespace TriEngine {
 		std::string m_Name;
 
 		entt::registry m_Registry;
-		std::unordered_map<uint64_t, GameObject> m_GameObjcts;
+		std::unordered_map<uint64_t, GameObject> m_GameObjects;
 
 		Reference<Scene> m_ResetPoint = nullptr;
 
@@ -67,12 +65,9 @@ namespace TriEngine {
 
 		std::unique_ptr<ScriptEngine> m_ScriptEngine = nullptr;
 
-		Reference<EditorCamera> m_CameraObject = nullptr;
-
-		glm::vec2 m_ViewportSize;
+		// Needed to restore cameras when the scene resets
+		glm::ivec2 m_ViewPortSize;
 
 		bool m_ShouldReset = false;
-
-		int32_t m_RefCount = 1;
 	};
 }

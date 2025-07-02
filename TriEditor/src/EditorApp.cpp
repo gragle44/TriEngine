@@ -248,12 +248,10 @@ void EditorLayer::OnAttach()
 
 	m_Data->ViewPortSize = { 1280, 720 };
 
-	m_Data->Camera = std::make_shared<EditorCamera>();
+	m_Data->Camera = std::make_unique<EditorCamera>();
 	m_Data->Renderer = std::make_shared<GameRenderer>();
-	m_Data->Renderer->SetEditorCamera(m_Data->Camera);
 
 	m_Data->RestoreScene = Scene::Create();
-	m_Data->RestoreScene->SetEditorCamera(m_Data->Camera);
 
 	m_Data->ActiveScene = m_Data->RestoreScene;
 
@@ -279,28 +277,30 @@ void EditorLayer::OnUpdate(float deltaTime)
 	if (m_Data->PrevViewPortSize.x != m_Data->ViewPortSize.x || m_Data->PrevViewPortSize.y != m_Data->ViewPortSize.y && m_Data->ViewPortSize.x > 0 && m_Data->ViewPortSize.y > 0) {
 		m_Data->PrevViewPortSize = m_Data->ViewPortSize;
 
+		m_Data->Camera->SetViewportSize(m_Data->ViewPortSize.x, m_Data->ViewPortSize.y);
+
 		if (m_Data->SceneRunning) {
 			m_Data->Renderer->SetViewportSize((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
 			m_Data->ActiveScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
 			m_Data->ActiveScene->OnUpdate(deltaTime);
-			m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
+			m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), nullptr);
 
 		}
 		else {
 			m_Data->Camera->OnUpdate(deltaTime);
 			m_Data->Renderer->SetViewportSize((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
 			m_Data->ActiveScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
-			m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
+			m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), m_Data->Camera.get());
 		}
 	}
 	else if (m_Data->SceneRunning) {
 		m_Data->ActiveScene->OnUpdate(deltaTime);
-		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
+		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), nullptr);
 	}
 
 	else if (!m_Data->SceneRunning) {
 		m_Data->Camera->OnUpdate(deltaTime);
-		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get());
+		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), m_Data->Camera.get());
 
 		if (Input::IsMouseButtonPressed(TRI_MOUSE_BUTTON_LEFT)) {
 			auto pos = ImGui::GetMousePos();
@@ -358,6 +358,8 @@ void EditorLayer::StartScene()
 	m_Data->SceneRunning = true;
 	m_Data->SceneCurrentState = EditorState::Play;
 	m_Data->RestoreScene = m_Data->ActiveScene->Copy();
+
+	m_Data->ActiveScene->OnViewportResized(m_Data->ViewPortSize.x, m_Data->ViewPortSize.y);
 	m_Data->ActiveScene->Start();
 	TRI_CORE_ASSERT(*m_Data->ActiveScene == *m_Data->RestoreScene, "Active Scene and Restore Scene have different IDs")
 
@@ -380,7 +382,6 @@ void EditorLayer::LoadEmptyScene()
 {
 	StopScene();
 	m_Data->ActiveScene = Scene::Create();
-	m_Data->ActiveScene->SetEditorCamera(m_Data->Camera);
 	m_Data->RestoreScene = m_Data->ActiveScene->Copy();
 
 }

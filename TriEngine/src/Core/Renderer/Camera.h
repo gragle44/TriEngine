@@ -6,6 +6,7 @@ namespace TriEngine {
 	class Camera {
 	public:
 		Camera() = default;
+		Camera(const Camera& other) = default;
 		virtual ~Camera() = default;
 
 		const glm::mat4& GetProjection() const { return m_Projection; }

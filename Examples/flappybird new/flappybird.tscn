@@ -2,7 +2,22 @@ TriEngine Scene File
 ---
 Scene: Scene
 Objects:
-  - Entity: 12887682590543963324
+  - Entity: 4256079780549738879
+    TagComponent:
+      Tag: Camera
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    Camera2DComponent:
+      Zoom: 12
+      AspectRatio: 1.57495594
+      YScale: 1
+      NearClip: -1
+      FarClip: 1
+      Resizable: true
+      Primary: true
+  - Entity: 9666688675364637640
     TagComponent:
       Tag: Top Collider
     Transform2DComponent:
@@ -17,7 +32,7 @@ Objects:
       Friction: 0.300000012
       Restitution: 0
       RestitutionThreshold: 1
-  - Entity: 8021736279988149905
+  - Entity: 16335591773332353172
     TagComponent:
       Tag: Bottom Collider
     Transform2DComponent:
@@ -37,7 +52,7 @@ Objects:
         ResourceID: 3414357080157574144
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 264835392634241090
+  - Entity: 9632052943645929457
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
@@ -61,7 +76,7 @@ Objects:
         ResourceID: 4257225564271971941
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 11859054310458544112
+  - Entity: 17335383611736126453
     TagComponent:
       Tag: Background
     Transform2DComponent:
@@ -73,7 +88,7 @@ Objects:
         ResourceID: 9815572501052349791
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 4777501210863664462
+  - Entity: 5982732036895821462
     TagComponent:
       Tag: Background
     Transform2DComponent:
@@ -85,7 +100,7 @@ Objects:
         ResourceID: 9815572501052349791
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 3815399393625188502
+  - Entity: 7504262875738879722
     TagComponent:
       Tag: Background
     Transform2DComponent:
@@ -97,7 +112,7 @@ Objects:
         ResourceID: 9815572501052349791
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 16763143009995985483
+  - Entity: 15468286554030825809
     TagComponent:
       Tag: Birdy
     Transform2DComponent:
@@ -116,20 +131,12 @@ Objects:
       Friction: 0.300000012
       Restitution: 0
       RestitutionThreshold: 1
-    Camera2DComponent:
-      Zoom: 1
-      AspectRatio: 1.69294608
-      YScale: 1
-      NearClip: -1
-      FarClip: 1
-      Resizeable: true
-      Primary: false
     Sprite2DComponent:
       Texture:
         ResourceID: 9652873989147379302
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 8626613563401063646
+  - Entity: 10879946327937889754
     TagComponent:
       Tag: InvertedPillar
     Transform2DComponent:
@@ -153,7 +160,7 @@ Objects:
         ResourceID: 4257225564271971941
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 14314997868100978894
+  - Entity: 2271055657109021609
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
@@ -177,7 +184,7 @@ Objects:
         ResourceID: 4257225564271971941
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 630756102644746723
+  - Entity: 354543230294234824
     TagComponent:
       Tag: InvertedPillar
     Transform2DComponent:
@@ -201,7 +208,7 @@ Objects:
         ResourceID: 4257225564271971941
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 5387109754791411906
+  - Entity: 11621375315420652313
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
@@ -225,7 +232,7 @@ Objects:
         ResourceID: 4257225564271971941
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
-  - Entity: 6034706327098903331
+  - Entity: 10235866860226697608
     TagComponent:
       Tag: InvertedPillar
     Transform2DComponent:

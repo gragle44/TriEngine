@@ -18,6 +18,8 @@ namespace TriEngine {
 
 		int32_t size = x * y * channels;
 
+		TRI_CORE_ASSERT(size, "Failed to load image file");
+
 		ByteBuffer buffer;
 		buffer.reserve(size);
 		buffer.insert(buffer.end(), data, data + size);

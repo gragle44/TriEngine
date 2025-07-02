@@ -32,6 +32,9 @@ namespace TriEngine {
         m_Engine = asCreateScriptEngine();
         TRI_CORE_ASSERT(m_Engine != nullptr, "Failed to create script engine");
 
+        // Performance increase
+        m_Engine->SetEngineProperty(asEP_BUILD_WITHOUT_LINE_CUES, true);
+
         m_Engine->SetMessageCallback(asFUNCTION(MessageCallback), 0, asCALL_CDECL);
         Utils::ConfigureScriptEngine(m_Engine);
 

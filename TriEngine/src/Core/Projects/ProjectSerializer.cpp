@@ -12,7 +12,7 @@
 
 #define MAP_END   << YAML::EndMap
 
-#define PROJECT_HEADER_TEXT "TriEngine Project File"
+static constexpr const char* projectHeader = "TriEngine Project File";
 
 namespace TriEngine {
 	ProjectSerializer::ProjectSerializer(Reference<Project> project)
@@ -24,14 +24,19 @@ namespace TriEngine {
 
 		YAML::Emitter out;
 
-		out << PROJECT_HEADER_TEXT;
+		out << projectHeader;
 
 		out MAP_START;
 		out KEYVAL("Project", data.Name);
 		out KEYVAL("StartupSceneID", data.StartupSceneID);
-		out MAP_END;
 
-		TRI_CORE_ASSERT(out.good(), "Failed to serialize scene");
+		out << YAML::Key << "WindowSettings" << YAML::Value << YAML::BeginMap;
+		out KEYVAL("Width", data.WindowSettings.Width);
+		out KEYVAL("Height", data.WindowSettings.Height);
+		out KEYVAL("Resizable", data.WindowSettings.Resizable);
+		out << YAML::EndMap;
+
+		TRI_CORE_ASSERT(out.good(), "Failed to serialize project");
 
 		std::ofstream fout(filePath);
 		fout << out.c_str();
@@ -41,12 +46,11 @@ namespace TriEngine {
 	{
 		auto project = YAML::LoadAllFromFile(filePath.string());
 
-
 		std::string header;
 		if (project[0].IsScalar())
 			header = project[0].as<std::string>();
 
-		if (header != PROJECT_HEADER_TEXT) {
+		if (header != projectHeader) {
 			TRI_CORE_ERROR("Deserialized file was not of type TriEngine Project: \"{0}\"", filePath);
 			return;
 		}
@@ -55,5 +59,9 @@ namespace TriEngine {
 
 		data.Name = project[1]["Project"].as<std::string>();
 		data.StartupSceneID = project[1]["StartupSceneID"].as<uint64_t>();
+
+		data.WindowSettings.Width = project[1]["WindowSettings"]["Width"].as<uint32_t>();
+		data.WindowSettings.Height = project[1]["WindowSettings"]["Height"].as<uint32_t>();
+		data.WindowSettings.Resizable = project[1]["WindowSettings"]["Resizable"].as<bool>();
 	}
 }

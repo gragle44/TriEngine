@@ -78,12 +78,12 @@ namespace TriEngine {
 	{
 		m_ResetPoint = Copy();
 
-		auto camView = m_Registry.view<Camera2DComponent>();
+		auto cameraView = m_Registry.view<Camera2DComponent>();
 
-		for (auto entity : camView) {
-			auto& camera = camView.get<Camera2DComponent>(entity);
-			if (camera.Resizeable) {
-				camera.Camera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
+		for (auto entity : cameraView) {
+			auto& camera = cameraView.get<Camera2DComponent>(entity);
+			if (camera.Resizable) {
+				camera.Camera.SetViewportSize(m_ViewPortSize.x, m_ViewPortSize.y);
 			}
 		}
 
@@ -109,7 +109,7 @@ namespace TriEngine {
 			bodyDef.type = BodyTypeToB2Type(rigidBody.Type);
 			bodyDef.position.Set(transform.Position.x, transform.Position.y);
 			bodyDef.angle = glm::radians(transform.Rotation);
-			bodyDef.userData.pointer = (uintptr_t)&m_GameObjcts.at(object.GetComponent<IDComponent>().ID);
+			bodyDef.userData.pointer = (uintptr_t)&m_GameObjects.at(object.GetComponent<IDComponent>().ID);
 
 			b2Body* body = m_PhysicsWorld->CreateBody(&bodyDef);
 
@@ -174,7 +174,7 @@ namespace TriEngine {
 		m_ContactListener = nullptr;
 
 		m_Registry.clear();
-		m_GameObjcts.clear();
+		m_GameObjects.clear();
 	}
 
 	void Scene::Reset() 
@@ -193,7 +193,7 @@ namespace TriEngine {
 			for (auto entity : idView) {
 				GameObject object = { entity, m_ResetPoint.get() };
 
-				std::string name = object.GetComponent<TagComponent>().Tag;
+				const std::string& name = object.GetComponent<TagComponent>().Tag;
 
 				GameObject newObject = CreateGameObject(name);
 
@@ -287,22 +287,16 @@ namespace TriEngine {
 
 	void Scene::OnViewportResized(uint32_t width, uint32_t height)
 	{
-		if (m_CameraObject)
-			m_CameraObject->SetViewportSize(width, height);
+		m_ViewPortSize = { width, height };
 
 		auto view = m_Registry.view<Camera2DComponent>();
 
 		for (auto entity : view) {
 			auto& camera = view.get<Camera2DComponent>(entity);
-			if (camera.Resizeable) {
+			if (camera.Resizable) {
 				camera.Camera.SetViewportSize(width, height);
 			}
 		}
-	}
-
-	void Scene::SetEditorCamera(Reference<EditorCamera> camera)
-	{
-		m_CameraObject = camera;
 	}
 
 	void Scene::OnEvent(Event& e)
@@ -344,9 +338,6 @@ namespace TriEngine {
 
 		newScene->MetaData = MetaData;
 
-		newScene->m_CameraObject = m_CameraObject;
-		newScene->m_ViewportSize = m_ViewportSize;
-
 		auto idView = m_Registry.view<IDComponent>();
 
 		for (auto entity : idView) {
@@ -370,7 +361,7 @@ namespace TriEngine {
 		tagComponent.Tag = tag.empty() ? "Object" : tag;
 		object.AddComponent<Transform2DComponent>();
 
-		m_GameObjcts.emplace(uuid, object);
+		m_GameObjects.emplace(uuid, object);
 		return object;
 	}
 
@@ -378,7 +369,7 @@ namespace TriEngine {
 	{
 		uint64_t uuid = object.GetComponent<IDComponent>().ID;
 
-		m_GameObjcts.erase(uuid);
+		m_GameObjects.erase(uuid);
 		m_Registry.destroy(object.GetHandle());
 	}
 }

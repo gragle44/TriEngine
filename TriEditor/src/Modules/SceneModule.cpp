@@ -393,7 +393,7 @@ namespace TriEngine {
 
 		DrawComponent<Camera2DComponent>("Camera2D", object, [](Camera2DComponent& camera)
 		{
-				ImGui::Checkbox("Resizeable", &camera.Resizeable); HelpMarker("Determines if the camera's aspect ratio can be changed.", true);
+				ImGui::Checkbox("Resizable", &camera.Resizable); HelpMarker("Determines if the camera's aspect ratio can be changed.", true);
 				ImGui::Checkbox("Primary", &camera.Primary); HelpMarker("Sets the camera as the main scene camera.", true);
 
 			static float cameraSize = camera.Camera.m_Zoom;

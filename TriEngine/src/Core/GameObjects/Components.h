@@ -35,6 +35,7 @@ namespace TriEngine {
 
 	struct RigidBody2DComponent {
 		enum class BodyType : uint8_t {
+			None = 0,
 			Static,
 			Dynamic, 
 			Kinematic
@@ -169,7 +170,7 @@ namespace TriEngine {
 	struct Camera2DComponent {
 		OrthographicCamera Camera;
 		bool Primary = false;
-		bool Resizeable = true;
+		bool Resizable = true;
 
 		Camera2DComponent() = default;
 		Camera2DComponent(const Camera2DComponent&) = default;
@@ -180,7 +181,7 @@ namespace TriEngine {
 		glm::vec4 Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float TilingFactor = 1.0f;
 
-		bool HasTransparency() { return Texture->HasTransparency() || Tint.a < 1.0f; }
+		bool HasTransparency() const { return Texture->HasTransparency() || Tint.a < 1.0f; }
 
 		Sprite2DComponent() 
 			:Texture(Texture2D::Create(glm::ivec2(1, 1))) {}

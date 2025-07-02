@@ -60,7 +60,7 @@ namespace TriEngine {
         )
             .property("OrthographicCamera Camera", &Camera2DComponent::Camera)
             .property("bool Primary", offsetof(Camera2DComponent, Primary))
-            .property("bool Resizeable", offsetof(Camera2DComponent, Resizeable));
+            .property("bool Resizable", offsetof(Camera2DComponent, Resizable));
 
         asbind20::ref_class<Sprite2DComponent>(
             engine,

@@ -12,13 +12,14 @@ namespace TriEngine {
 		std::string Title;
 		uint32_t Width;
 		uint32_t Height;
+		bool Resizable;
 
 		WindowProps(const std::string& title,
 			uint32_t width = 1280,
-			uint32_t height = 720)
-			: Title(title), Width(width), Height(height)
-		{
-		}
+			uint32_t height = 720,
+			bool resizable = true
+		)
+			: Title(title), Width(width), Height(height), Resizable(resizable) {}
 	};
 
 	enum class VsyncMode : uint8_t {
