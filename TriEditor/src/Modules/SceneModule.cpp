@@ -427,6 +427,7 @@ namespace TriEngine {
 			}
 
 			ImGui::Checkbox("Enabled", &script.Active);
+			HelpMarker("Whether the script should be updated and recieve events.", true);
 		});
 
 		DrawComponent<NativeScriptComponent>("NativeScript", object, [](NativeScriptComponent& script)

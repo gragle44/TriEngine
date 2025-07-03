@@ -1,7 +1,7 @@
 #include "FileMenu.h"
 
+#include "../EditorUtils.h"
 #include "Core/Base/Application.h"
-#include <nfd.h>
 #include "magic_enum.hpp"
 #include <imgui.h>
 
@@ -38,14 +38,90 @@ namespace TriEngine {
 
 	// Project settings
 
+	void FileMenu::RenderGeneralProjectSettings() {
+		auto& projData = ProjectManager::GetCurrentProjectData();
+		//TODO: project name
+
+		bool startupSceneExists = ResourceManager::ResourceExists(projData.StartupSceneID);
+		std::string_view sceneName = "Unset";
+		if (startupSceneExists)
+			sceneName = std::dynamic_pointer_cast<Scene>(ResourceManager::Get(projData.StartupSceneID))->GetName();
+
+		ImGui::Text("Startup Scene: %s", sceneName.begin());
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) {
+			std::string sceneHoverText = "Unknown";
+			if (startupSceneExists) {
+				ResourceID id = std::dynamic_pointer_cast<Scene>(ResourceManager::Get(projData.StartupSceneID))->MetaData.ID;
+				sceneHoverText = std::to_string(id);
+			}
+			ImGui::SetTooltip("Resource ID: %s", sceneHoverText.c_str());
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton("general_settings_folder", (ImTextureID)m_Data->FolderTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
+			std::string newPath = OpenFileDialog(ProjectManager::GetCurrent()->GetWorkingDirectory().generic_string(), ".tscn");
+			ResourceID id = ResourceManager::GetIDFromPath(newPath);
+
+			if (ResourceManager::ResourceExists(id)) {
+				projData.StartupSceneID = id;
+			}
+		}
+		
+	}
+
+	static void RenderWindowProjectSettings() {
+		auto& windowSettings = ProjectManager::GetCurrentProjectData().WindowSettings;
+
+		ImGui::InputInt("Width", (int32_t*)&windowSettings.Width, 1, 100);
+		ImGui::InputInt("Height", (int32_t*)&windowSettings.Height);
+		ImGui::Checkbox("Resizable", &windowSettings.Resizable);
+	}
+
 	void FileMenu::RenderProjectSettings(bool* show)
 	{
 		static bool showDemo = false;
 
+		static constexpr std::array<std::string, 2> categories{"General", "Window"};
+
 		if (ImGui::Begin("Settings", show)) {
-				ImGui::Text("dnaslk");
+				static int32_t selected = 0;
+
 				if (ImGui::Button("Show ImGui demo"))
 					showDemo = true;
+				{
+					ImGui::BeginChild("settings left pane", ImVec2(150, 0), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+					for (int32_t i = 0; i < categories.size(); i++)
+					{
+						if (ImGui::Selectable(categories[i].c_str(), selected == i))
+							selected = i;
+					}
+					ImGui::EndChild();
+				}
+        		ImGui::SameLine();
+
+				{
+					ImGui::BeginChild("settings right pane", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+
+					float windowWidth = ImGui::GetWindowSize().x;
+					float textWidth = ImGui::CalcTextSize(categories[selected].c_str()).x;
+
+					ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+					ImGui::Text(categories[selected].c_str());
+
+					switch (selected)
+					{
+					case 0:
+						RenderGeneralProjectSettings();
+						break;
+					case 1:
+						RenderWindowProjectSettings();
+						break;
+					
+					default: TRI_CORE_ASSERT(false, "No settings page exists for selected tab");
+					}
+
+					ImGui::EndChild();
+				}
+        		ImGui::SameLine();
 
 				ImGui::End();
 			}
@@ -114,29 +190,6 @@ namespace TriEngine {
 
 		RenderResourceEditor(&editingResource, editingResourceID);
 	}
-	
-	static std::string OpenFileDialog(const std::string& extension) {
-		char* output;
-		std::string ret;
-		auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-		nfdresult_t result = NFD_OpenDialog(extension.c_str(), cwd.string().c_str(), &output);
-
-
-		if (result == NFD_OKAY) {
-			ret = output;
-			delete output;
-		}
-
-		else if (result == NFD_CANCEL) {
-			TRI_CORE_TRACE("Canceled file dialog");
-		}
-
-		else if (result == NFD_ERROR) {
-			TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-		}
-
-		return ret;
-	}
 
 	void FileMenu::RenderResourceEditor(bool* show, uint64_t& id)
 	{
@@ -156,7 +209,7 @@ namespace TriEngine {
 				ImGui::Text(("Path: " + resourceMeta.Filepath).c_str());
 				ImGui::SameLine();
 				if (ImGui::ImageButton("resource_editor_folder", (ImTextureID)m_Data->FolderTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
-					std::string newPath = OpenFileDialog(Utils::ExtensionFromResourceType(resourceMeta.Type));
+					std::string newPath = OpenFileDialog(ProjectManager::GetCurrent()->GetWorkingDirectory().generic_string(), Utils::ExtensionFromResourceType(resourceMeta.Type));
 				}
 
 				if (ImGui::Button("Remove")) {

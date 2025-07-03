@@ -14,6 +14,8 @@ namespace TriEngine {
 
 		void RenderProjectSettings(bool* show);
 
+		void RenderGeneralProjectSettings();
+
 		void RenderResourceViewer(bool* show);
 		void RenderResourceEditor(bool* show, uint64_t& id);
 
