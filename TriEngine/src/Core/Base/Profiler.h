@@ -1,33 +1,22 @@
 #pragma once
 
-#include <chrono>
+#ifdef TRACY_ENABLE
+	#include "tracy/Tracy.hpp"
 
-class Timer {
-public:
-	Timer() {
-		Reset();
-	}
+	#define TRI_PROFILE_TAG(y, x) ZoneText(x, strlen(x))
+	#define TRI_PROFILE_SECTION(name) ZoneScopedN(name)
+	#define TRI_PROFILE_FRAME FrameMark
+	#define TRI_PROFILE_FRAME_NAMED(name) FrameMarkNamed(name)
+	#define TRI_PROFILE_FRAME_START(name) FrameMarkStart(name)
+	#define TRI_PROFILE_FRAME_END(name) FrameMarkEnd(name)
+	#define TRI_PROFILE ZoneScoped
 
-	void Reset() {
-		m_StartPoint = std::chrono::high_resolution_clock::now();
-	}
+#else
+	#define TRI_PROFILE_TAG(y, x) 
+	#define TRI_PROFILE_SECTION(name) 
+	#define TRI_PROFILE_FRAME
+	#define TRI_PROFILE_FRAME_START(name)
+	#define TRI_PROFILE_FRAME_END(name)
+	#define TRI_PROFILE 
 
-	void Stop() {
-
-	}
-
-	float Ellapsed() {
-		auto endPoint = std::chrono::high_resolution_clock::now();
-
-		auto start = std::chrono::time_point_cast<std::chrono::nanoseconds>(m_StartPoint).time_since_epoch();
-		auto end = std::chrono::time_point_cast<std::chrono::nanoseconds>(endPoint).time_since_epoch();
-
-		return (end - start).count() * 0.001f * 0.001f * 0.001f;
-	}
-
-	float EllapsedMS() {
-		return Ellapsed() * 1000.0f;
-	}
-private:
-	std::chrono::time_point<std::chrono::high_resolution_clock> m_StartPoint;
-};
+#endif

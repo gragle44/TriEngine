@@ -29,6 +29,7 @@ IncludeDir["nameof"] = "TriEngine/vendor/nameof"
 IncludeDir["magic_enum"] = "TriEngine/vendor/magic_enum"
 IncludeDir["angelscript"] = "TriEngine/vendor/angelscript/angelscript/include"
 IncludeDir["asbind20"] = "TriEngine/vendor/asbind20/include"
+IncludeDir["tracy"] = "TriEngine/vendor/tracy/public"
 
 group "Dependancies"
 	include "TriEngine/vendor/GLFW"
@@ -47,6 +48,8 @@ project "TriEngine"
 	language "C++"
 	cppdialect "C++20"
 	staticruntime "on"
+
+	architecture "x86_64"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
@@ -72,6 +75,7 @@ project "TriEngine"
 		"%{prj.name}/vendor/glm/glm/**.inl",
 		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp",
 		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
+		"%{prj.name}/vendor/tracy/public/TracyClient.cpp",
 		"%{prj.name}/vendor/angelscript/add_on/datetime/**.cpp",
 		"%{prj.name}/vendor/angelscript/add_on/datetime/**.h",
 		"%{prj.name}/vendor/angelscript/add_on/scriptarray/**.cpp",
@@ -109,6 +113,7 @@ project "TriEngine"
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.angelscript}",
 		"%{IncludeDir.asbind20}",
+		"%{IncludeDir.tracy}",
 		"TriEngine/vendor/angelscript/add_on"
 	}
 
@@ -155,7 +160,7 @@ project "TriEngine"
 		runtime "Debug"
 
 	filter "configurations:Release"
-		defines "TRI_RELEASE"
+		defines {"TRI_RELEASE"}
 		optimize "on"
 		runtime "Release"
 
@@ -177,6 +182,8 @@ project "TriEditor"
 	language "C++"
 	cppdialect "C++20"
 	staticruntime "on"
+
+	architecture "x86_64"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
@@ -201,6 +208,7 @@ project "TriEditor"
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.angelscript}",
 		"%{IncludeDir.asbind20}",
+		"%{IncludeDir.tracy}",
 		"TriEngine/vendor/angelscript/add_on",
 		"TriEngine/src"
 	}
@@ -242,7 +250,7 @@ project "TriEditor"
 		runtime "Debug"
 
 	filter "configurations:Release"
-		defines "TRI_RELEASE"
+		defines {"TRI_RELEASE"}
 		optimize "on"
 		runtime "Release"
 

@@ -4,6 +4,8 @@
 #include "Renderer2D.h"
 #include "Core/GameObjects/Components.h"
 #include "Core/GameObjects/GameObject.h"
+#include "Core/Base/Profiler.h"
+
 #include "entt/entt.hpp"
 
 namespace TriEngine {
@@ -25,6 +27,8 @@ namespace TriEngine {
     }
 
     void GameRenderer::RenderScene(Scene* scene) {
+		TRI_PROFILE;
+
 		//2D rendering
 		glm::mat4 cameraTransform;
 		glm::mat4 cameraProjection;
@@ -65,6 +69,8 @@ namespace TriEngine {
     }
 
     void GameRenderer::RenderSceneEditor(Scene* scene, const EditorCamera* editorCamera) {
+		TRI_PROFILE;
+
 		//2D rendering
 		glm::mat4 cameraTransform;
 		glm::mat4 cameraProjection;

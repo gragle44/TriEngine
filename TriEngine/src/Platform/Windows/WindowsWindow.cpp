@@ -2,6 +2,7 @@
 #include "WindowsWindow.h"
 
 #include "Base/Assert.h"
+#include "Base/Profiler.h"
 
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyEvent.h"

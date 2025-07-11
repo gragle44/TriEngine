@@ -47,6 +47,7 @@ namespace TriEngine {
 	private:
 		void Shutdown();
 		void Run();
+		void MainUpdate();
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 

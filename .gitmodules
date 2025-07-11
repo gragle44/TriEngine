@@ -22,3 +22,6 @@
 [submodule "TriEngine/vendor/asbind20"]
 	path = TriEngine/vendor/asbind20
 	url = https://github.com/HenryAWE/asbind20.git
+[submodule "TriEngine/vendor/tracy"]
+	path = TriEngine/vendor/tracy
+	url = https://github.com/wolfpld/tracy.git

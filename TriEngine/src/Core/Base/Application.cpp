@@ -7,6 +7,7 @@
 #include "Renderer/Renderer2D.h"
 
 #include "Input.h"
+#include "Profiler.h"
 
 namespace TriEngine {
 	Application* Application::s_Instance = nullptr;
@@ -26,23 +27,30 @@ namespace TriEngine {
 		PushOverlay(m_ImGuiLayer);
 	}
 
+	void Application::MainUpdate() 
+	{
+		if (!m_Paused) {
+			m_DeltaTime.Update();
+
+			for (Layer* layer : m_LayerStack)
+				layer->OnUpdate(m_DeltaTime);
+		}
+
+		m_ImGuiLayer->Begin();
+		for (Layer* layer : m_LayerStack)
+			layer->OnImGuiRender();
+		m_ImGuiLayer->End();
+
+		m_Window->OnUpdate();
+
+		TRI_PROFILE_FRAME;
+	}
+
 	void Application::Run()
 	{
 		while (m_Running)
 		{
-			if (!m_Paused) {
-				m_DeltaTime.Update();
-
-				for (Layer* layer : m_LayerStack)
-					layer->OnUpdate(m_DeltaTime);
-			}
-
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
-			m_ImGuiLayer->End();
-
-			m_Window->OnUpdate();
+			MainUpdate();
 		}
 		Shutdown();
 	}
