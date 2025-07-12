@@ -43,6 +43,9 @@ namespace TriEngine {
 		float m_YScale = 0.0f;
 		float m_NearClip = -1.0f, m_FarClip = 1.0f;
 
+		bool m_Panning = false;
+		glm::vec2 m_LastMousePos = { 0, 0 };
+
 		friend class SceneModule;
 		friend class SceneSerializer;
 	};

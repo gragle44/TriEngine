@@ -47,7 +47,7 @@ namespace TriEngine {
 		if (startupSceneExists)
 			sceneName = std::dynamic_pointer_cast<Scene>(ResourceManager::Get(projData.StartupSceneID))->GetName();
 
-		ImGui::Text("Startup Scene: %s", sceneName.begin());
+		ImGui::Text("Startup Scene: %s", sceneName.data());
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) {
 			std::string sceneHoverText = "Unknown";
 			if (startupSceneExists) {
@@ -58,7 +58,7 @@ namespace TriEngine {
 		}
 		ImGui::SameLine();
 		if (ImGui::ImageButton("general_settings_folder", (ImTextureID)m_Data->FolderTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
-			std::string newPath = OpenFileDialog(ProjectManager::GetCurrent()->GetWorkingDirectory().generic_string(), ".tscn");
+			std::string newPath = OpenFileDialog(ProjectManager::GetCurrent()->GetWorkingDirectory().generic_string(), ".tscn").generic_string();
 			ResourceID id = ResourceManager::GetIDFromPath(newPath);
 
 			if (ResourceManager::ResourceExists(id)) {
@@ -80,7 +80,7 @@ namespace TriEngine {
 	{
 		static bool showDemo = false;
 
-		static constexpr std::array<std::string, 2> categories{"General", "Window"};
+		static constexpr std::array<std::string_view, 2> categories = {"General", "Window"};
 
 		if (ImGui::Begin("Settings", show)) {
 				static int32_t selected = 0;
@@ -91,7 +91,7 @@ namespace TriEngine {
 					ImGui::BeginChild("settings left pane", ImVec2(150, 0), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
 					for (int32_t i = 0; i < categories.size(); i++)
 					{
-						if (ImGui::Selectable(categories[i].c_str(), selected == i))
+						if (ImGui::Selectable(categories[i].data(), selected == i))
 							selected = i;
 					}
 					ImGui::EndChild();
@@ -102,10 +102,10 @@ namespace TriEngine {
 					ImGui::BeginChild("settings right pane", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
 
 					float windowWidth = ImGui::GetWindowSize().x;
-					float textWidth = ImGui::CalcTextSize(categories[selected].c_str()).x;
+					float textWidth = ImGui::CalcTextSize(categories[selected].data()).x;
 
 					ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
-					ImGui::Text(categories[selected].c_str());
+					ImGui::Text(categories[selected].data());
 
 					switch (selected)
 					{
@@ -209,7 +209,7 @@ namespace TriEngine {
 				ImGui::Text(("Path: " + resourceMeta.Filepath).c_str());
 				ImGui::SameLine();
 				if (ImGui::ImageButton("resource_editor_folder", (ImTextureID)m_Data->FolderTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
-					std::string newPath = OpenFileDialog(ProjectManager::GetCurrent()->GetWorkingDirectory().generic_string(), Utils::ExtensionFromResourceType(resourceMeta.Type));
+					std::string newPath = OpenFileDialog(ProjectManager::GetCurrent()->GetWorkingDirectory().generic_string(), Utils::ExtensionFromResourceType(resourceMeta.Type)).generic_string();
 				}
 
 				if (ImGui::Button("Remove")) {

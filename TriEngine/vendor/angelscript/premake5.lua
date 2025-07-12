@@ -15,6 +15,9 @@ project "angelscript"
 
 	filter "system:windows"
 		systemversion "latest"
+		files {
+			"angelscript/source/as_callfunc_x64_msvc_asm.asm"
+		}
 		
     filter "system:linux"
 		systemversion "latest"
@@ -22,10 +25,6 @@ project "angelscript"
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "on"
-
-		files {
-			"angelscript/source/as_callfunc_x64_msvc_asm.asm"
-		}
 
 	filter "configurations:Release"
 		runtime "Release"

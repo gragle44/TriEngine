@@ -39,6 +39,8 @@ struct EditorData {
 
 	bool NoProjectLoaded = true;
 
+	bool ViewPortHovered = false;
+
 	bool SceneViewPaused = false;
 	bool SceneRunning = false;
 

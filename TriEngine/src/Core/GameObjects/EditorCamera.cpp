@@ -26,6 +26,23 @@ namespace TriEngine {
 		else if (Input::IsKeyPressed(TRI_KEY_UP)) {
 			m_Position.y += moveSpeed.y;
 		}
+
+		if (Input::IsMouseButtonPressed(TRI_MOUSE_BUTTON_MIDDLE)) {
+
+			if (!m_Panning) {
+				m_LastMousePos = Input::GetMousePosition();
+				m_Panning = true;
+			}
+
+			glm::vec2 delta = (Input::GetMousePosition() - m_LastMousePos) * moveSpeed;
+
+			m_Position.x -= delta.x / 10.0f;
+			m_Position.y += delta.y / 10.0f;
+
+			m_LastMousePos = Input::GetMousePosition();
+		}
+		else
+			m_Panning = false;
 	}
 
 	void EditorCamera::OnEvent(Event& e)

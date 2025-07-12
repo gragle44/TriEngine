@@ -6,7 +6,7 @@
 
 std::filesystem::path OpenFileDialog(std::string_view initial_path, std::string_view filetype) {
 	nfdchar_t* output;
-	nfdresult_t result = NFD_OpenDialog(filetype.begin(), initial_path.data(), &output);
+	nfdresult_t result = NFD_OpenDialog(filetype.data(), initial_path.data(), &output);
 
 	std::string path;
 
@@ -28,7 +28,7 @@ std::filesystem::path OpenFileDialog(std::string_view initial_path, std::string_
 
 std::filesystem::path SaveFileDialog(std::string_view initial_path, std::string_view filetype) {
 	nfdchar_t* output;
-	nfdresult_t result = NFD_SaveDialog(filetype.begin(), initial_path.data(), &output);
+	nfdresult_t result = NFD_SaveDialog(filetype.data(), initial_path.data(), &output);
 
 	std::string path;
 

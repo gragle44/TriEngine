@@ -20,7 +20,7 @@ class EditorLayer : public TriEngine::Layer
 {
 public:
 	EditorLayer();
-	virtual ~EditorLayer() = default;
+	virtual ~EditorLayer() final;
 
 	virtual void OnAttach() final;
 	virtual void OnDetach() final;

@@ -145,6 +145,11 @@ EditorLayer::EditorLayer()
 	ScriptRegistry::Register<BackgroundScript>();
 }
 
+EditorLayer::~EditorLayer()
+{
+	delete m_Data;
+}
+
 void EditorLayer::SetupImGuiStyle()
 {
 	ImGuiIO& io = ImGui::GetIO();
@@ -278,31 +283,21 @@ void EditorLayer::OnUpdate(float deltaTime)
 		m_Data->PrevViewPortSize = m_Data->ViewPortSize;
 
 		m_Data->Camera->SetViewportSize(m_Data->ViewPortSize.x, m_Data->ViewPortSize.y);
-
-		if (m_Data->SceneRunning) {
-			m_Data->Renderer->SetViewportSize((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
-			m_Data->ActiveScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
-			m_Data->ActiveScene->OnUpdate(deltaTime);
-			m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), nullptr);
-
-		}
-		else {
-			m_Data->Camera->OnUpdate(deltaTime);
-			m_Data->Renderer->SetViewportSize((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
-			m_Data->ActiveScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
-			m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), m_Data->Camera.get());
-		}
+		m_Data->Renderer->SetViewportSize((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
+		m_Data->ActiveScene->OnViewportResized((uint32_t)m_Data->ViewPortSize.x, (uint32_t)m_Data->ViewPortSize.y);
 	}
-	else if (m_Data->SceneRunning) {
+
+	if (m_Data->SceneRunning) {
 		m_Data->ActiveScene->OnUpdate(deltaTime);
 		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), nullptr);
 	}
-
 	else if (!m_Data->SceneRunning) {
-		m_Data->Camera->OnUpdate(deltaTime);
+		if (m_Data->ViewPortHovered)
+			m_Data->Camera->OnUpdate(deltaTime);
+
 		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), m_Data->Camera.get());
 
-		if (Input::IsMouseButtonPressed(TRI_MOUSE_BUTTON_LEFT)) {
+		if (m_Data->ViewPortHovered && Input::IsMouseButtonPressed(TRI_MOUSE_BUTTON_LEFT)) {
 			auto pos = ImGui::GetMousePos();
 
 			if (pos.x >= m_Data->ViewPortBoundsMin.x && pos.y >= m_Data->ViewPortBoundsMin.y && pos.x <= m_Data->ViewPortBoundsMax.x && pos.y <= m_Data->ViewPortBoundsMax.y) {
@@ -332,7 +327,8 @@ void EditorLayer::OnEvent(Event& e)
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<KeyPressedEvent>(TRI_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
 
-	m_Data->Camera->OnEvent(e);
+	if (m_Data->ViewPortHovered)
+		m_Data->Camera->OnEvent(e);
 	m_Data->ActiveScene->OnEvent(e);
 }
 
@@ -534,21 +530,12 @@ void EditorLayer::OnImGuiRender()
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	if (ImGui::Begin("Viewport")) {
-
-		//TODO: allow modules to pause/unpause the viewport if needed
 		m_Data->SceneViewPaused = false;
 
-		/*
-		if (ImGui::IsWindowHovered()) {
-			m_SceneViewPaused = false;
-		}
-		else {
-			m_SceneViewPaused = true;
-		}
-		*/
+		m_Data->ViewPortHovered = ImGui::IsWindowHovered();
 
-		 ImGui::SetNextFrameWantCaptureKeyboard(m_Data->SceneViewPaused);
-		 ImGui::SetNextFrameWantCaptureMouse(m_Data->SceneViewPaused);
+		ImGui::SetNextFrameWantCaptureKeyboard(m_Data->SceneViewPaused);
+		ImGui::SetNextFrameWantCaptureMouse(m_Data->SceneViewPaused);
 
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		m_Data->ViewPortSize = { (uint32_t)viewportSize.x, (uint32_t)viewportSize.y };
@@ -560,14 +547,7 @@ void EditorLayer::OnImGuiRender()
 		m_Data->ViewPortBoundsMin = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
 		m_Data->ViewPortBoundsMax = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
-		if (m_Data->SceneRunning) {
-			ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-			ImGui::Image((void*)(intptr_t)m_Data->Renderer->GetFinalFramebuffer()->GetColorAttachment(0), viewportSize, ImVec2{0, 1}, ImVec2{1, 0});
-		}
-		else {
-			ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-			ImGui::Image((void*)(intptr_t)m_Data->Renderer->GetFinalFramebuffer()->GetColorAttachment(0), viewportSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-		}
+		ImGui::Image((void*)(intptr_t)m_Data->Renderer->GetFinalFramebuffer()->GetColorAttachment(0), viewportSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 	}
 
 	PromptLoadProject();

@@ -134,6 +134,9 @@ project "TriEngine"
 	filter "files:TriEngine/vendor/angelscript/add_on/**.cpp"
 		flags {"NoPCH"}
 
+	filter "files:TriEngine/vendor/tracy/public/TracyClient.cpp"
+		flags {"NoPCH"}
+
 	filter "system:linux"
 		systemversion "latest"
 

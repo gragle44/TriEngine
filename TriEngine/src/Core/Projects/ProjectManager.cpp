@@ -13,6 +13,7 @@ namespace TriEngine {
 
 	Reference<Project> ProjectManager::Load(const std::filesystem::path& path)
 	{
+		TRI_CORE_ASSERT(std::filesystem::exists(path), "Invalid file path");
 		Reference<Project> newProject = std::make_shared<Project>();
 
 		ProjectSerializer s(newProject);
