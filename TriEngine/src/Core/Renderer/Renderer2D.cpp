@@ -1,6 +1,7 @@
 #include "tripch.h"
 #include "Renderer2D.h"
 
+#include "ShaderSource.h"
 #include "RenderCommand.h"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -41,9 +42,6 @@ namespace TriEngine {
 		}
 
 		s_RenderData.ScreenVertexArray->AddVertexBuffer(s_RenderData.ScreenVertexBuffer);
-
-		s_RenderData.ScreenShader = Shader::Create("ScreenShader", "src/Shaders/screenvert.glsl", "src/Shaders/screenfrag.glsl");
-		s_RenderData.ScreenShader->SetInt("u_ScreenSampler", 0);
 		
 		s_RenderData.QuadVertexArray = VertexArray::Create();
 		
@@ -93,7 +91,7 @@ namespace TriEngine {
 		for (int32_t i = 0; i < (int32_t)BatchSettings::MaxTextureSlots; i++)
 			samplers[i] = i;
 
-		s_RenderData.MainShader = Shader::Create("TextureShader", "src/Shaders/basicvert.glsl", "src/Shaders/basicfrag.glsl");
+		s_RenderData.MainShader = Shader::Create("TextureShader", ShaderSource::basicVert, ShaderSource::basicFrag);
 		s_RenderData.MainShader->SetIntArray("u_Samplers", samplers, BatchSettings::MaxTextureSlots);
 
 		delete[] samplers;

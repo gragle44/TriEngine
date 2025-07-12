@@ -2,8 +2,8 @@
 
 #include "Particle.h"
 
+#include "ShaderSource.h"
 #include "RenderCommand.h"
-
 #include "Core/Base/Random.h"
 
 namespace TriEngine {
@@ -44,9 +44,9 @@ namespace TriEngine {
 		m_Data.TextureSlots.resize(32);
 		m_Data.TextureSlots[0] = m_Data.DefaultTexture;
 
-		m_Data.RenderShader = Shader::Create("ParticleRenderShader", "src/Shaders/particle_vs.glsl", "src/Shaders/particle_fs.glsl");
-		m_Data.UpdateShader = ComputeShader::Create("ParticleUpdateShader", "src/Shaders/particleUpdate_cs.glsl");
-		m_Data.EmmisionShader = ComputeShader::Create("ParticleEmmisionShader", "src/Shaders/particleSpawner_cs.glsl");
+		m_Data.RenderShader = Shader::Create("ParticleRenderShader", ShaderSource::particleVert, ShaderSource::particleFrag);
+		m_Data.UpdateShader = ComputeShader::Create("ParticleUpdateShader", ShaderSource::particleUpdate);
+		m_Data.EmmisionShader = ComputeShader::Create("ParticleEmmisionShader", ShaderSource::particleSpawner);
 
 		int32_t* samplers = new int32_t[32];
 		for (int32_t i = 0; i < 32; i++)

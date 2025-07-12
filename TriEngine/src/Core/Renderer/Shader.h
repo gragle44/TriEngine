@@ -1,13 +1,15 @@
 #pragma once
-#include <string>
+
 #include <glm/glm.hpp>
+
+#include <string>
 
 namespace TriEngine {
 	class Shader {
 	public:
 		virtual ~Shader() = default;
 
-		static Reference<Shader> Create(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath);
+		static Reference<Shader> Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
 
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
@@ -29,7 +31,7 @@ namespace TriEngine {
 	public:
 		virtual ~ComputeShader() = default;
 
-		static Reference<ComputeShader> Create(const std::string& name, const std::string& path);
+		static Reference<ComputeShader> Create(std::string_view name, std::string_view source);
 
 		virtual void Bind() const = 0;
 		virtual void Dispatch(uint32_t groupsX, uint32_t groupsY, uint32_t groupsZ) = 0;

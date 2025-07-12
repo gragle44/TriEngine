@@ -1,7 +1,6 @@
 #include "tripch.h"
 #include "OpenGLShader.h"
 #include "Core/Renderer/Shader.h"
-#include "Utils/PlatformUtils.h"
 
 #include "Base/Assert.h"
 
@@ -9,13 +8,12 @@
 #include <glad/glad.h>
 
 namespace TriEngine {
-	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath) 
+	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) 
 		:m_Name(name)
 	{
 		uint32_t vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
-		std::string tempSource = FileManager::ReadFromFile(vertexPath);
-		const char* source = tempSource.c_str();
+		const char* source = vertexSource.data();
 
 		glShaderSource(vertexShader, 1, &source, 0);
 		glCompileShader(vertexShader);
@@ -41,8 +39,7 @@ namespace TriEngine {
 
 		uint32_t fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-		tempSource = FileManager::ReadFromFile(fragmentPath);
-		source = tempSource.c_str();
+		source = fragmentSource.data();
 
 		glShaderSource(fragmentShader, 1, &source, 0);
 		glCompileShader(fragmentShader);
@@ -172,15 +169,14 @@ namespace TriEngine {
 		return location;
 	}
 
-	OpenGLComputeShader::OpenGLComputeShader(const std::string& name, const std::string& path)
+	OpenGLComputeShader::OpenGLComputeShader(std::string_view name, std::string_view source)
 		:m_Name(name)
 	{
 		uint32_t compute = glCreateShader(GL_COMPUTE_SHADER);
 
-		std::string tempSource = FileManager::ReadFromFile(path);
-		const char* source = tempSource.c_str();
+		const char* tempSource = source.data();
 
-		glShaderSource(compute, 1, &source, 0);
+		glShaderSource(compute, 1, &tempSource, 0);
 		glCompileShader(compute);
 
 		int32_t maxLength, isCompiled;

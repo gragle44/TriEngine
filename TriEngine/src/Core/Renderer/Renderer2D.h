@@ -88,7 +88,6 @@ namespace TriEngine {
 			Reference<FrameBuffer> ScreenFrameBuffer;
 			Reference<VertexArray> ScreenVertexArray;
 			Reference<VertexBuffer> ScreenVertexBuffer;
-			Reference<Shader> ScreenShader;
 
 			std::vector<QuadVertex> VertexData;
 			std::vector<QuadVertex>::iterator VertexDataPtr;

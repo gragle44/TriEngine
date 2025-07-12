@@ -57,6 +57,11 @@ project "TriEngine"
 	pchheader "tripch.h"
 	pchsource "TriEngine/src/tripch.cpp"
 
+	prebuildcommands 
+	{
+		"python %{wks.location}/Scripts/embed_shaders.py"
+	}
+
 	defines 
 	{
 		"_CRT_SECURE_NO_WARNINGS",

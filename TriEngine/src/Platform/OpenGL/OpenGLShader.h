@@ -6,7 +6,7 @@
 namespace TriEngine {
 	class OpenGLShader : public Shader {
 	public:
-		OpenGLShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath);
+		OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
 		virtual ~OpenGLShader() final;
 
 		virtual void Bind() const final;
@@ -33,7 +33,7 @@ namespace TriEngine {
 
 	class OpenGLComputeShader : public ComputeShader {
 	public:
-		OpenGLComputeShader(const std::string& name, const std::string& path);
+		OpenGLComputeShader(std::string_view name, std::string_view path);
 		~OpenGLComputeShader() override;
 
 		virtual void Bind() const final;
