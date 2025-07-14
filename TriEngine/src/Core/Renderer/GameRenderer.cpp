@@ -2,6 +2,7 @@
 #include "GameRenderer.h"
 
 #include "Renderer2D.h"
+#include "RenderCommand.h"
 #include "Core/GameObjects/Components.h"
 #include "Core/GameObjects/GameObject.h"
 #include "Core/Base/Profiler.h"
@@ -68,7 +69,7 @@ namespace TriEngine {
 
     }
 
-    void GameRenderer::RenderSceneEditor(Scene* scene, const EditorCamera* editorCamera) {
+    void GameRenderer::RenderSceneEditor(Scene* scene, const EditorCamera* editorCamera, std::optional<GameObject> selectedObject) {
 		TRI_PROFILE;
 
 		//2D rendering
@@ -109,9 +110,30 @@ namespace TriEngine {
 
 		}
 
+		if (selectedObject && *selectedObject) {
+			RenderCommand::SetLineWidth(3);
+
+			auto& transform = selectedObject->GetComponent<Transform2DComponent>();
+
+			glm::vec3 lineVertices[4];
+
+			lineVertices[0] = {transform.Position.x - transform.Scale.x * 0.5f, transform.Position.y - transform.Scale.y * 0.5f, 1.0f};
+			lineVertices[1] = {transform.Position.x + transform.Scale.x * 0.5f, transform.Position.y - transform.Scale.y * 0.5f, 1.0f};
+			lineVertices[2] = {transform.Position.x - transform.Scale.x * 0.5f, transform.Position.y + transform.Scale.y * 0.5f, 1.0f};
+			lineVertices[3] = {transform.Position.x + transform.Scale.x * 0.5f, transform.Position.y + transform.Scale.y * 0.5f, 1.0f};
+
+			Renderer2D::SubmitLine({.Position1 = lineVertices[0], .Position2 = lineVertices[1]});
+			Renderer2D::SubmitLine({.Position1 = lineVertices[1], .Position2 = lineVertices[3]});
+			Renderer2D::SubmitLine({.Position1 = lineVertices[3], .Position2 = lineVertices[2]});
+			Renderer2D::SubmitLine({.Position1 = lineVertices[2], .Position2 = lineVertices[0]});
+
+			//Renderer2D::SubmitLine({.Position1 = {0.0f, 0.0f, 1.0f}, .Position2 = {3.0f, 3.0f, 1.0f}});
+			//Renderer2D::SubmitLine({.Position1 = {-2.0f, 0.0f, 1.0f}, .Position2 = {5.0f, 3.0f, 1.0f}});
+		}
+
 		Renderer2D::End();
 
-;		glm::mat4 viewProj = cameraProjection * glm::inverse(cameraTransform);
+		glm::mat4 viewProj = cameraProjection * glm::inverse(cameraTransform);
 
 		ParticleSystem::Render(viewProj);
 

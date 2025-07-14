@@ -21,6 +21,10 @@ namespace TriEngine {
 			s_RendererAPI->DrawArrays(vertexArray, vertexBufferIndex, vertexCount);
 		}
 
+		static void DrawLines(const Reference<VertexArray>& vertexArray, uint32_t vertexBufferIndex = 0, uint32_t vertexCount = 0) {
+			s_RendererAPI->DrawLines(vertexArray, vertexBufferIndex, vertexCount);
+		}
+
 		static void SetViewPort(const glm::ivec4& dimensions) {
 			s_RendererAPI->SetViewPort(dimensions);
 		}
@@ -39,6 +43,10 @@ namespace TriEngine {
 
 		static void EnableWireframes(bool enabled) {
 			s_RendererAPI->EnableWireframes(enabled);
+		}
+
+		static void SetLineWidth(uint32_t width) {
+			s_RendererAPI->SetLineWidth(width);
 		}
 
 		static void MemoryBarrier() {

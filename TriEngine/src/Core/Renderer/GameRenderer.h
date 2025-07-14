@@ -19,7 +19,7 @@ namespace TriEngine {
 		~GameRenderer() = default;
 
 		void RenderScene(Scene* scene);
-		void RenderSceneEditor(Scene* scene, const EditorCamera* editorCamera);
+		void RenderSceneEditor(Scene* scene, const EditorCamera* editorCamera, std::optional<GameObject> selectedObject);
 
 		void SetViewportSize(uint32_t width, uint32_t height) { m_MainRenderpass->Target->ReSize(width, height); }
 

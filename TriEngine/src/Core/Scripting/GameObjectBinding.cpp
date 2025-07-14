@@ -20,6 +20,10 @@ namespace TriEngine {
         body->SetTransform({position.x, position.y}, angle);
     }
 
+    static const std::string& GetScriptName_Proxy(ScriptComponent* this_) {
+        return this_->ScriptInstance->Name;
+    }
+
     static void BindComponents(asIScriptEngine* engine) {
         asbind20::ref_class<Transform2DComponent>(
             engine,
@@ -50,8 +54,8 @@ namespace TriEngine {
             "ScriptComponent",
             asOBJ_NOCOUNT
         )
-            .property("string Name", &ScriptComponent::ScriptName)
-            .property("bool Active", offsetof(ScriptComponent, Active));
+            .property("bool Active", offsetof(ScriptComponent, Active))
+            .method("const string& GetName() const", &GetScriptName_Proxy);
 
         asbind20::ref_class<Camera2DComponent>(
             engine,

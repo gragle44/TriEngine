@@ -289,13 +289,13 @@ void EditorLayer::OnUpdate(float deltaTime)
 
 	if (m_Data->SceneRunning) {
 		m_Data->ActiveScene->OnUpdate(deltaTime);
-		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), nullptr);
+		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), nullptr, {});
 	}
 	else if (!m_Data->SceneRunning) {
 		if (m_Data->ViewPortHovered)
 			m_Data->Camera->OnUpdate(deltaTime);
 
-		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), m_Data->Camera.get());
+		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), m_Data->Camera.get(), m_Data->SelectedItem);
 
 		if (m_Data->ViewPortHovered && Input::IsMouseButtonPressed(TRI_MOUSE_BUTTON_LEFT)) {
 			auto pos = ImGui::GetMousePos();

@@ -124,15 +124,11 @@ namespace TriEngine {
 
 		ScriptBuild Build;
 
-		std::string ScriptName;
-
 		bool Active = true;
 
 		ScriptComponent() = default;
-		ScriptComponent(std::string_view name)
-			:ScriptName(name) {}
 		ScriptComponent(const ScriptComponent& other)
-			:ScriptInstance(other.ScriptInstance), ScriptName(other.ScriptName), Active(other.Active) {}
+			:ScriptInstance(other.ScriptInstance), Active(other.Active) {}
 
 	};
 

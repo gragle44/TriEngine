@@ -417,13 +417,12 @@ namespace TriEngine {
 				auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
 				auto output = OpenFileDialog(cwd.string(), "as");
 
-				script.ScriptName = output.filename().string();
 
 				ResourceID resourceID = ResourceManager::GetIDFromPath(output.string());
 				if (!ResourceManager::ResourceExists(resourceID))
 					script.ScriptInstance = ResourceManager::Create<Script>(output.string());
 				else
-					script.ScriptInstance = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceID));
+					script.ScriptInstance = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceID));				
 			}
 
 			ImGui::Checkbox("Enabled", &script.Active);

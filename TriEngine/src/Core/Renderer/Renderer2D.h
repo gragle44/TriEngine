@@ -28,6 +28,12 @@ namespace TriEngine {
 		bool Transparent = false;
 	};
 
+	struct Line {
+		glm::vec3 Position1;
+		glm::vec3 Position2;
+		glm::vec4 Color = glm::vec4(1.0f);
+	};
+
 	class Renderer2D {
 	public:
 		static void Init();
@@ -42,11 +48,14 @@ namespace TriEngine {
 		static void SubmitQuad(const TexturedQuad& quad);
 		static void SubmitQuad(const ColoredQuad& quad);
 
+		static void SubmitLine(const Line& line);
+
 		struct RenderStats {
 			uint32_t DrawCalls = 0;
 			uint32_t QuadCount = 0;
+			uint32_t LineCount = 0;
 
-			uint32_t VertexCount() const { return QuadCount * 4; }
+			uint32_t VertexCount() const { return QuadCount * 4 + LineCount * 2; }
 			uint32_t IndexCount() const { return QuadCount * 6; }
 
 			void Reset() {
@@ -69,6 +78,12 @@ namespace TriEngine {
 			int32_t ObjectID;
 		};
 
+		struct LineVertex
+		{
+			glm::vec3 Position;
+			glm::vec4 Color;
+		};
+
 		struct BatchSettings {
 			static const uint32_t MaxBatchSize = 10'000;
 			static const uint32_t MaxVertices = MaxBatchSize * 4;
@@ -79,7 +94,6 @@ namespace TriEngine {
 		struct RenderData {
 			RenderStats Stats;
 			
-			Reference<Shader> MainShader;
 			Reference<VertexArray> QuadVertexArray;
 			Reference<VertexBuffer> QuadVertexBuffer;
 			Reference<Texture2D> DefaultTexture;
@@ -89,15 +103,24 @@ namespace TriEngine {
 			Reference<VertexArray> ScreenVertexArray;
 			Reference<VertexBuffer> ScreenVertexBuffer;
 
+			Reference<Shader> MainShader;
 			std::vector<QuadVertex> VertexData;
 			std::vector<QuadVertex>::iterator VertexDataPtr;
 			std::vector<QuadVertex>::iterator TransparentVertexDataBegin;
 			std::vector<QuadVertex>::iterator TransparentVertexDataPtr;
 
+			Reference<Shader> LineShader;
+			Reference<VertexArray> LineVertexArray;
+			Reference<VertexBuffer> LineVertexBuffer;
+
+			std::vector<LineVertex> LineVertexData;
+			std::vector<LineVertex>::iterator LineVertexDataPtr;
+
 			std::vector<Reference<Texture2D>> TextureSlots;
 			uint32_t TextureSlotIndex = 1;
 			
 			uint32_t IndexCount = 0;
+			uint32_t LineVertexCount = 0;
 		};
 
 		struct TransparencyKey {

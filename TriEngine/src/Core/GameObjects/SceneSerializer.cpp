@@ -179,7 +179,6 @@ namespace TriEngine {
 			auto& component = object.GetComponent<ScriptComponent>();
 			out << YAML::Key << "ScriptComponent" << YAML::Value << YAML::BeginMap;
 
-			out << YAML::Key << "ScriptName" << YAML::Value << component.ScriptName;
 			out << YAML::Key << "Active" << YAML::Value << component.Active;
 			out << YAML::Key << "ResourceID" << YAML::Value << component.ScriptInstance->MetaData.ID;
 
@@ -310,7 +309,6 @@ namespace TriEngine {
 			if (ResourceManager::ResourceExists(resourceid)) {
 				auto& scriptComponent = newEntity.AddComponent<ScriptComponent>();
 				scriptComponent.Active = entity["ScriptComponent"]["Active"].as<bool>();
-				scriptComponent.ScriptName = entity["ScriptComponent"]["ScriptName"].as<std::string>();
 				scriptComponent.ScriptInstance = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceid));
 			}
 			else {

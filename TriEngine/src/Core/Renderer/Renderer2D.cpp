@@ -23,7 +23,6 @@ namespace TriEngine {
 		 1.0f,  1.0f, 0.0f,  1.0f, 1.0f
 	};
 	
-
 	void Renderer2D::Init()
 	{
 		BatchSettings::MaxTextureSlots = RenderCommand::GetCapabilities().MaxSamplers;
@@ -44,7 +43,6 @@ namespace TriEngine {
 		s_RenderData.ScreenVertexArray->AddVertexBuffer(s_RenderData.ScreenVertexBuffer);
 		
 		s_RenderData.QuadVertexArray = VertexArray::Create();
-		
 		
 		s_RenderData.VertexData.resize(BatchSettings::MaxVertices * 2);
 		s_RenderData.VertexDataPtr = s_RenderData.VertexData.begin();
@@ -98,6 +96,26 @@ namespace TriEngine {
 
 		s_RenderData.DefaultTexture = Texture2D::Create(glm::vec4(1.0f), 1);
 		s_RenderData.TextureSlots[0] = s_RenderData.DefaultTexture;
+
+		s_RenderData.LineShader = Shader::Create("LineShader", ShaderSource::lineVert, ShaderSource::lineFrag);
+
+		s_RenderData.LineVertexArray = VertexArray::Create();
+
+		s_RenderData.LineVertexData.resize(BatchSettings::MaxVertices);
+		s_RenderData.LineVertexDataPtr = s_RenderData.LineVertexData.begin();
+
+		s_RenderData.LineVertexBuffer = VertexBuffer::Create(BatchSettings::MaxVertices * sizeof(LineVertex));
+
+		{
+			TriEngine::BufferLayout layout = {
+				{ "a_Pos", TriEngine::ShaderDataType::Float3 },
+				{ "a_Color", TriEngine::ShaderDataType::Float4 }
+			};
+
+			s_RenderData.LineVertexBuffer->SetLayout(layout);
+		}	
+
+		s_RenderData.LineVertexArray->AddVertexBuffer(s_RenderData.LineVertexBuffer);
 	}
 
 	void Renderer2D::ShutDown()
@@ -124,8 +142,9 @@ namespace TriEngine {
 		s_RenderData.Stats.Reset();
 
 		glm::mat4 viewProj = cameraProjection * glm::inverse(cameraTransform);
-		s_RenderData.MainShader->Bind();
+
 		s_RenderData.MainShader->SetMat4("u_ViewProjection", viewProj);
+		s_RenderData.LineShader->SetMat4("u_ViewProjection", viewProj);
 
 		NewBatch();
 	}
@@ -137,36 +156,49 @@ namespace TriEngine {
 
 	void Renderer2D::Flush()
 	{
-		if (s_RenderData.IndexCount == 0) {
-			return;
+		if (s_RenderData.IndexCount) {
+			s_RenderData.MainShader->Bind();
+			//Update Vertex Buffer
+			std::stable_sort(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr, TransparencyKey());
+
+			uint32_t size = std::distance(s_RenderData.VertexData.begin(), s_RenderData.VertexDataPtr);
+			uint32_t transparentSize = std::distance(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr);
+			
+			s_RenderData.QuadVertexBuffer->SetData(s_RenderData.VertexData.data(), size * sizeof(QuadVertex));
+			s_RenderData.QuadVertexBuffer->SetData(&s_RenderData.TransparentVertexDataBegin[0], transparentSize * sizeof(QuadVertex), size * sizeof(QuadVertex));
+
+			//Update bound textures
+			for (uint32_t i = 0; i < s_RenderData.TextureSlotIndex; i++) {
+				s_RenderData.TextureSlots[i]->Bind(i);
+			}
+
+			//Draw
+			RenderCommand::DrawElements(s_RenderData.QuadVertexArray, s_RenderData.IndexCount);
+			s_RenderData.Stats.DrawCalls++;
 		}
 
-		//Update Vertex Buffer
-		std::stable_sort(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr, TransparencyKey());
+		if (s_RenderData.LineVertexCount) {
+			s_RenderData.LineShader->Bind();
 
-		uint32_t size = std::distance(s_RenderData.VertexData.begin(), s_RenderData.VertexDataPtr);
-		uint32_t transparentSize = std::distance(s_RenderData.TransparentVertexDataBegin, s_RenderData.TransparentVertexDataPtr);
-		
-		s_RenderData.QuadVertexBuffer->SetData(s_RenderData.VertexData.data(), size * sizeof(QuadVertex));
-		s_RenderData.QuadVertexBuffer->SetData(&s_RenderData.TransparentVertexDataBegin[0], transparentSize * sizeof(QuadVertex), size * sizeof(QuadVertex));
+			s_RenderData.LineVertexBuffer->SetData(s_RenderData.LineVertexData.data(), s_RenderData.LineVertexCount * sizeof(QuadVertex));
 
-		//Update bound textures
-		for (uint32_t i = 0; i < s_RenderData.TextureSlotIndex; i++) {
-			s_RenderData.TextureSlots[i]->Bind(i);
+			RenderCommand::DrawLines(s_RenderData.LineVertexArray, 0, s_RenderData.LineVertexCount);
+
+			s_RenderData.Stats.DrawCalls++;
 		}
-
-		//Draw
-		RenderCommand::DrawElements(s_RenderData.QuadVertexArray, s_RenderData.IndexCount);
-		s_RenderData.Stats.DrawCalls++;
 	}
 
 	void Renderer2D::NewBatch()
 	{
 		s_RenderData.Stats.QuadCount += s_RenderData.IndexCount / 6;
+		s_RenderData.Stats.LineCount += s_RenderData.LineVertexCount / 2;
 
 		s_RenderData.VertexDataPtr = s_RenderData.VertexData.begin();
 		s_RenderData.TransparentVertexDataPtr = s_RenderData.TransparentVertexDataBegin;
 		s_RenderData.IndexCount = 0;
+		
+		s_RenderData.LineVertexDataPtr = s_RenderData.LineVertexData.begin();
+		s_RenderData.LineVertexCount = 0;
 
 		s_RenderData.TextureSlotIndex = 1;
 	}
@@ -253,7 +285,22 @@ namespace TriEngine {
 		s_RenderData.IndexCount += 6;
 	}
 
-	
+	void Renderer2D::SubmitLine(const Line& line) {
+		if (s_RenderData.IndexCount >= BatchSettings::MaxIndices) {
+			Flush();
+			NewBatch();
+		}
+
+		s_RenderData.LineVertexDataPtr->Position = line.Position1;
+		s_RenderData.LineVertexDataPtr->Color = line.Color;
+		s_RenderData.LineVertexDataPtr++;
+
+		s_RenderData.LineVertexDataPtr->Position = line.Position2;
+		s_RenderData.LineVertexDataPtr->Color = line.Color;
+		s_RenderData.LineVertexDataPtr++;
+
+		s_RenderData.LineVertexCount += 2;
+	}
 
 	Renderer2D::RenderStats Renderer2D::GetStats()
 	{

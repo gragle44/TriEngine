@@ -51,6 +51,11 @@ namespace TriEngine {
 		}
 	}
 
+	void OpenGLRendererAPI::SetLineWidth(uint32_t width) const 
+	{
+		glLineWidth(width);
+	}
+
 	void OpenGLRendererAPI::DepthTest(bool enable) const
 	{
 		if (enable)
@@ -97,6 +102,19 @@ namespace TriEngine {
 		}
 
 		glDrawArrays(GL_TRIANGLES, vbOffset, count);
+	}
+
+	void OpenGLRendererAPI::DrawLines(const Reference<VertexArray>& vertexArray, uint32_t vertexBufferIndex, uint32_t vertexCount) const 
+	{	
+		vertexArray->Bind();;
+		uint32_t count = vertexCount ? vertexCount : vertexArray->GetVertexBuffers()[vertexBufferIndex]->GetVertexCount();
+
+		uint32_t vbOffset = 0;
+		for (uint32_t x = 0; x < vertexBufferIndex; x++) {
+			vbOffset += vertexArray->GetVertexBuffers()[x]->GetSize();
+		}
+
+		glDrawArrays(GL_LINES, vbOffset, count);
 	}
 
 	void OpenGLRendererAPI::DrawElementsInstanced(const Reference<VertexArray>& vertexArray, uint32_t elementCount, uint32_t instanceCount) const

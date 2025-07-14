@@ -24,6 +24,8 @@ namespace ShaderSource {{
 {embed_shader_source("particleUpdate", "particleUpdate_cs.glsl")}
 {embed_shader_source("screenFrag", "screenfrag.glsl")}
 {embed_shader_source("screenVert", "screenvert.glsl")}
+{embed_shader_source("lineFrag", "linefrag.glsl")}
+{embed_shader_source("lineVert", "linevert.glsl")}
 }} }}
 """
 
