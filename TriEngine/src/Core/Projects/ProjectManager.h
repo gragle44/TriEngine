@@ -14,9 +14,11 @@ namespace TriEngine {
 
 		static Reference<Project> GetCurrent() { return s_LoadedProject; }
 
+		static bool IsProjectLoaded() { return s_LoadedProject != nullptr; }
+
 		static ProjectData& GetCurrentProjectData() { return s_LoadedProject->GetProjectData(); }
 
 	private:
-		inline static Reference<Project> s_LoadedProject;
+		inline static Reference<Project> s_LoadedProject = nullptr;
 	};
 }

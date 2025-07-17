@@ -12,6 +12,7 @@
 #include "box2d/b2_body.h"
 #include "box2d/b2_fixture.h"
 #include "box2d/b2_polygon_shape.h"
+#include "box2d/b2_weld_joint.h"
 
 #include "Renderer/Renderer2D.h"
 #include "Renderer/Particle.h"
@@ -64,6 +65,7 @@ namespace TriEngine {
 	}
 
 	static void CopyAllComponents(GameObject newObject, GameObject oldObject) {
+		CopyComponent<RelationshipComponent>(newObject, oldObject);
 		CopyComponent<Transform2DComponent>(newObject, oldObject);
 		CopyComponent<RigidBody2DComponent>(newObject, oldObject);
 		CopyComponent<BoxCollider2DComponent>(newObject, oldObject);
@@ -129,6 +131,36 @@ namespace TriEngine {
 			body->CreateFixture(&fixtureDef);
 		}
 
+		/*
+		// Link child nodes to their parents
+		for (auto entity : view) {
+			GameObject object = { entity, this };
+
+			auto& rigidBody = object.GetComponent<RigidBody2DComponent>();
+			const auto& transform = object.GetComponent<Transform2DComponent>();
+			const auto& relationship = object.GetComponent<RelationshipComponent>();
+
+			if (!relationship.Parent)
+				continue;
+
+			GameObject parent = GetObjectByID(relationship.Parent);
+
+			if (!parent.HasComponent<RigidBody2DComponent>() || !parent.HasComponent<BoxCollider2DComponent>()) 
+				continue;
+
+			auto& parentRigidBody = parent.GetComponent<RigidBody2DComponent>();
+			const auto& parentTransform = parent.GetComponent<Transform2DComponent>();
+		
+			b2Body* parentBody = reinterpret_cast<b2Body*>(parentRigidBody.Body);
+			b2Body* body = reinterpret_cast<b2Body*>(rigidBody.Body);
+
+			b2WeldJointDef jointDef;
+			jointDef.Initialize(parentBody, body, parentBody->GetLocalPoint(parentBody->GetWorldCenter()));
+
+			m_PhysicsWorld->CreateJoint(&jointDef);
+		}
+		*/
+
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
 
@@ -142,6 +174,7 @@ namespace TriEngine {
 				m_ScriptEngine->StartScript(sc.Build);
 			}
 		}
+		
 	}
 
 	void Scene::Stop()
@@ -195,7 +228,9 @@ namespace TriEngine {
 
 				const std::string& name = object.GetComponent<TagComponent>().Tag;
 
-				GameObject newObject = CreateGameObject(name);
+				auto id = object.GetComponent<IDComponent>().ID;
+
+				GameObject newObject = CreateGameObjectUUID(id, name);
 
 				CopyAllComponents(newObject, object);
 			}
@@ -343,9 +378,11 @@ namespace TriEngine {
 		for (auto entity : idView) {
 			GameObject object = { entity, this };
 
-			std::string name = object.GetComponent<TagComponent>().Tag;
+			const std::string& name = object.GetComponent<TagComponent>().Tag;
 
-			GameObject newObject = newScene->CreateGameObject(name);
+			auto id = object.GetComponent<IDComponent>().ID;
+
+			GameObject newObject = newScene->CreateGameObjectUUID(id, name);
 
 			CopyAllComponents(newObject, object);
 		}
@@ -357,17 +394,33 @@ namespace TriEngine {
 	{
 		GameObject object(m_Registry.create(), this);
 		object.AddComponent<IDComponent>(uuid);
+
+		TRI_CORE_ASSERT(uuid == object.GetComponent<IDComponent>().ID, "UUIDs did not match when creating object");
+
 		TagComponent& tagComponent = object.AddComponent<TagComponent>(tag);
 		tagComponent.Tag = tag.empty() ? "Object" : tag;
+
 		object.AddComponent<Transform2DComponent>();
+
+		object.AddComponent<RelationshipComponent>();
 
 		m_GameObjects.emplace(uuid, object);
 		return object;
 	}
 
+	GameObject Scene::GetObjectByID(UUID uuid) const noexcept {
+		if (m_GameObjects.contains(uuid))
+			return m_GameObjects.at(uuid);
+		TRI_CORE_ERROR("Could not get game object, invalid uuid: {}", uuid);
+		return {};
+	}
+
+
 	void Scene::DeleteGameObject(GameObject object)
 	{
 		uint64_t uuid = object.GetComponent<IDComponent>().ID;
+
+		//TODO: erase references to this object in its relationships
 
 		m_GameObjects.erase(uuid);
 		m_Registry.destroy(object.GetHandle());

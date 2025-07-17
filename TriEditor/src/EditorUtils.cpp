@@ -2,6 +2,7 @@
 
 #include "TriEngine.h"
 
+#include "imgui.h"
 #include "nfd.h"
 
 std::filesystem::path OpenFileDialog(std::string_view initial_path, std::string_view filetype) {
@@ -46,4 +47,18 @@ std::filesystem::path SaveFileDialog(std::string_view initial_path, std::string_
 	}
 
 	return path;
+}
+
+void HelpMarker(std::string_view desc, bool sameLine)
+{
+    if (sameLine)
+        ImGui::SameLine();
+    ImGui::TextDisabled("(?)");
+    if (ImGui::BeginItemTooltip())
+    {
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc.data());
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
 }

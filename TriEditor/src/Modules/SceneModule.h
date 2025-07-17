@@ -19,6 +19,7 @@ namespace TriEngine {
 		void DuplicateObject(GameObject object);
 
 		void DrawNode(GameObject& object);
+		void DrawNode(GameObject&& object) { DrawNode(object); }
 		void DrawComponents(GameObject& object);
 
 		template<typename T, typename Function> 

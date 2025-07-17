@@ -138,11 +138,33 @@ namespace TriEngine {
 		else { TRI_CORE_ASSERT(false, "Invalid RigidBody Type string"); return RigidBody2DComponent::BodyType::None; }
 	}
 
-	void SceneSerializer::SerializeEntity(YAML::Emitter& out, GameObject& object)
+	void SceneSerializer::SerializeEntity(YAML::Emitter& out, GameObject object)
 	{
 		auto& idComponent = object.GetComponent<IDComponent>();
 
 		out << YAML::BeginMap << YAML::Key << "Entity" << YAML::Value << idComponent.ID;
+
+		if (object.HasComponent<RelationshipComponent>()) {
+			auto& component = object.GetComponent<RelationshipComponent>();
+
+			UUID parentID = component.Parent ? component.Parent : UUID(0);
+
+			out << YAML::Key << "RelationshipComponent" << YAML::Value << YAML::BeginMap;
+
+			out << YAML::Key << "Parent" << YAML::Value << parentID;
+
+			out << YAML::Key << "Children" << YAML::Value << YAML::BeginSeq;
+
+			for (auto child : component.Children) {
+				out << YAML::BeginMap;
+				out << YAML::Key << "ID" << YAML::Value << child;
+				out << YAML::EndMap;
+			}
+
+			out << YAML::EndSeq;
+
+			out << YAML::EndMap;		
+		}
 
 		if (object.HasComponent<TagComponent>()) {
 			auto& component = object.GetComponent<TagComponent>();
@@ -283,6 +305,16 @@ namespace TriEngine {
 			name = entity["TagComponent"]["Tag"].as<std::string>();
 
 		GameObject newEntity = m_Scene->CreateGameObjectUUID(uuid, name);
+
+		if (entity["RelationshipComponent"]) {
+			auto& relationship = newEntity.AddComponent<RelationshipComponent>();
+
+			relationship.Parent = entity["RelationshipComponent"]["Parent"].as<uint64_t>();
+
+			for (const auto& child : entity["RelationshipComponent"]["Children"]) { 
+				relationship.Children.emplace_back(child["ID"].as<uint64_t>());
+			}
+		}
 
 		if (entity["Transform2DComponent"]) {
 			auto& transform = newEntity.AddComponent<Transform2DComponent>();

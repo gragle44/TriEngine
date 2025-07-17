@@ -2,6 +2,10 @@
 #include "ProjectSerializer.h"
 #include "Core/Base/Assert.h"
 
+#include "Core/Base/Window.h"
+
+#include "magic_enum.hpp"
+
 #define KEY(x) << YAML::Key << x
 
 #define VAL(x) << YAML::Value << x
@@ -13,6 +17,41 @@
 #define MAP_END   << YAML::EndMap
 
 static constexpr const char* projectHeader = "TriEngine Project File";
+
+namespace YAML {
+	template<>
+	struct convert<glm::vec4>
+	{
+		static Node encode(const glm::vec4& rhs)
+		{
+			Node node;
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+			node.push_back(rhs.z);
+			node.push_back(rhs.w);
+			return node;
+		}
+
+		static bool decode(const Node& node, glm::vec4& rhs)
+		{
+			if (!node.IsSequence() || node.size() != 4)
+				return false;
+
+			rhs.x = node[0].as<float>();
+			rhs.y = node[1].as<float>();
+			rhs.z = node[2].as<float>();
+			rhs.w = node[3].as<float>();
+			return true;
+		}
+	};
+
+	Emitter& operator<<(YAML::Emitter& out, const glm::vec4& v)
+	{
+		out << YAML::Flow;
+		out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
+		return out;
+	}
+}
 
 namespace TriEngine {
 	ProjectSerializer::ProjectSerializer(Reference<Project> project)
@@ -34,6 +73,11 @@ namespace TriEngine {
 		out KEYVAL("Width", data.WindowSettings.Width);
 		out KEYVAL("Height", data.WindowSettings.Height);
 		out KEYVAL("Resizable", data.WindowSettings.Resizable);
+		out KEYVAL("VSync", magic_enum::enum_name(data.WindowSettings.VSync).data());
+		out << YAML::EndMap;
+
+		out << YAML::Key << "RenderingSettings" << YAML::Value << YAML::BeginMap;
+		out KEYVAL("ClearColor", data.RenderingSettings.ClearColor);
 		out << YAML::EndMap;
 
 		TRI_CORE_ASSERT(out.good(), "Failed to serialize project");
@@ -52,6 +96,7 @@ namespace TriEngine {
 
 		if (header != projectHeader) {
 			TRI_CORE_ERROR("Deserialized file was not of type TriEngine Project: \"{0}\"", filePath);
+			TRI_CORE_ASSERT(false, "See above error");
 			return;
 		}
 
@@ -63,5 +108,8 @@ namespace TriEngine {
 		data.WindowSettings.Width = project[1]["WindowSettings"]["Width"].as<uint32_t>();
 		data.WindowSettings.Height = project[1]["WindowSettings"]["Height"].as<uint32_t>();
 		data.WindowSettings.Resizable = project[1]["WindowSettings"]["Resizable"].as<bool>();
+		data.WindowSettings.VSync = magic_enum::enum_cast<VsyncMode>(project[1]["WindowSettings"]["VSync"].as<std::string>()).value_or(VsyncMode::On);
+
+		data.RenderingSettings.ClearColor = project[1]["RenderingSettings"]["ClearColor"].as<glm::vec4>();
 	}
 }

@@ -249,8 +249,6 @@ void EditorLayer::SetupImGuiStyle()
 
 void EditorLayer::OnAttach()
 {
-	RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.15f, 1.0f });
-
 	m_Data->ViewPortSize = { 1280, 720 };
 
 	m_Data->Camera = std::make_unique<EditorCamera>();

@@ -14,7 +14,7 @@ namespace TriEngine {
 		void Serialize(const std::string& filePath);
 		void Deserialize(const std::string& filePath);
 	private:
-		void SerializeEntity(YAML::Emitter& out, GameObject& entity);
+		void SerializeEntity(YAML::Emitter& out, GameObject entity);
 		void DeserializeEntity(YAML::Node& serializedEntity);
 
 		Reference<Scene> m_Scene;

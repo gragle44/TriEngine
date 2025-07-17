@@ -6,10 +6,11 @@ namespace TriEngine {
 	class UUID {
 	public:
 		UUID();
-		UUID(uint64_t id)
+		UUID(UUID const&) = default;
+		UUID(uint64_t id) noexcept
 			:m_ID(id) {}
 
-		operator uint64_t() const { return m_ID; }
+		operator uint64_t() const noexcept { return m_ID; }
 
 		friend bool operator==(UUID const& lhs, UUID const& rhs) noexcept {
 			return lhs.m_ID == rhs.m_ID;
@@ -17,6 +18,11 @@ namespace TriEngine {
 		friend bool operator!=(UUID const& lhs, UUID const& rhs) noexcept {
 			return !(lhs == rhs);
 		}
+
+		friend bool operator<(UUID const& lhs, UUID const& rhs) noexcept {
+        	return lhs.m_ID < rhs.m_ID;
+		}
+    
 	private:
 		uint64_t m_ID = 0;
 	};

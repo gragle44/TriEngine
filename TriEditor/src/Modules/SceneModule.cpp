@@ -44,8 +44,6 @@ namespace TriEngine {
 		// SCENE VIEWER //
 		ImGui::Begin("Scene Viewer");
 
-		auto view = m_Data->ActiveScene->m_Registry.group<TagComponent>();
-
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
 			m_Data->SelectedItem = {};
 		}
@@ -57,8 +55,16 @@ namespace TriEngine {
 			m_Data->SelectedItem = object;
 		}
 
+		auto view = m_Data->ActiveScene->m_Registry.view<TagComponent>();
+
 		for (auto entity : view) {
 			GameObject object{ entity, m_Data->ActiveScene.get() };
+			if (object.HasComponent<RelationshipComponent>()) {
+				const auto& relationship = object.GetComponent<RelationshipComponent>();
+
+				if (relationship.Parent)
+					continue;
+			}
 			DrawNode(object);
 		}
 
@@ -136,6 +142,15 @@ namespace TriEngine {
 				ImGui::CloseCurrentPopup();
 			}
 
+			if (ImGui::MenuItem("Add Child")) {
+				GameObject newObject = m_Data->ActiveScene->CreateGameObject();
+				newObject.AddComponent<RelationshipComponent>(object.GetComponent<IDComponent>().ID);
+
+				if (!object.HasComponent<RelationshipComponent>())
+					object.AddComponent<RelationshipComponent>();
+				object.GetComponent<RelationshipComponent>().Children.push_back(newObject.GetComponent<IDComponent>().ID);
+			}
+
 			ImGui::EndPopup();
 		}
 
@@ -188,8 +203,13 @@ namespace TriEngine {
 			}
 		}
 
-		if (expanded)
+		if (expanded) {
+			if (object.HasComponent<RelationshipComponent>())
+				for (UUID child : object.GetComponent<RelationshipComponent>().Children) {
+					DrawNode(m_Data->ActiveScene->GetObjectByID(child));
+				}
 			ImGui::TreePop();
+		}
 
 		if (deleting && m_Data->RightSelectedItem == object) {
 			if (!ImGui::IsPopupOpen("Delete Object"))
@@ -200,7 +220,7 @@ namespace TriEngine {
 			if (ImGui::BeginPopupModal("Delete Object", &deleting, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
 
 				ImGui::Text("Are you sure you want to delete this object? This action cannot be undone.");
-				if (ImGui::Button("Delete")) {
+				if (ImGui::Button("Delete") || Input::IsKeyPressed(TRI_KEY_ENTER)) {
 					m_Data->ActiveScene->DeleteGameObject(object);
 					deleting = false;
 				}

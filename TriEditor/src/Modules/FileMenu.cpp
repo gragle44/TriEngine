@@ -74,13 +74,45 @@ namespace TriEngine {
 		ImGui::InputInt("Width", (int32_t*)&windowSettings.Width, 1, 100);
 		ImGui::InputInt("Height", (int32_t*)&windowSettings.Height);
 		ImGui::Checkbox("Resizable", &windowSettings.Resizable);
+
+		static constexpr std::array<std::string_view, 3> vsyncModes = {"Off", "On", "Adaptive"};
+
+		VsyncMode current = windowSettings.VSync;
+
+		if (ImGui::BeginCombo("VSync", vsyncModes.at(static_cast<int32_t>(current)).data())) {
+			for (uint8_t i = 0; i < vsyncModes.size(); i++) {
+				bool selected = i == static_cast<uint8_t>(current);
+
+				if (ImGui::Selectable(vsyncModes[i].data(), &selected)) {
+					VsyncMode newMode = static_cast<VsyncMode>(i);
+					if (newMode != current) {
+						windowSettings.VSync = newMode;
+					}
+				}
+
+				if (selected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+	}
+
+	static void RenderRenderingProjectSettings() {
+		auto& renderingSettings = ProjectManager::GetCurrentProjectData().RenderingSettings;
+
+		ImGui::ColorEdit4("Clear Color", &renderingSettings.ClearColor.r);
+		HelpMarker("The default color of the color buffer");
+	}
+
+	static void RenderPhysicsProjectSettings() {
+
 	}
 
 	void FileMenu::RenderProjectSettings(bool* show)
 	{
 		static bool showDemo = false;
 
-		static constexpr std::array<std::string_view, 2> categories = {"General", "Window"};
+		static constexpr std::array<std::string_view, 4> categories = {"General", "Window", "Rendering", "Physics"};
 
 		if (ImGui::Begin("Settings", show)) {
 				static int32_t selected = 0;
@@ -114,6 +146,12 @@ namespace TriEngine {
 						break;
 					case 1:
 						RenderWindowProjectSettings();
+						break;
+					case 2:
+						RenderRenderingProjectSettings();
+						break;
+					case 3:
+						RenderPhysicsProjectSettings();
 						break;
 					
 					default: TRI_CORE_ASSERT(false, "No settings page exists for selected tab");

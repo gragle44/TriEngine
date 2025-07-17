@@ -3,6 +3,9 @@ TriEngine Project File
 Project: Flappybird
 StartupSceneID: 6273335110637716183
 WindowSettings:
-    Width: 720
-    Height: 1280
-    Resizable: false
+  Width: 720
+  Height: 1280
+  Resizable: false
+  VSync: On
+RenderingSettings:
+  ClearColor: [0.150000006, 0.150000006, 0.150000006, 1]

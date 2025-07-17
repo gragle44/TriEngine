@@ -4,13 +4,20 @@
 #include <filesystem>
 
 #include "Core/Resources/Resource.h"
+#include "Core/Base/Window.h"
+
+#include "glm/vec4.hpp"
 
 namespace TriEngine {
-
 	struct ProjectWindowSettings {
 		uint32_t Width = 1280;
 		uint32_t Height = 720;
+		VsyncMode VSync = VsyncMode::On;
 		bool Resizable = true;
+	};
+
+	struct ProjectRenderingSettings {
+		glm::vec4 ClearColor = { 0.15f, 0.15f, 0.15f, 1.0f };
 	};
 
 	struct ProjectData {
@@ -18,6 +25,7 @@ namespace TriEngine {
 		ResourceID StartupSceneID = 0;
 
 		ProjectWindowSettings WindowSettings;
+		ProjectRenderingSettings RenderingSettings;
 	};
 
 	class Project {

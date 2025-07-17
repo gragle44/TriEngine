@@ -5,6 +5,7 @@
 #include "RenderCommand.h"
 #include "Core/GameObjects/Components.h"
 #include "Core/GameObjects/GameObject.h"
+#include "Core/Projects/ProjectManager.h"
 #include "Core/Base/Profiler.h"
 
 #include "entt/entt.hpp"
@@ -44,6 +45,10 @@ namespace TriEngine {
 				cameraProjection = camera.Camera.GetProjection();
 			}
 		}
+
+		TRI_CORE_ASSERT(ProjectManager::IsProjectLoaded(), "No project is loaded");
+		glm::vec4 clearColor = ProjectManager::GetCurrentProjectData().RenderingSettings.ClearColor;
+		RenderCommand::SetClearColor(clearColor);
 
 		Renderer2D::Begin(cameraProjection, cameraTransform, m_MainRenderpass);
 
@@ -91,6 +96,13 @@ namespace TriEngine {
 				}
 			}
 		}
+
+		glm::vec4 clearColor = { 0.15f, 0.15f, 0.15f, 1.0f };
+
+		if (ProjectManager::IsProjectLoaded()) 
+			clearColor = ProjectManager::GetCurrentProjectData().RenderingSettings.ClearColor;
+
+		RenderCommand::SetClearColor(clearColor);
 
 		m_MainRenderpass->Target->Bind();
 		Renderer2D::Begin(cameraProjection, cameraTransform, m_MainRenderpass);
@@ -140,5 +152,10 @@ namespace TriEngine {
 		m_MainRenderpass->Target->UnBind();
 
     }
+
+	void GameRenderer::SetViewportSize(uint32_t width, uint32_t height) {
+		RenderCommand::SetViewPort({0, 0, width, height}); 
+		m_MainRenderpass->Target->ReSize(width, height);
+	}
 
 }

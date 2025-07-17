@@ -11,6 +11,8 @@ public:
         :Application(config)
     {
         PushLayer(new App());
+
+        GetWindow().SetVSync(ProjectManager::GetCurrent()->GetProjectData().WindowSettings.VSync);
     }
 
     ~Runtime() {

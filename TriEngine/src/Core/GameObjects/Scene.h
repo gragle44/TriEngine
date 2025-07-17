@@ -34,7 +34,7 @@ namespace TriEngine {
 		void OnEvent(Event& e);
 		void OnUpdate(float deltaTime);
 		void OnViewportResized(uint32_t width, uint32_t height);
-		const std::string& GetName() const { return m_Name; }
+		[[nodiscard]] const std::string& GetName() const { return m_Name; }
 		void SetMainCamera(GameObject camera);
 
 		const std::unordered_map<uint64_t, GameObject>& GetAllObjects() const { return m_GameObjects; }
@@ -42,6 +42,7 @@ namespace TriEngine {
 		bool IsObjectValid(GameObject object);
 		GameObject CreateGameObject(const std::string& tag = std::string());
 		GameObject CreateGameObjectUUID(uint64_t uuid, const std::string& tag = std::string());
+		[[nodiscard]] GameObject GetObjectByID(UUID uuid) const noexcept;
 		GameObject DuplicateObject(GameObject object);
 		void DeleteGameObject(GameObject object);
 

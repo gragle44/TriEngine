@@ -3,6 +3,10 @@ TriEngine Scene File
 Scene: Scene
 Objects:
   - Entity: 4256079780549738879
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: Camera
     Transform2DComponent:
@@ -18,6 +22,10 @@ Objects:
       Resizable: true
       Primary: true
   - Entity: 9666688675364637640
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: Top Collider
     Transform2DComponent:
@@ -33,6 +41,10 @@ Objects:
       Restitution: 0
       RestitutionThreshold: 1
   - Entity: 16335591773332353172
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: Bottom Collider
     Transform2DComponent:
@@ -53,6 +65,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 9632052943645929457
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
@@ -60,7 +76,6 @@ Objects:
       Rotation: 0
       Scale: [2, 16]
     ScriptComponent:
-      ScriptName: pillar.as
       Active: true
       ResourceID: 13834338315665630903
     RigidBody2DComponent:
@@ -77,6 +92,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 17335383611736126453
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: Background
     Transform2DComponent:
@@ -89,6 +108,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 5982732036895821462
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: Background
     Transform2DComponent:
@@ -101,6 +124,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 7504262875738879722
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: Background
     Transform2DComponent:
@@ -113,6 +140,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 15468286554030825809
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        - ID: 4317704992342791519
     TagComponent:
       Tag: Birdy
     Transform2DComponent:
@@ -120,7 +151,6 @@ Objects:
       Rotation: 0
       Scale: [1.40999997, 1]
     ScriptComponent:
-      ScriptName: bird.as
       Active: true
       ResourceID: 17179647349136765162
     RigidBody2DComponent:
@@ -137,6 +167,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 10879946327937889754
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: InvertedPillar
     Transform2DComponent:
@@ -144,7 +178,6 @@ Objects:
       Rotation: 180
       Scale: [2, 16]
     ScriptComponent:
-      ScriptName: pillar.as
       Active: true
       ResourceID: 13834338315665630903
     RigidBody2DComponent:
@@ -161,6 +194,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 2271055657109021609
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
@@ -168,7 +205,6 @@ Objects:
       Rotation: 0
       Scale: [2, 16]
     ScriptComponent:
-      ScriptName: pillar.as
       Active: true
       ResourceID: 13834338315665630903
     RigidBody2DComponent:
@@ -185,6 +221,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 354543230294234824
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: InvertedPillar
     Transform2DComponent:
@@ -192,7 +232,6 @@ Objects:
       Rotation: 180
       Scale: [2, 16]
     ScriptComponent:
-      ScriptName: pillar.as
       Active: true
       ResourceID: 13834338315665630903
     RigidBody2DComponent:
@@ -209,6 +248,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 11621375315420652313
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
@@ -216,7 +259,6 @@ Objects:
       Rotation: 0
       Scale: [2, 16]
     ScriptComponent:
-      ScriptName: pillar.as
       Active: true
       ResourceID: 13834338315665630903
     RigidBody2DComponent:
@@ -233,6 +275,10 @@ Objects:
       Tint: [1, 1, 1, 1]
       TilingFactor: 1
   - Entity: 10235866860226697608
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
     TagComponent:
       Tag: InvertedPillar
     Transform2DComponent:
@@ -240,7 +286,6 @@ Objects:
       Rotation: 180
       Scale: [2, 16]
     ScriptComponent:
-      ScriptName: pillar.as
       Active: true
       ResourceID: 13834338315665630903
     RigidBody2DComponent:
@@ -255,4 +300,28 @@ Objects:
       Texture:
         ResourceID: 4257225564271971941
       Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 4317704992342791519
+    RelationshipComponent:
+      Parent: 15468286554030825809
+      Children:
+        []
+    TagComponent:
+      Tag: Object
+    Transform2DComponent:
+      Position: [-1.75, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [0.948228896, 0, 0, 1]
       TilingFactor: 1

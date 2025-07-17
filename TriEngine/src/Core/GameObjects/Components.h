@@ -33,6 +33,15 @@ namespace TriEngine {
 			:ID(id) {}
 	};
 
+	struct RelationshipComponent {
+		UUID Parent = 0;
+		std::vector<UUID> Children;
+
+		RelationshipComponent() = default;
+		RelationshipComponent(UUID parent) 
+			: Parent(parent) {}
+	};
+
 	struct RigidBody2DComponent {
 		enum class BodyType : uint8_t {
 			None = 0,

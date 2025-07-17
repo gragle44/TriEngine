@@ -26,7 +26,6 @@ void App::OnAttach()
 	m_ActiveScene->OnViewportResized(windowSettings.Width, windowSettings.Height);
 	
 	m_ActiveScene->Start();
-
 }
 
 void App::OnDetach()
@@ -48,7 +47,6 @@ void App::OnEvent(Event& e)
 
 bool App::OnWindowResized(WindowResizeEvent& e) {
 	m_Renderer->SetViewportSize(e.GetWidth(), e.GetHeight());
-	RenderCommand::SetViewPort({0, 0, e.GetWidth(), e.GetHeight()});
 	m_ActiveScene->OnViewportResized(e.GetWidth(), e.GetHeight());
 	return false;
 }

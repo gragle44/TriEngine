@@ -27,18 +27,18 @@ namespace TriEngine {
 		}
 
 		template<typename T>
-		T& GetComponent() {
+		[[nodiscard]] T& GetComponent() {
 			return m_Scene->m_Registry.get<T>(m_Handle);
 		}
 
 		template<typename T>
-		bool HasComponent() {
+		[[nodiscard]] bool HasComponent() const {
 			return m_Scene->m_Registry.all_of<T>(m_Handle);
 		}
 
-		ObjectID GetHandle() const { return m_Handle; }
+		[[nodiscard]] ObjectID GetHandle() const { return m_Handle; }
 
-		operator bool() const { return m_Handle != entt::null; }
+		operator bool() const noexcept { return m_Handle != entt::null; }
 
 		bool operator==(const GameObject & other) const {
 			return m_Handle == other.m_Handle && m_Scene == other.m_Scene;
