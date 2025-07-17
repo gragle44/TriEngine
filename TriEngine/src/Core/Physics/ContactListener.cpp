@@ -4,6 +4,8 @@
 #include "Core/GameObjects/GameObject.h"
 #include "Core/GameObjects/Components.h"
 
+#include "Core/Scripting/ScriptEngine.h"
+
 #include "box2d/b2_contact.h"
 
 namespace TriEngine {
@@ -15,19 +17,21 @@ namespace TriEngine {
 		if (bodyA->GetUserData().pointer && bodyB->GetUserData().pointer) {
 			GameObject objectA = *(GameObject*)bodyA->GetUserData().pointer;
 			GameObject objectB = *(GameObject*)bodyB->GetUserData().pointer;
+
+			ScriptEngine& scriptEngine = ScriptEngine::Get();
 			
 			if (objectA.HasComponent<ScriptComponent>()) {
 				auto& script = objectA.GetComponent<ScriptComponent>();
 
 				if (script.Active)
-					m_ScriptEngine->OnCollisionStart(script.Build, objectB);
+					scriptEngine.OnCollisionStart(script.Build, objectB);
 			}
 
 			if (objectB.HasComponent<ScriptComponent>()) {
 				auto& script = objectB.GetComponent<ScriptComponent>();
 
 				if (script.Active)
-					m_ScriptEngine->OnCollisionStart(script.Build, objectA);
+					scriptEngine.OnCollisionStart(script.Build, objectA);
 			}
 
 			if (objectA.HasComponent<NativeScriptComponent>()) {
@@ -55,18 +59,20 @@ namespace TriEngine {
 			GameObject objectA = *(GameObject*)bodyA->GetUserData().pointer;
 			GameObject objectB = *(GameObject*)bodyB->GetUserData().pointer;
 
+			ScriptEngine& scriptEngine = ScriptEngine::Get();
+
 			if (objectA.HasComponent<ScriptComponent>()) {
 				auto& script = objectA.GetComponent<ScriptComponent>();
 
 				if (script.Active)
-					m_ScriptEngine->OnCollisionStop(script.Build, objectB);
+					scriptEngine.OnCollisionStop(script.Build, objectB);
 			}
 
 			if (objectB.HasComponent<ScriptComponent>()) {
 				auto& script = objectB.GetComponent<ScriptComponent>();
 
 				if (script.Active)
-					m_ScriptEngine->OnCollisionStop(script.Build, objectA);
+					scriptEngine.OnCollisionStop(script.Build, objectA);
 			}
 
 			if (objectA.HasComponent<NativeScriptComponent>()) {

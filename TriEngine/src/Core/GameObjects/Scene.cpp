@@ -89,12 +89,10 @@ namespace TriEngine {
 			}
 		}
 
-		m_ScriptEngine = std::make_unique<ScriptEngine>();
-
 		//TODO: Adjustable gravity in project settings
 		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
 
-		m_ContactListener = new ContactListener(m_ScriptEngine.get());
+		m_ContactListener = new ContactListener();
 
 		m_PhysicsWorld->SetContactListener(m_ContactListener);
 
@@ -166,12 +164,14 @@ namespace TriEngine {
 
 			GameObject object(entity, this);
 
-			sc.Build = m_ScriptEngine->BuildScript(sc.ScriptInstance, object);
+			ScriptEngine& scriptEngine = ScriptEngine::Get();
+
+			sc.Build = scriptEngine.BuildScript(object);
 
 			if (sc.ScriptInstance) {
-				m_ScriptEngine->SetGlobalVariable<Scene*>(sc.Build, "Scene@ scene", this);
-				m_ScriptEngine->SetGlobalVariable<GameObject>(sc.Build, "GameObject gameObject", object);
-				m_ScriptEngine->StartScript(sc.Build);
+				scriptEngine.SetGlobalVariable<Scene*>(sc.Build, "Scene@ scene", this);
+				scriptEngine.SetGlobalVariable<GameObject>(sc.Build, "GameObject gameObject", object);
+				scriptEngine.StartScript(sc.Build);
 			}
 		}
 		
@@ -190,15 +190,17 @@ namespace TriEngine {
 			}
 		}
 
+		ScriptEngine& scriptEngine = ScriptEngine::Get();
+
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
 			if (sc.Active && sc.ScriptInstance) {
-				m_ScriptEngine->StopScript(sc.Build);
+				scriptEngine.StopScript(sc.Build);
 			}
 			sc.Build.Clear();
 		}
 
-		m_ScriptEngine.reset();
+		scriptEngine.ClearScripts();
 
 		delete m_PhysicsWorld;
 		m_PhysicsWorld = nullptr;
@@ -256,8 +258,10 @@ namespace TriEngine {
 
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
+			ScriptEngine& scriptEngine = ScriptEngine::Get();
+
 			if (sc.Active && sc.ScriptInstance) {
-				m_ScriptEngine->UpdateScript(sc.Build, deltaTime);
+				scriptEngine.UpdateScript(sc.Build, deltaTime);
 			}
 		}
 

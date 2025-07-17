@@ -64,8 +64,6 @@ namespace TriEngine {
 		b2World* m_PhysicsWorld = nullptr;
 		ContactListener* m_ContactListener = nullptr;
 
-		std::unique_ptr<ScriptEngine> m_ScriptEngine = nullptr;
-
 		// Needed to restore cameras when the scene resets
 		glm::ivec2 m_ViewPortSize;
 

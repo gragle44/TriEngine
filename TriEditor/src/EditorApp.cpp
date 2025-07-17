@@ -310,6 +310,9 @@ void EditorLayer::OnUpdate(float deltaTime)
 					GameObject pickedObject = GameObject((entt::entity)pixel, m_Data->ActiveScene.get());
 					m_Data->SelectedItem = pickedObject;
 				}
+				else {
+					m_Data->SelectedItem = {};
+				}
 			}
 		}
 	}
@@ -382,7 +385,7 @@ void EditorLayer::LoadEmptyScene()
 
 static void GenerateScriptDefinitions() {
 	auto scriptDefinitionsPath = ProjectManager::GetCurrent()->GetAbsolutePath("as.predefined");
-	ScriptEngine engine;
+	auto& engine = ScriptEngine::Get();
 	ScriptUtils::GenerateScriptPredefined(engine.GetASEngine(), scriptDefinitionsPath.string());
 }
 

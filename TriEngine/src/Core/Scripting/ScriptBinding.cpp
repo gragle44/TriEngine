@@ -268,19 +268,19 @@ static void BindInput(asIScriptEngine* engine)
         .value(KeyCode::RightSuper,  "RightSuper")
         .value(KeyCode::Menu,        "Menu");
 
-    asbind20::enum_<MouseButtonCodes>(engine, "MouseButton")
-        .value(MouseButtonCodes::Button1, "Button1")
-        .value(MouseButtonCodes::Button2, "Button2")
-        .value(MouseButtonCodes::Button3, "Button3")
-        .value(MouseButtonCodes::Button4, "Button4")
-        .value(MouseButtonCodes::Button5, "Button5")
-        .value(MouseButtonCodes::Button6, "Button6")
-        .value(MouseButtonCodes::Button7, "Button7")
-        .value(MouseButtonCodes::Button8, "Button8")
-        .value(MouseButtonCodes::Right, "Right")
-        .value(MouseButtonCodes::Middle, "Middle")
-        .value(MouseButtonCodes::Left, "Left")
-        .value(MouseButtonCodes::Last, "Last");
+    asbind20::enum_<MouseButton>(engine, "MouseButton")
+        .value(MouseButton::Button1, "Button1")
+        .value(MouseButton::Button2, "Button2")
+        .value(MouseButton::Button3, "Button3")
+        .value(MouseButton::Button4, "Button4")
+        .value(MouseButton::Button5, "Button5")
+        .value(MouseButton::Button6, "Button6")
+        .value(MouseButton::Button7, "Button7")
+        .value(MouseButton::Button8, "Button8")
+        .value(MouseButton::Right, "Right")
+        .value(MouseButton::Middle, "Middle")
+        .value(MouseButton::Left, "Left")
+        .value(MouseButton::Last, "Last");
 
     // Input
     asbind20::global(engine)
@@ -312,6 +312,7 @@ namespace TriEngine {
             .behaviours_by_traits()
             .constructor<uint64_t>("uint64 id")
             .opEquals()
+            .opCmp()
             .opImplConv<uint64_t>();
 
         BindGLM(engine);

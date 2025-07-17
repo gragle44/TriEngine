@@ -9,10 +9,14 @@
 namespace TriEngine {
     class ScriptEngine {
     public:
-        ScriptEngine();
+        static ScriptEngine& Get();
+
+        ScriptEngine(ScriptEngine& const) = delete;
+        void operator=(ScriptEngine& const) = delete;
+
         ~ScriptEngine();
 
-        ScriptBuild BuildScript(Reference<Script> script, GameObject object);
+        [[nodiscard]] ScriptBuild BuildScript(GameObject object);
 
         void StartScript(ScriptBuild build);
         void StopScript(ScriptBuild build);
@@ -20,11 +24,15 @@ namespace TriEngine {
         void OnCollisionStart(ScriptBuild build, GameObject collider);
         void OnCollisionStop(ScriptBuild build, GameObject collider);
 
+        void ClearScripts();
+
         template<typename T>
         void SetGlobalVariable(const ScriptBuild& build, std::string_view decl, T value) 
         {
-            if (!build.Module)
+            if (!build.Module) {
+                TRI_CORE_WARN("Tried to set a global variable on a script without a valid script module");
                 return;
+            }
                 
             int32_t varIndex = build.Module->GetGlobalVarIndexByDecl(decl.data());
             if (varIndex < 0)
@@ -34,8 +42,10 @@ namespace TriEngine {
             *var = value;
         }
 
-        const asIScriptEngine* GetASEngine() const { return m_Engine; }
+        [[nodiscard]] const asIScriptEngine* GetASEngine() const { return m_Engine; }
     private:
+        ScriptEngine();
+
         void ConfigureScriptEngine(asIScriptEngine* engine);
 
         asIScriptEngine* m_Engine;

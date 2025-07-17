@@ -26,6 +26,13 @@ static void MessageCallback(const asSMessageInfo* msg, void* param)
 }
 
 namespace TriEngine {
+
+    ScriptEngine& ScriptEngine::Get() {
+        static ScriptEngine instance;
+        return instance;
+    }
+
+
     ScriptEngine::ScriptEngine()
         :m_Engine(nullptr)
     {
@@ -48,13 +55,15 @@ namespace TriEngine {
         m_Engine->ShutDownAndRelease();
     }
 
-    ScriptBuild ScriptEngine::BuildScript(Reference<Script> script, GameObject object) 
+    ScriptBuild ScriptEngine::BuildScript(GameObject object) 
     {
+        auto& script = object.GetComponent<ScriptComponent>().ScriptInstance;
+
         if (!std::filesystem::exists(script->MetaData.Filepath)) {
             TRI_CORE_WARN("Couldn't build script '{0}': invalid file path", script->MetaData.Filepath);
             return {};
         }
-        std::string scriptName(std::to_string(object.GetComponent<IDComponent>().ID));
+        std::string scriptName(std::to_string(static_cast<uint32_t>(object.GetHandle())));
 
         CScriptBuilder builder;
         int32_t r = builder.StartNewModule(m_Engine, scriptName.c_str()); 
@@ -83,6 +92,17 @@ namespace TriEngine {
         build.CollisionStopFunc= build.Module->GetFunctionByDecl("void on_collision_stop(GameObject)");
 
         return build;
+    }
+
+    void ScriptEngine::ClearScripts()
+    {
+        int32_t moduleCount = m_Engine->GetModuleCount();
+
+        for (int32_t i = 0; i < moduleCount-1; i++) {
+            auto* module = m_Engine->GetModuleByIndex(i);
+            if (module)
+                module->Discard();
+        }
     }
 
     void ScriptEngine::StartScript(ScriptBuild build)

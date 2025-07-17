@@ -14,7 +14,7 @@
 #define TRI_MOUSE_BUTTON_RIGHT     TRI_MOUSE_BUTTON_2
 #define TRI_MOUSE_BUTTON_MIDDLE    TRI_MOUSE_BUTTON_3
 
-enum class MouseButtonCodes : int {
+enum class MouseButton : int {
     Button1 = 0,
     Button2 = 1,
     Button3 = 2,
