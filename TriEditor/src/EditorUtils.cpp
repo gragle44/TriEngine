@@ -49,6 +49,36 @@ std::filesystem::path SaveFileDialog(std::string_view initial_path, std::string_
 	return path;
 }
 
+ImGuiDataType ScriptScalarDataTypeToImGuiDataType(TriEngine::ScriptVariableType type) {
+	using namespace TriEngine;
+	switch (type)
+	{
+	case ScriptVariableType::Int8:
+		return ImGuiDataType_S8;
+	case ScriptVariableType::Int16:
+		return ImGuiDataType_S16;
+	case ScriptVariableType::Int32:
+		return ImGuiDataType_S32;
+	case ScriptVariableType::Int64:
+		return ImGuiDataType_S64;
+	case ScriptVariableType::Uint8:
+		return ImGuiDataType_U8;
+	case ScriptVariableType::Uint16:
+		return ImGuiDataType_U16;
+	case ScriptVariableType::Uint32:
+		return ImGuiDataType_U32;
+	case ScriptVariableType::Uint64:
+		return ImGuiDataType_U64;
+	case ScriptVariableType::Float:
+		return ImGuiDataType_Float;
+	case ScriptVariableType::Double:
+		return ImGuiDataType_Double;	
+	default:
+		TRI_CORE_ASSERT(false, "Invalid scalar type");
+		return 0;
+	}
+}
+
 void HelpMarker(std::string_view desc, bool sameLine)
 {
     if (sameLine)
@@ -61,4 +91,12 @@ void HelpMarker(std::string_view desc, bool sameLine)
         ImGui::PopTextWrapPos();
         ImGui::EndTooltip();
     }
+}
+
+void DrawCenteredText(std::string_view text) {
+	float windowWidth = ImGui::GetWindowSize().x;
+	float textWidth = ImGui::CalcTextSize(text.data()).x;
+
+	ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+	ImGui::Text(text.data());
 }

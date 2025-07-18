@@ -7,6 +7,7 @@
 #include "Core/GameObjects/Components.h"
 
 #include "scriptbuilder/scriptbuilder.h"
+#include "asbind20/asbind.hpp"
 
 static void MessageCallback(const asSMessageInfo* msg, void* param)
 {
@@ -57,7 +58,16 @@ namespace TriEngine {
 
     ScriptBuild ScriptEngine::BuildScript(GameObject object) 
     {
-        auto& script = object.GetComponent<ScriptComponent>().ScriptInstance;
+        auto& sc = object.GetComponent<ScriptComponent>();
+        auto& script = sc.ScriptResource;
+
+        TRI_CORE_ASSERT(script, "Invalid script resource")
+
+        if (sc.Build.Module) {
+            ClearScript(object);
+            TRI_CORE_INFO("Rebuilding script {} for object {}", script->Name, object.GetComponent<TagComponent>().Tag);
+        }
+        TRI_CORE_ASSERT(sc.Build.Module == nullptr, "Attempted to build script that already has a built module");
 
         if (!std::filesystem::exists(script->MetaData.Filepath)) {
             TRI_CORE_WARN("Couldn't build script '{0}': invalid file path", script->MetaData.Filepath);
@@ -94,7 +104,18 @@ namespace TriEngine {
         return build;
     }
 
-    void ScriptEngine::ClearScripts()
+    void ScriptEngine::ClearScript(GameObject object) {
+        auto& sc = object.GetComponent<ScriptComponent>();
+
+        if (sc.Build.Module) {
+            sc.Build.Module->Discard();
+        }
+
+        sc.Build.Clear();
+    }
+    
+
+    void ScriptEngine::ClearAllScripts()
     {
         int32_t moduleCount = m_Engine->GetModuleCount();
 
@@ -103,6 +124,89 @@ namespace TriEngine {
             if (module)
                 module->Discard();
         }
+    }
+
+    static ScriptVariableType StringToVariableType(std::string_view typeName) {
+             if (typeName == "int8") return ScriptVariableType::Int8;
+        else if (typeName == "int16") return ScriptVariableType::Int16;
+        else if (typeName == "int" || typeName == "int32") return ScriptVariableType::Int32;
+        else if (typeName == "int64") return ScriptVariableType::Int64;
+        else if (typeName == "uint8") return ScriptVariableType::Uint8;
+        else if (typeName == "uint16") return ScriptVariableType::Uint16;
+        else if (typeName == "uint" || typeName == "uint32") return ScriptVariableType::Uint32;
+        else if (typeName == "uint64") return ScriptVariableType::Uint64;
+        else if (typeName == "bool") return ScriptVariableType::Bool;
+        else if (typeName == "float") return ScriptVariableType::Float;
+        else if (typeName == "double") return ScriptVariableType::Double;
+        else if (typeName == "string") return ScriptVariableType::String;
+        else if (typeName == "Float2") return ScriptVariableType::Vec2;
+        else if (typeName == "Float3") return ScriptVariableType::Vec3;
+        else if (typeName == "Float4") return ScriptVariableType::Vec4;
+        else return ScriptVariableType::Unknown;
+
+    }
+
+    // asIScriptEngine::GetTypeInfoById returns nullptr if the typeid is a primitive type, hence the need for this function
+    static ScriptVariableType GetPrimitiveType(int32_t typeID) {
+        TRI_CORE_ASSERT(typeID <= asTYPEID_DOUBLE, "Not a primitive type");
+        static constexpr std::array<ScriptVariableType, 12> type = {
+            ScriptVariableType::Unknown, 
+            ScriptVariableType::Bool, 
+            ScriptVariableType::Int8, 
+            ScriptVariableType::Int16, 
+            ScriptVariableType::Int32, 
+            ScriptVariableType::Int64, 
+            ScriptVariableType::Uint8, 
+            ScriptVariableType::Uint16, 
+            ScriptVariableType::Uint32, 
+            ScriptVariableType::Uint64, 
+            ScriptVariableType::Float, 
+            ScriptVariableType::Double
+        };
+
+        return type[typeID];
+    }
+
+    std::vector<ScriptVariable> ScriptEngine::GetScriptProperties(ScriptBuild build) {
+        TRI_CORE_ASSERT(build.Module, "Invalid script module");
+
+        int32_t globalVarCount = build.Module->GetGlobalVarCount();
+
+        std::vector<ScriptVariable> properties;
+
+        for (int32_t i = 0; i < globalVarCount; i++) {
+            const char* name;
+            const char* nameSpace;
+            int32_t typeID;
+            bool isConst;
+
+            int32_t r = build.Module->GetGlobalVar(i, &name, &nameSpace, &typeID, &isConst);
+            TRI_CORE_ASSERT(r >= 0, "Error getting global variable");
+
+            // These global variables are reserved by the application
+            if (name == "gameObject" || name == "scene")
+                continue;
+
+            ScriptVariableType dataType;
+
+            if (asbind20::is_primitive_type(typeID))
+                dataType = GetPrimitiveType(typeID);
+            else {
+                asITypeInfo* typeInfo = m_Engine->GetTypeInfoById(typeID);
+                TRI_CORE_ASSERT(typeInfo, "Invalid type info");
+                dataType = StringToVariableType(typeInfo->GetName());
+            }
+
+            ScriptVariable variable;
+            variable.Name = name;
+            variable.Address = build.Module->GetAddressOfGlobalVar(i);
+            variable.Const = isConst;
+            variable.Type = dataType;
+
+            properties.push_back(std::move(variable));
+        }
+
+        return properties;
     }
 
     void ScriptEngine::StartScript(ScriptBuild build)

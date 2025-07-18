@@ -48,6 +48,20 @@ static void Mat4Constructor_Proxy(glm::mat4* mem, const glm::vec4& v1, const glm
     new(mem) glm::mat4(v1, v2, v3, v4);
 }
 
+static std::string formatVec2(glm::vec2 vec) {
+    return std::format("({}, {})", vec.x, vec.y);
+}
+
+static std::string formatVec3(glm::vec3 vec)
+{
+    return std::format("({}, {}, {})", vec.x, vec.y, vec.z);
+}
+
+static std::string formatVec4(glm::vec4 vec)
+{
+    return std::format("({}, {}, {}, {})", vec.x, vec.y, vec.z, vec.w);
+}
+
 static void BindGLM(asIScriptEngine* engine) {
     asbind20::value_class<glm::vec2>(
         engine,
@@ -346,5 +360,9 @@ namespace TriEngine {
         r = engine->RegisterGlobalFunction("uint RandUint(uint min, uint max)", asFUNCTION(Random::Uint), asCALL_CDECL); TRI_CORE_ASSERT(r >= 0, "Failed to register function");
         r = engine->RegisterGlobalFunction("bool RandBool()", asFUNCTION(Random::Bool), asCALL_CDECL); TRI_CORE_ASSERT(r >= 0, "Failed to register function");
 
+        asbind20::global(engine)
+            .function("string formatFloat2(Float2 vec)", &formatVec2)
+            .function("string formatFloat3(Float3 vec)", &formatVec3)
+            .function("string formatFloat4(Float4 vec)", &formatVec4);
     }
 }

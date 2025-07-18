@@ -10,8 +10,6 @@
 
 #include <glm/glm.hpp>
 
-#include <filesystem>
-
 #define KEY(x) << YAML::Key << x
 
 #define VAL(x) << YAML::Value << x
@@ -202,7 +200,7 @@ namespace TriEngine {
 			out << YAML::Key << "ScriptComponent" << YAML::Value << YAML::BeginMap;
 
 			out << YAML::Key << "Active" << YAML::Value << component.Active;
-			out << YAML::Key << "ResourceID" << YAML::Value << component.ScriptInstance->MetaData.ID;
+			out << YAML::Key << "ResourceID" << YAML::Value << component.ScriptResource->MetaData.ID;
 
 			out << YAML::EndMap;
 		}
@@ -341,7 +339,7 @@ namespace TriEngine {
 			if (ResourceManager::ResourceExists(resourceid)) {
 				auto& scriptComponent = newEntity.AddComponent<ScriptComponent>();
 				scriptComponent.Active = entity["ScriptComponent"]["Active"].as<bool>();
-				scriptComponent.ScriptInstance = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceid));
+				scriptComponent.ScriptResource = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceid));
 			}
 			else {
 				TRI_CORE_ERROR("Resource Manager couldn't find script with ID {0}", resourceid);

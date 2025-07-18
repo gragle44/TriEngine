@@ -9,8 +9,11 @@
 #include "../EditorUtils.h"
 
 #include <imgui.h>
+#include "misc/cpp/imgui_stdlib.h"
+#include "magic_enum.hpp"
 #include <nfd.h>
 #include <glm/gtc/type_ptr.hpp>
+
 #include <filesystem>
 
 namespace TriEngine {
@@ -272,13 +275,9 @@ namespace TriEngine {
 	void SceneModule::DrawComponents(GameObject& object)
 	{
 		if (object.HasComponent<TagComponent>()) {
-			auto& tag = object.GetComponent<TagComponent>();
+			const auto& tag = object.GetComponent<TagComponent>();
 
-			float windowWidth = ImGui::GetWindowSize().x;
-			float textWidth = ImGui::CalcTextSize(tag.Tag.c_str()).x;
-
-			ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
-			ImGui::Text(tag.Tag.c_str());
+			DrawCenteredText(tag.Tag);
 		}
 
 		DrawComponent<Transform2DComponent>("Transform2D", object, [](Transform2DComponent& component) 
@@ -337,13 +336,13 @@ namespace TriEngine {
 			ImVec2 p0 = ImGui::GetCursorScreenPos();
 
 			const float bgSize = 250.0f;
-			draw_list->AddImage((void*)m_SpriteBackground->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + bgSize, p0.y + bgSize), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			draw_list->AddImage((void*)(intptr_t)m_SpriteBackground->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + bgSize, p0.y + bgSize), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 			float scaleFactor = std::min(bgSize / sprite.Texture->GetWidth(), bgSize / sprite.Texture->GetHeight());
 			float posX = (sprite.Texture->GetWidth() * scaleFactor);
 			float posY = (sprite.Texture->GetHeight() * scaleFactor);
 
-			draw_list->AddImage((void*)sprite.Texture->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + posX, p0.y + posY), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			draw_list->AddImage((void*)(intptr_t)sprite.Texture->GetID(), ImVec2(p0.x, p0.y), ImVec2(p0.x + posX, p0.y + posY), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 			ImGui::Dummy(ImVec2(250.0f, 250.0f));
 
 			if (ImGui::BeginItemTooltip()) {
@@ -430,23 +429,93 @@ namespace TriEngine {
 			HelpMarker("Set the range of visibility for objects in the scene, with the Near Plane defining the closest distance and the Far Plane defining the farthest distance before objects will be culled.", true);
 		});
 
-		DrawComponent<ScriptComponent>("Script", object, [](ScriptComponent& script)
+		DrawComponent<ScriptComponent>("Script", object, [object](ScriptComponent& script)
 		{
+			ScriptEngine& engine = ScriptEngine::Get();
+
+			// TODO: only rebuild when scene not running
+			if (!script.Build) {
+				script.Build = engine.BuildScript(object);
+			}
+
 			if (ImGui::Button("Change script path")) {
 
 				auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
 				auto output = OpenFileDialog(cwd.string(), "as");
 
-
 				ResourceID resourceID = ResourceManager::GetIDFromPath(output.string());
 				if (!ResourceManager::ResourceExists(resourceID))
-					script.ScriptInstance = ResourceManager::Create<Script>(output.string());
+					script.ScriptResource = ResourceManager::Create<Script>(output.string());
 				else
-					script.ScriptInstance = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceID));				
+					script.ScriptResource = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceID));				
 			}
 
 			ImGui::Checkbox("Enabled", &script.Active);
 			HelpMarker("Whether the script should be updated and recieve events.", true);
+
+			//TODO: Recreating this each frame is probably bad for performance
+			auto properties = engine.GetScriptProperties(script.Build);
+
+			if (!properties.empty()) {
+				ImGui::Spacing();
+				DrawCenteredText("Script Properties");
+				ImGui::Spacing();
+			}
+
+			for (const auto& property: properties) {
+				if (property.Type == ScriptVariableType::Bool) {
+					ImGui::Checkbox(property.Name.c_str(), reinterpret_cast<bool*>(property.Address));
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+					}
+				}
+				else if (Utils::IsScriptVariableTypeScalar(property.Type)) {
+					float size = ImGui::CalcItemWidth() / 1.75f;
+					ImGui::PushItemWidth(size);
+					ImGui::InputScalar(property.Name.c_str(), ScriptScalarDataTypeToImGuiDataType(property.Type), property.Address, nullptr, nullptr, nullptr, ImGuiInputTextFlags_ElideLeft);
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+					}
+					ImGui::PopItemWidth();
+				}
+				else if (property.Type == ScriptVariableType::Vec2) {
+					float size = ImGui::CalcItemWidth() / 1.75f;
+					ImGui::PushItemWidth(size);
+					ImGui::InputFloat2(property.Name.c_str(), &reinterpret_cast<glm::vec2*>(property.Address)->x);
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+					}
+					ImGui::PopItemWidth();
+				}
+				else if (property.Type == ScriptVariableType::Vec3) {
+					float size = ImGui::CalcItemWidth() / 1.75f;
+					ImGui::PushItemWidth(size);
+					ImGui::InputFloat3(property.Name.c_str(), &reinterpret_cast<glm::vec3*>(property.Address)->x);
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+					}
+					ImGui::PopItemWidth();
+				}
+				else if (property.Type == ScriptVariableType::Vec4) {
+					float size = ImGui::CalcItemWidth() / 1.75f;
+					ImGui::PushItemWidth(size);
+					ImGui::InputFloat4(property.Name.c_str(), &reinterpret_cast<glm::vec4*>(property.Address)->x);
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+					}
+					ImGui::PopItemWidth();
+				}
+				else if (property.Type == ScriptVariableType::String) {
+					float size = ImGui::CalcItemWidth() / 1.75f;
+					ImGui::PushItemWidth(size);
+					std::string* text = reinterpret_cast<std::string*>(property.Address);
+					ImGui::InputText(property.Name.c_str(), text);
+					if (ImGui::IsItemHovered()) {
+						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+					}
+					ImGui::PopItemWidth();
+				}
+			}
 		});
 
 		DrawComponent<NativeScriptComponent>("NativeScript", object, [](NativeScriptComponent& script)

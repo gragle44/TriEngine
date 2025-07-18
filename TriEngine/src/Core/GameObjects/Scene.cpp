@@ -168,7 +168,7 @@ namespace TriEngine {
 
 			sc.Build = scriptEngine.BuildScript(object);
 
-			if (sc.ScriptInstance) {
+			if (sc.ScriptResource) {
 				scriptEngine.SetGlobalVariable<Scene*>(sc.Build, "Scene@ scene", this);
 				scriptEngine.SetGlobalVariable<GameObject>(sc.Build, "GameObject gameObject", object);
 				scriptEngine.StartScript(sc.Build);
@@ -194,13 +194,13 @@ namespace TriEngine {
 
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
-			if (sc.Active && sc.ScriptInstance) {
+			if (sc.Active && sc.ScriptResource) {
 				scriptEngine.StopScript(sc.Build);
 			}
 			sc.Build.Clear();
 		}
 
-		scriptEngine.ClearScripts();
+		scriptEngine.ClearAllScripts();
 
 		delete m_PhysicsWorld;
 		m_PhysicsWorld = nullptr;
@@ -260,7 +260,7 @@ namespace TriEngine {
 		{
 			ScriptEngine& scriptEngine = ScriptEngine::Get();
 
-			if (sc.Active && sc.ScriptInstance) {
+			if (sc.Active && sc.ScriptResource) {
 				scriptEngine.UpdateScript(sc.Build, deltaTime);
 			}
 		}
@@ -355,9 +355,16 @@ namespace TriEngine {
 
 	void Scene::SetMainCamera(GameObject camera)
 	{
-		if (!camera.HasComponent<Camera2DComponent>() || !camera.HasComponent<Transform2DComponent>()) {
-			TRI_CORE_ERROR("Tried to set main camera to an object without a CameraComponent or a TransformComponent!");
-			return;
+		TRI_CORE_ASSERT(false, "Not implemented");
+	}
+
+	void Scene::ReBuildAllScripts() {
+		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
+		{
+			ScriptEngine& scriptEngine = ScriptEngine::Get();
+
+			GameObject object(entity, this);
+			sc.Build = scriptEngine.BuildScript(object);
 		}
 	}
 
@@ -413,15 +420,13 @@ namespace TriEngine {
 	}
 
 	GameObject Scene::GetObjectByID(UUID uuid) const noexcept {
-		if (m_GameObjects.contains(uuid))
-			return m_GameObjects.at(uuid);
-		TRI_CORE_ERROR("Could not get game object, invalid uuid: {}", uuid);
-		return {};
+		TRI_CORE_ASSERT(m_GameObjects.contains(uuid), "Invalid UUID");
+		return m_GameObjects.at(uuid);
 	}
-
 
 	void Scene::DeleteGameObject(GameObject object)
 	{
+		TRI_CORE_ASSERT(IsObjectValid(object), "Tried to delete invalid game object");
 		uint64_t uuid = object.GetComponent<IDComponent>().ID;
 
 		//TODO: erase references to this object in its relationships

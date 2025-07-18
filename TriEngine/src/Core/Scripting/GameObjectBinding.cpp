@@ -21,7 +21,7 @@ namespace TriEngine {
     }
 
     static const std::string& GetScriptName_Proxy(ScriptComponent* this_) {
-        return this_->ScriptInstance->Name;
+        return this_->ScriptResource->Name;
     }
 
     static void BindComponents(asIScriptEngine* engine) {

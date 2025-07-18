@@ -129,7 +129,7 @@ namespace TriEngine {
 	};
 
 	struct ScriptComponent {
-		std::shared_ptr<Script> ScriptInstance;
+		std::shared_ptr<Script> ScriptResource;
 
 		ScriptBuild Build;
 
@@ -137,7 +137,7 @@ namespace TriEngine {
 
 		ScriptComponent() = default;
 		ScriptComponent(const ScriptComponent& other)
-			:ScriptInstance(other.ScriptInstance), Active(other.Active) {}
+			:ScriptResource(other.ScriptResource), Active(other.Active) {}
 
 	};
 
