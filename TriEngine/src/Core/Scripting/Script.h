@@ -78,11 +78,11 @@ namespace TriEngine {
     class Script : public Resource {
     public:
         Script() = default;
-        Script(const Script& other)
-            :Name(other.Name), Resource(other) {}
+        Script(const Script& other) = default;
 
         virtual ~Script() = default;
 
         std::string Name;
+        ByteBuffer ByteCode;
     };
 }

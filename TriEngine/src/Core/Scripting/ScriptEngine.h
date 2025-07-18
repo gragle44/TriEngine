@@ -5,6 +5,19 @@
 #include "angelscript.h"
 
 namespace TriEngine {
+    class ByteCodeStream : public asIBinaryStream {
+    public:
+        ByteCodeStream(ByteBuffer& buffer)
+            :m_Buffer(buffer) {}
+        ~ByteCodeStream() override = default;
+
+        int Write(const void *ptr, uint32_t size) override;
+        int Read(void *ptr, uint32_t size) override;
+    private:
+        ByteBuffer& m_Buffer;
+        uint32_t m_CurrentPos = 0;
+    };
+
     class ScriptEngine {
     public:
         static ScriptEngine& Get();
@@ -14,7 +27,10 @@ namespace TriEngine {
 
         ~ScriptEngine();
 
+        // Build a script module
         [[nodiscard]] ScriptBuild BuildScript(GameObject object);
+        // Compile a script into bytecode
+        void CompileScript(Script* script);
         void ClearScript(GameObject object);
         void ClearAllScripts();
 

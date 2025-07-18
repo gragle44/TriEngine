@@ -3,17 +3,21 @@
 #include "ScriptLoader.h"
 
 #include "Core/Scripting/Script.h"
+#include "Core/Scripting/ScriptEngine.h"
 
 #include <filesystem>
 
 namespace TriEngine {
 	Reference<Resource> TriEngine::ScriptLoader::Load(ResourceMetadata& metadata)
 	{
-		Script script;
-		script.Name = std::filesystem::path(metadata.Filepath).filename().string();
-		script.MetaData = metadata;
+		Reference<Script> script = std::make_shared<Script>();
+		script->MetaData = metadata;
+		script->Name = std::filesystem::path(metadata.Filepath).filename().string();
 
-		return std::make_shared<Script>(script);
+		ScriptEngine& engine = ScriptEngine::Get();
+		engine.CompileScript(script.get());
+
+		return script;
 	}
 
 	void ScriptLoader::Save(Reference<Resource> resource)

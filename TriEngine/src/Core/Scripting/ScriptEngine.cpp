@@ -28,11 +28,31 @@ static void MessageCallback(const asSMessageInfo* msg, void* param)
 
 namespace TriEngine {
 
+    int ByteCodeStream::Write(const void *ptr, uint32_t size) {
+        if (size == 0)
+            return -1;
+
+        if (m_Buffer.size() < m_CurrentPos + size)
+            m_Buffer.resize(m_CurrentPos + size);
+
+        memcpy(&m_Buffer[m_CurrentPos], ptr, size);
+        m_CurrentPos += size;
+        return 0;
+    }
+
+    int ByteCodeStream::Read(void *ptr, uint32_t size) {
+        if (size == 0)
+            return -1;
+        TRI_CORE_ASSERT(m_Buffer.size() >= m_CurrentPos + size, "Attempted to read past the size of the buffer")
+        memcpy(ptr, &m_Buffer[m_CurrentPos], size);
+        m_CurrentPos += size;
+        return 0;
+    }
+
     ScriptEngine& ScriptEngine::Get() {
         static ScriptEngine instance;
         return instance;
     }
-
 
     ScriptEngine::ScriptEngine()
         :m_Engine(nullptr)
@@ -56,12 +76,40 @@ namespace TriEngine {
         m_Engine->ShutDownAndRelease();
     }
 
+    void ScriptEngine::CompileScript(Script* script) {
+        CScriptBuilder builder;
+        int32_t r = builder.StartNewModule(m_Engine, script->Name.data());
+        TRI_CORE_ASSERT(r >= 0, "Unrecoverable error while starting a new module");
+
+        r = builder.AddSectionFromFile(script->MetaData.Filepath.c_str());
+        if (r < 0)
+        {
+            TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
+            return;
+        }
+
+        r = builder.BuildModule();
+        if (r < 0)
+        {
+            TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
+            return;
+        }
+
+        asIScriptModule* module = m_Engine->GetModule(script->Name.data());
+
+        ByteCodeStream stream(script->ByteCode);
+        module->SaveByteCode(&stream);
+
+        module->Discard();
+    }
+
     ScriptBuild ScriptEngine::BuildScript(GameObject object) 
     {
         auto& sc = object.GetComponent<ScriptComponent>();
         auto& script = sc.ScriptResource;
 
-        TRI_CORE_ASSERT(script, "Invalid script resource")
+        TRI_CORE_ASSERT(script, "Invalid script resource");
+        //TRI_CORE_ASSERT(!script->ByteCode.empty(), "Script has no bytecode");
 
         if (sc.Build.Module) {
             ClearScript(object);
@@ -79,22 +127,13 @@ namespace TriEngine {
         int32_t r = builder.StartNewModule(m_Engine, scriptName.c_str()); 
         TRI_CORE_ASSERT(r >= 0, "Unrecoverable error while starting a new module");
 
-        r = builder.AddSectionFromFile(script->MetaData.Filepath.c_str());
-        if (r < 0) {
-            TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
-            return {};
-        }
-        
-        r = builder.BuildModule();
-        if (r < 0) {
-            TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
-            return {};
-        }
+        auto *module = m_Engine->GetModule(scriptName.c_str());
 
-        script->Name = scriptName;
+        ByteCodeStream stream(script->ByteCode);
+        module->LoadByteCode(&stream);
 
         ScriptBuild build;
-        build.Module = m_Engine->GetModule(scriptName.c_str());
+        build.Module = module;
         build.StartFunc = build.Module->GetFunctionByDecl("void on_start()");
         build.StopFunc = build.Module->GetFunctionByDecl("void on_stop()");
         build.UpdateFunc = build.Module->GetFunctionByDecl("void on_update(float)");
