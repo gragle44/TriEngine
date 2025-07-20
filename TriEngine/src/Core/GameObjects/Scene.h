@@ -37,7 +37,7 @@ namespace TriEngine {
 		[[nodiscard]] const std::string& GetName() const { return m_Name; }
 		void SetMainCamera(GameObject camera);
 
-		void ReBuildAllScripts();
+		void ReBuildScriptModulesOfScript(Script* script);
 
 		const std::unordered_map<uint64_t, GameObject>& GetAllObjects() const { return m_GameObjects; }
 

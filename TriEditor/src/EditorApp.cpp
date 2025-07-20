@@ -258,12 +258,13 @@ void EditorLayer::OnAttach()
 
 	m_Data->ActiveScene = m_Data->RestoreScene;
 
-	TextureSettings playbuttonSettings;
-	playbuttonSettings.Filter = TextureFilter::Linear;
+	TextureSettings iconTextureSettings;
+	iconTextureSettings.Filter = TextureFilter::Linear;
 
-	m_Data->PlayTexture = Texture2D::Create("assets/icons/playbutton.png", playbuttonSettings);
-	m_Data->PauseTexture = Texture2D::Create("assets/icons/pausebutton.png", playbuttonSettings);
-	m_Data->FolderTexture = Texture2D::Create("assets/icons/folder.png", playbuttonSettings);
+	m_Data->PlayTexture = Texture2D::Create("assets/icons/playbutton.png", iconTextureSettings);
+	m_Data->PauseTexture = Texture2D::Create("assets/icons/pausebutton.png", iconTextureSettings);
+	m_Data->FolderTexture = Texture2D::Create("assets/icons/folder.png", iconTextureSettings);
+	m_Data->ReloadTexture = Texture2D::Create("assets/icons/reload.png", iconTextureSettings);
 
 	SetupImGuiStyle();
 }

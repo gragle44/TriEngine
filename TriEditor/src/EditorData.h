@@ -17,6 +17,7 @@ struct EditorData {
 	Reference<Texture2D> PlayTexture;
 	Reference<Texture2D> PauseTexture;
 	Reference<Texture2D> FolderTexture;
+	Reference<Texture2D> ReloadTexture;
 
 	Reference<GameRenderer> Renderer;
 	std::unique_ptr<EditorCamera> Camera;

@@ -28,7 +28,7 @@ namespace TriEngine {
         ~ScriptEngine();
 
         // Build a script module
-        [[nodiscard]] ScriptBuild BuildScript(GameObject object);
+        void BuildScript(GameObject object);
         // Compile a script into bytecode
         void CompileScript(Script* script);
         void ClearScript(GameObject object);
@@ -62,6 +62,7 @@ namespace TriEngine {
     private:
         ScriptEngine();
 
+        void ExecuteContext();
         void ConfigureScriptEngine(asIScriptEngine* engine);
 
         asIScriptEngine* m_Engine;

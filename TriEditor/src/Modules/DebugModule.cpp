@@ -19,7 +19,7 @@ namespace TriEngine {
 			if (ImGui::BeginTable("perf_table", 2, flags)) {
 
 				ImGui::TableNextColumn(); ImGui::Text("Frametime: %f", m_FrameTime);
-				ImGui::Text("FPS: %f", 1000.0f/m_FrameTime);
+				ImGui::Text("FPS: %d", static_cast<int32_t>(std::floor(1000.0f/std::floor(m_FrameTime))));
 
 				ImGui::TableNextColumn(); ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 				ImGui::Text("Quads: %d", stats.QuadCount);

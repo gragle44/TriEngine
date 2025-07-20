@@ -6,9 +6,11 @@ float TIME_UNTIL_FALL = 0.5f;
 float m_UpVelocity = 0.0f;
 float m_RotationVelocity = 0.0f;
 
+Float2 test;
+
 void on_start() 
 {
-
+    LogInfo(formatFloat2(test));
 }
 
 void on_update(float deltaTime) 

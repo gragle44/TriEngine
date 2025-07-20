@@ -29,6 +29,8 @@ namespace TriEngine {
 		static bool ResourceExists(ResourceID id) { return s_ResourceRegistry.contains(id); }
 		static bool ResourceLoaded(ResourceID id) { return s_Resources.contains(id); }
 		
+		static void ReloadResource(ResourceID resource) noexcept;
+		static void ReloadResource(Reference<Resource> resource) noexcept;
 		static Reference<Resource> Load(ResourceMetadata& metadata);
 		static void Remove(ResourceID id);
 

@@ -41,7 +41,8 @@ namespace TriEngine {
     }
 
     int ByteCodeStream::Read(void *ptr, uint32_t size) {
-        if (size == 0)
+        // The buffer will be empty if there was an error compiling the script
+        if (size == 0 || m_Buffer.empty())
             return -1;
         TRI_CORE_ASSERT(m_Buffer.size() >= m_CurrentPos + size, "Attempted to read past the size of the buffer")
         memcpy(ptr, &m_Buffer[m_CurrentPos], size);
@@ -103,7 +104,7 @@ namespace TriEngine {
         module->Discard();
     }
 
-    ScriptBuild ScriptEngine::BuildScript(GameObject object) 
+    void ScriptEngine::BuildScript(GameObject object) 
     {
         auto& sc = object.GetComponent<ScriptComponent>();
         auto& script = sc.ScriptResource;
@@ -118,8 +119,8 @@ namespace TriEngine {
         TRI_CORE_ASSERT(sc.Build.Module == nullptr, "Attempted to build script that already has a built module");
 
         if (!std::filesystem::exists(script->MetaData.Filepath)) {
-            TRI_CORE_WARN("Couldn't build script '{0}': invalid file path", script->MetaData.Filepath);
-            return {};
+            TRI_CORE_ERROR("Couldn't build script '{0}': invalid file path", script->MetaData.Filepath);
+            return;
         }
         std::string scriptName(std::to_string(static_cast<uint32_t>(object.GetHandle())));
 
@@ -140,7 +141,7 @@ namespace TriEngine {
         build.CollisionStartFunc = build.Module->GetFunctionByDecl("void on_collision_start(GameObject)");
         build.CollisionStopFunc= build.Module->GetFunctionByDecl("void on_collision_stop(GameObject)");
 
-        return build;
+        sc.Build = build;
     }
 
     void ScriptEngine::ClearScript(GameObject object) {
@@ -248,6 +249,21 @@ namespace TriEngine {
         return properties;
     }
 
+    void ScriptEngine::ExecuteContext() {
+        int32_t r = m_Context->Execute();
+        if (r != asEXECUTION_FINISHED)
+        {
+            if (r == asEXECUTION_EXCEPTION)
+            {
+                auto* func = m_Context->GetExceptionFunction();
+                TRI_CORE_ERROR("An exception '{}' occured executing a script", m_Context->GetExceptionString());
+                TRI_CORE_ERROR("    in {} on line {}", func->GetDeclaration(), m_Context->GetExceptionLineNumber());
+            }
+        }
+
+        m_Context->Unprepare();
+    }
+
     void ScriptEngine::StartScript(ScriptBuild build)
     {
         if (!build.StartFunc)
@@ -259,16 +275,8 @@ namespace TriEngine {
         r = m_Context->Prepare(build.StartFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
 
-        r = m_Context->Execute();
-        if( r != asEXECUTION_FINISHED )
-        {
-            if( r == asEXECUTION_EXCEPTION )
-            {
-                TRI_CORE_ERROR("An exception '{0}' occurred. Please correct the code and try again.", m_Context->GetExceptionString());
-            }
-        }
-        
-        m_Context->Unprepare();
+        ExecuteContext();
+
     }
 
     void ScriptEngine::StopScript(ScriptBuild build) 
@@ -281,17 +289,8 @@ namespace TriEngine {
         int32_t r;
         r = m_Context->Prepare(build.StopFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
-
-        r = m_Context->Execute();
-        if( r != asEXECUTION_FINISHED )
-        {
-            if( r == asEXECUTION_EXCEPTION )
-            {
-                TRI_CORE_ERROR("An exception '{0}' occurred. Please correct the code and try again.", m_Context->GetExceptionString());
-            }
-        }
         
-        m_Context->Unprepare();
+        ExecuteContext();
     }
 
     void ScriptEngine::UpdateScript(ScriptBuild build, float deltaTime) 
@@ -307,16 +306,8 @@ namespace TriEngine {
 
         m_Context->SetArgFloat(0, deltaTime);
 
-        r = m_Context->Execute();
-        if( r != asEXECUTION_FINISHED )
-        {
-            if( r == asEXECUTION_EXCEPTION )
-            {
-                TRI_CORE_ERROR("An exception '{0}' occurred. Please correct the code and try again.", m_Context->GetExceptionString());
-            }
-        }
+        ExecuteContext();
 
-        m_Context->Unprepare();
     }
 
     void ScriptEngine::OnCollisionStart(ScriptBuild build, GameObject collider) 
@@ -330,16 +321,8 @@ namespace TriEngine {
 
         m_Context->SetArgObject(0, &collider);
 
-        r = m_Context->Execute();
-        if( r != asEXECUTION_FINISHED )
-        {
-            if( r == asEXECUTION_EXCEPTION )
-            {
-                TRI_CORE_ERROR("An exception '{0}' occurred. Please correct the code and try again.", m_Context->GetExceptionString());
-            }
-        }
+        ExecuteContext();
 
-        m_Context->Unprepare();
     }
 
     void ScriptEngine::OnCollisionStop(ScriptBuild build, GameObject collider) 
@@ -353,16 +336,8 @@ namespace TriEngine {
 
         m_Context->SetArgObject(0, &collider);
 
-        r = m_Context->Execute();
-        if( r != asEXECUTION_FINISHED )
-        {
-            if( r == asEXECUTION_EXCEPTION )
-            {
-                TRI_CORE_ERROR("An exception '{0}' occurred. Please correct the code and try again.", m_Context->GetExceptionString());
-            }
-        }
+        ExecuteContext();
 
-        m_Context->Unprepare();
     }
 
 }

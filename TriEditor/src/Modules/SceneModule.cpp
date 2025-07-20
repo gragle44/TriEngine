@@ -429,25 +429,37 @@ namespace TriEngine {
 			HelpMarker("Set the range of visibility for objects in the scene, with the Near Plane defining the closest distance and the Far Plane defining the farthest distance before objects will be culled.", true);
 		});
 
-		DrawComponent<ScriptComponent>("Script", object, [object](ScriptComponent& script)
+		DrawComponent<ScriptComponent>("Script", object, [object, this](ScriptComponent& script)
 		{
 			ScriptEngine& engine = ScriptEngine::Get();
 
-			// TODO: only rebuild when scene not running
-			if (!script.Build) {
-				script.Build = engine.BuildScript(object);
+			if (!script.Build && !m_Data->SceneRunning) {
+				engine.BuildScript(object);
 			}
 
-			if (ImGui::Button("Change script path")) {
+			float size = ImGui::CalcItemWidth() / 1.5f;
+			ImGui::PushItemWidth(size);
+			ImGui::InputText("##", &script.ScriptResource->Name, ImGuiInputTextFlags_ReadOnly);
+			ImGui::PopItemWidth();
 
+			ImGui::SameLine();
+			if (ImGui::ImageButton("change script button", (ImTextureID)m_Data->FolderTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
 				auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
 				auto output = OpenFileDialog(cwd.string(), "as");
 
-				ResourceID resourceID = ResourceManager::GetIDFromPath(output.string());
-				if (!ResourceManager::ResourceExists(resourceID))
-					script.ScriptResource = ResourceManager::Create<Script>(output.string());
-				else
-					script.ScriptResource = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceID));				
+				if (!output.empty()) {
+					ResourceID resourceID = ResourceManager::GetIDFromPath(output.string());
+					if (!ResourceManager::ResourceExists(resourceID))
+						script.ScriptResource = ResourceManager::Create<Script>(output.string());
+					else
+						script.ScriptResource = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceID));
+				}
+			}
+
+			ImGui::SameLine();
+			if (ImGui::ImageButton("reload script button", (ImTextureID)m_Data->ReloadTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
+				ResourceManager::ReloadResource(script.ScriptResource);
+				m_Data->ActiveScene->ReBuildScriptModulesOfScript(script.ScriptResource.get());
 			}
 
 			ImGui::Checkbox("Enabled", &script.Active);

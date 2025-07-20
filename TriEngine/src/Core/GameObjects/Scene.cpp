@@ -166,7 +166,7 @@ namespace TriEngine {
 
 			ScriptEngine& scriptEngine = ScriptEngine::Get();
 
-			sc.Build = scriptEngine.BuildScript(object);
+			scriptEngine.BuildScript(object);
 
 			if (sc.ScriptResource) {
 				scriptEngine.SetGlobalVariable<Scene*>(sc.Build, "Scene@ scene", this);
@@ -358,13 +358,16 @@ namespace TriEngine {
 		TRI_CORE_ASSERT(false, "Not implemented");
 	}
 
-	void Scene::ReBuildAllScripts() {
+	void Scene::ReBuildScriptModulesOfScript(Script* script)
+	{
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
-			ScriptEngine& scriptEngine = ScriptEngine::Get();
+			if (*sc.ScriptResource == *script) {
+				ScriptEngine& scriptEngine = ScriptEngine::Get();
 
-			GameObject object(entity, this);
-			sc.Build = scriptEngine.BuildScript(object);
+				GameObject object(entity, this);
+				scriptEngine.BuildScript(object);
+			}
 		}
 	}
 
