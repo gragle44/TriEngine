@@ -93,7 +93,7 @@ namespace TriEngine {
             return;
         }
 
-        std::string scriptName = std::filesystem::path(script->MetaData.Filepath).filename();
+        std::string scriptName = std::filesystem::path(script->MetaData.Filepath).filename().generic_string();
 
         CScriptBuilder builder;
         int32_t r = builder.StartNewModule(m_Engine, script->Name.data());

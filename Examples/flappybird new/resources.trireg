@@ -1,11 +1,11 @@
 TriEngine Resource Registry
 ---
-- ID: 17179647349136765162
-  Filepath: assets/bird.as
-  Type: Script
 - ID: 9815572501052349791
   Filepath: assets/background-day.png
   Type: Texture
+- ID: 17179647349136765162
+  Filepath: assets/bird.as
+  Type: Script
 - ID: 13834338315665630903
   Filepath: assets/pillar.as
   Type: Script
@@ -18,9 +18,6 @@ TriEngine Resource Registry
 - ID: 9652873989147379302
   Filepath: assets/yellowbird-midflap.png
   Type: Texture
-- ID: 8306858913585497046
-  Filepath: ""
-  Type: None
 - ID: 3414357080157574144
   Filepath: assets/base.png
   Type: Texture

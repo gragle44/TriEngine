@@ -144,11 +144,20 @@ namespace TriEngine {
         return this_->GetComponent<T>();
     }
 
+    template<typename T>
+    static const T& ConstGetComponentProxy(GameObject* this_) {
+        return this_->GetComponent<T>();
+    }
+
     #define REGISTER_COMPONENT_METHODS(C) \
     .method("bool Has"#C"()", &HasComponentProxy<C>) \
     .method(#C"@ Add"#C"()", &AddComponentProxy<C>) \
     .method(#C"@ Get"#C"()", &GetComponentProxy<C>) \
     .method("void Remove"#C"()", &RemoveComponentProxy<C>)
+
+    #define REGISTER_CONST_COMPONENT_METHODS(C) \
+        .method("bool Has"#C"()", &HasComponentProxy<C>) \
+        .method("const "#C"@ Get"#C"()", &ConstGetComponentProxy<C>) \
 
     static void BindObjectAndScene(asIScriptEngine* engine) {
         auto& gameObjectClass = asbind20::value_class<GameObject>(
@@ -159,8 +168,8 @@ namespace TriEngine {
             .behaviours_by_traits()
             .opEquals()
             .opImplConv<bool>()
-            REGISTER_COMPONENT_METHODS(IDComponent)
-            REGISTER_COMPONENT_METHODS(TagComponent)
+            REGISTER_CONST_COMPONENT_METHODS(IDComponent)
+            REGISTER_CONST_COMPONENT_METHODS(TagComponent)
             REGISTER_COMPONENT_METHODS(RigidBody2DComponent)
             REGISTER_COMPONENT_METHODS(BoxCollider2DComponent)
             REGISTER_COMPONENT_METHODS(ScriptComponent)

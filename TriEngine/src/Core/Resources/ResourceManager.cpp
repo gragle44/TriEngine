@@ -142,9 +142,15 @@ namespace TriEngine {
 		out << YAML::BeginSeq;
 
 		for (const auto& [id, metadata] : s_ResourceRegistry) {
+			std::string filepath = std::filesystem::relative(metadata.Filepath, ProjectManager::GetCurrent()->GetWorkingDirectory()).generic_string();
+
+			#ifdef TRI_PLATFORM_WINDOWS
+				std::replace(filepath.begin(), filepath.end(), '\\', '/');
+			#endif
+
 			out << YAML::BeginMap;
 			out << YAML::Key << "ID" << YAML::Value << id;
-			out << YAML::Key << "Filepath" << YAML::Value << std::filesystem::relative(metadata.Filepath, ProjectManager::GetCurrent()->GetWorkingDirectory()).string();
+			out << YAML::Key << "Filepath" << YAML::Value << filepath;
 			out << YAML::Key << "Type" << YAML::Value << GetStringFromType(metadata.Type);
 			out << YAML::EndMap;
 		}
