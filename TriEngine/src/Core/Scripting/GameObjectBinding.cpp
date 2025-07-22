@@ -63,8 +63,8 @@ namespace TriEngine {
             asOBJ_NOCOUNT
         )
             .property("OrthographicCamera Camera", &Camera2DComponent::Camera)
-            .property("bool Primary", offsetof(Camera2DComponent, Primary))
-            .property("bool Resizable", offsetof(Camera2DComponent, Resizable));
+            .property("bool Primary", asOFFSET(Camera2DComponent, Primary))
+            .property("bool Resizable", asOFFSET(Camera2DComponent, Resizable));
 
         asbind20::ref_class<Sprite2DComponent>(
             engine,
@@ -186,6 +186,7 @@ namespace TriEngine {
             .method("bool IsObjectValid(GameObject object)", &Scene::IsObjectValid)
             .method("GameObject CreateGameObject(const string& in = \"\")", &Scene::CreateGameObject)
             .method("GameObject CreateGameObjectUUID(UUID uuid, const string& in = \"\")", &Scene::CreateGameObjectUUID)
+            .method("GameObject GetGameObject(const string& in)", &Scene::GetObjectByName)
             .method("GameObject DuplicateObject(GameObject object)", &Scene::DuplicateObject)
             .method("void DeleteGameObject(GameObject object)", &Scene::DeleteGameObject);
     }

@@ -29,8 +29,11 @@ namespace TriEngine {
 
         ~ScriptEngine();
 
-        void BuildScript(Script* script);
+        void BuildScript(Reference<Script> script);
+        void RebuildAllScripts();
+
         void InstantiateScript(GameObject object);
+
         void ClearScriptInstance(GameObject object);
         void ClearAllScriptInstances(Scene* clearFrom);
 
@@ -66,6 +69,8 @@ namespace TriEngine {
 
         // Mapping of Object ids to script instances
         std::unordered_map<uint32_t, ScriptInstance> m_ScriptInstances;
+
+        std::vector<std::weak_ptr<Script>> m_Scripts;
 
         asIScriptEngine* m_Engine;
         asIScriptContext* m_Context;

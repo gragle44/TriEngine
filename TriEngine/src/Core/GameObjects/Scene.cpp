@@ -1,25 +1,27 @@
 #include "tripch.h"
 #include "Scene.h"
 
-#include "imgui.h"
 #include "Core/Base/UUID.h"
 #include "Components.h"
 #include "GameObject.h"
 #include "Script.h"
+
 #include "Core/Base/Input.h"
 
-#include "box2d/b2_world.h"
-#include "box2d/b2_body.h"
-#include "box2d/b2_fixture.h"
-#include "box2d/b2_polygon_shape.h"
-#include "box2d/b2_weld_joint.h"
+#include "Core/Scripting/ScriptEngine.h"
 
 #include "Renderer/Renderer2D.h"
 #include "Renderer/Particle.h"
 #include "Renderer/RenderCommand.h"
 
-namespace TriEngine {
+#include "imgui.h"
 
+#include "box2d/b2_world.h"
+#include "box2d/b2_body.h"
+#include "box2d/b2_fixture.h"
+#include "box2d/b2_polygon_shape.h"
+
+namespace TriEngine {
 	static b2BodyType BodyTypeToB2Type(RigidBody2DComponent::BodyType type) {
 		switch (type)
 		{
@@ -80,6 +82,10 @@ namespace TriEngine {
 	{
 		m_ResetPoint = Copy();
 
+		CreateGameObjectUUID(0, "Invalid Object");
+		m_DummyObject = &m_GameObjects.at(0);
+
+
 		auto cameraView = m_Registry.view<Camera2DComponent>();
 
 		for (auto entity : cameraView) {
@@ -131,13 +137,13 @@ namespace TriEngine {
 
 		ScriptEngine& scriptEngine = ScriptEngine::Get();
 
+		scriptEngine.RebuildAllScripts();
+
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
 			GameObject object(entity, this);
 
-
 			if (sc.ScriptResource) {
-				scriptEngine.BuildScript(sc.ScriptResource.get());
 				scriptEngine.InstantiateScript(object);
 				scriptEngine.SetScriptProperty<Scene*>(sc.Instance, "scene", this);
 				scriptEngine.SetScriptProperty<GameObject>(sc.Instance, "gameObject", object);
@@ -179,6 +185,7 @@ namespace TriEngine {
 
 		m_Registry.clear();
 		m_GameObjects.clear();
+		m_GameObjectNameMapping.clear();
 	}
 
 	void Scene::Reset() 
@@ -327,18 +334,6 @@ namespace TriEngine {
 		TRI_CORE_ASSERT(false, "Not implemented");
 	}
 
-	void Scene::ReBuildScriptModulesOfScript(Script* script)
-	{
-		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
-		{
-			if (*sc.ScriptResource == *script) {
-				ScriptEngine& scriptEngine = ScriptEngine::Get();
-
-				scriptEngine.BuildScript(sc.ScriptResource.get());
-			}
-		}
-	}
-
 	bool Scene::IsObjectValid(GameObject object)
 	{
 		return m_Registry.valid(object.GetHandle());
@@ -372,6 +367,16 @@ namespace TriEngine {
 		return newScene;
 	}
 
+	std::string Scene::IncrementObjectName(const std::string& name)
+	{
+		for (uint32_t i = 1;; i++)
+		{
+			std::string candidate = name + std::to_string(i);
+			if (!m_GameObjectNameMapping.contains(candidate))
+				return candidate;
+		}
+	}
+
 	GameObject Scene::CreateGameObjectUUID(uint64_t uuid, const std::string& tag)
 	{
 		GameObject object(m_Registry.create(), this);
@@ -382,9 +387,13 @@ namespace TriEngine {
 		TagComponent& tagComponent = object.AddComponent<TagComponent>(tag);
 		tagComponent.Tag = tag.empty() ? "Object" : tag;
 
+		if (m_GameObjectNameMapping.contains(tagComponent.Tag))
+			tagComponent.Tag = IncrementObjectName(tagComponent.Tag);
+
 		object.AddComponent<Transform2DComponent>();
 
 		m_GameObjects.emplace(uuid, object);
+		m_GameObjectNameMapping.emplace(tagComponent.Tag, object);
 		return object;
 	}
 
@@ -393,13 +402,37 @@ namespace TriEngine {
 		return m_GameObjects.at(uuid);
 	}
 
-	void Scene::DeleteGameObject(GameObject object)
+    GameObject Scene::GetObjectByName(const std::string& name) const noexcept
+    {
+		if (m_GameObjectNameMapping.contains(name))
+			return m_GameObjectNameMapping.at(name);
+		TRI_CORE_WARN("Can't get game object: unknown name '{}'", name);
+		return *m_DummyObject;
+	}
+
+    void Scene::OnObjectRenamed(GameObject object, std::string_view oldName, std::string_view newName)
+    {
+		auto node = m_GameObjectNameMapping.extract(oldName.data());
+		node.key() = newName;
+		m_GameObjectNameMapping.insert(std::move(node));
+
+		for (const auto [key, val] : m_GameObjectNameMapping) {
+			TRI_CORE_TRACE("Key: {}, Val: {}", key, static_cast<uint32_t>(val.GetHandle()));
+		}
+	}
+
+    void Scene::DeleteGameObject(GameObject object)
 	{
 		TRI_CORE_ASSERT(IsObjectValid(object), "Tried to delete invalid game object");
 		uint64_t uuid = object.GetComponent<IDComponent>().ID;
+		const std::string& name = object.GetComponent<TagComponent>().Tag;
 
-		//TODO: erase references to this object in its relationships
+		if (object.HasComponent<ScriptComponent>()) {
+			ScriptEngine& engine = ScriptEngine::Get();
+			engine.ClearScriptInstance(object);
+		}
 
+		m_GameObjectNameMapping.erase(name);
 		m_GameObjects.erase(uuid);
 		m_Registry.destroy(object.GetHandle());
 	}

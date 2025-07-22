@@ -2,6 +2,8 @@
 
 #include "ScriptEngine.h"
 
+#include "Utils/PlatformUtils.h"
+
 #include "ScriptBinding.h"
 #include "Core/GameObjects/GameObject.h"
 #include "Core/GameObjects/Components.h"
@@ -77,20 +79,31 @@ namespace TriEngine {
         m_Engine->ShutDownAndRelease();
     }
 
-    void ScriptEngine::BuildScript(Script* script) {
+    void ScriptEngine::BuildScript(Reference<Script> script) {
         TRI_CORE_ASSERT(script, "Invalid script resource");
-
-        if (script->Module) {
-            TRI_CORE_INFO("Rebuilding script '{}'", script->Name);
-            script->Module->Discard();
-            script->Module = nullptr;
-            script->TypeInfo = nullptr;
-        }
 
         if (!std::filesystem::exists(script->MetaData.Filepath)) [[unlikely]]
         {
             TRI_CORE_ERROR("Couldn't build script '{0}': invalid file path", script->MetaData.Filepath);
             return;
+        }
+
+        auto it = std::find_if(
+            m_Scripts.begin(),
+            m_Scripts.end(),
+            [&](std::weak_ptr<Script> const &w)
+            {
+                auto ref = w.lock();
+                return ref && ref == script;
+            });
+
+        bool alreadyExists = it != m_Scripts.end();
+
+        if (alreadyExists) {
+            TRI_CORE_INFO("Rebuilding script '{}'", script->Name);
+            script->Module->Discard();
+            script->Module = nullptr;
+            script->TypeInfo = nullptr;
         }
 
         std::string scriptName = std::filesystem::path(script->MetaData.Filepath).filename().generic_string();
@@ -149,10 +162,23 @@ namespace TriEngine {
         script->UpdateFunc = scriptTypeInfo->GetMethodByDecl("void OnUpdate(float deltatime)");
         script->CollisionStartFunc = scriptTypeInfo->GetMethodByDecl("void OnCollisionStart(GameObject)");
         script->CollisionStopFunc = scriptTypeInfo->GetMethodByDecl("void OnCollisionStop(GameObject)");
+
+        if (!alreadyExists)
+            m_Scripts.emplace_back(script);
+    }
+
+    void ScriptEngine::RebuildAllScripts() {
+        for (auto it = m_Scripts.begin(); it != m_Scripts.end(); ++it) {
+            if (it->expired())
+                continue;
+            BuildScript(it->lock());
+        }
     }
 
     void ScriptEngine::InstantiateScript(GameObject object)
     {
+        TRI_CORE_ASSERT(!m_ScriptInstances.contains(static_cast<uint32_t>(object.GetHandle())), "A script instance already exists for this object");
+
         auto& sc = object.GetComponent<ScriptComponent>();
 
         if (!sc.ScriptResource->TypeInfo) {
@@ -266,7 +292,18 @@ namespace TriEngine {
         }
     }
 
+    static void LineCallback(asIScriptContext* ctx, float* timeOut)
+    {
+        if (*timeOut < Time::GetTime())
+            ctx->Suspend();
+    }
+
     void ScriptEngine::ExecuteContext() {
+        // Disabled because this causes a crash for some reason
+
+        // float timeOut = Time::GetTime() + 2.0f;
+        // m_Context->SetLineCallback(asFUNCTION(LineCallback), &timeOut, asCALL_CDECL);
+
         int32_t r = m_Context->Execute();
         if (r != asEXECUTION_FINISHED)
         {
@@ -287,8 +324,6 @@ namespace TriEngine {
         if (!sc.ScriptResource->StartFunc || !sc.Instance)
             return;
 
-        //TODO: line callback
-
         int32_t r;
         r = m_Context->Prepare(sc.ScriptResource->StartFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
@@ -304,8 +339,6 @@ namespace TriEngine {
         if (!sc.ScriptResource->StopFunc || !sc.Instance)
             return;
 
-        //TODO: line callback
-
         int32_t r;
         r = m_Context->Prepare(sc.ScriptResource->StopFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
@@ -320,8 +353,6 @@ namespace TriEngine {
         auto& sc = object.GetComponent<ScriptComponent>();
         if (!sc.ScriptResource->UpdateFunc || !sc.Instance)
             return;
-
-        //TODO: line callback
 
         int32_t r;
         r = m_Context->Prepare(sc.ScriptResource->UpdateFunc);

@@ -4,7 +4,6 @@
 #include "Core/Events/Event.h"
 #include "Core/Renderer/RenderPass.h"
 #include "Core/Physics/ContactListener.h"
-#include "Core/Scripting/ScriptEngine.h"
 
 #include "entt/entt.hpp"
 
@@ -37,15 +36,19 @@ namespace TriEngine {
 		[[nodiscard]] const std::string& GetName() const { return m_Name; }
 		void SetMainCamera(GameObject camera);
 
-		void ReBuildScriptModulesOfScript(Script* script);
+		[[nodiscard]] const std::unordered_map<uint64_t, GameObject>& GetAllObjects() const { return m_GameObjects; }
 
-		const std::unordered_map<uint64_t, GameObject>& GetAllObjects() const { return m_GameObjects; }
-
-		bool IsObjectValid(GameObject object);
+		[[nodiscard]] bool IsObjectValid(GameObject object);
 		GameObject CreateGameObject(const std::string& tag = std::string());
 		GameObject CreateGameObjectUUID(uint64_t uuid, const std::string& tag = std::string());
+
 		[[nodiscard]] GameObject GetObjectByID(UUID uuid) const noexcept;
+		[[nodiscard]] GameObject GetObjectByName(const std::string& name) const noexcept;
+
+		void OnObjectRenamed(GameObject object, std::string_view oldName, std::string_view newName);
+
 		GameObject DuplicateObject(GameObject object);
+
 		void DeleteGameObject(GameObject object);
 
 	private:
@@ -56,10 +59,16 @@ namespace TriEngine {
 
 		void ShouldReset();
 
+		std::string IncrementObjectName(const std::string& name);
+
 		std::string m_Name;
 
 		entt::registry m_Registry;
 		std::unordered_map<uint64_t, GameObject> m_GameObjects;
+		std::unordered_map<std::string, GameObject> m_GameObjectNameMapping;
+
+		// Pointer to avoid including GameObject.h
+		GameObject* m_DummyObject;
 
 		Reference<Scene> m_ResetPoint = nullptr;
 

@@ -198,10 +198,11 @@ namespace TriEngine {
 				ImGuiInputTextFlags flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue;
 				if (ImGui::InputText("##", buffer, sizeof(buffer), flags)) {
 					tag.Tag = std::string(buffer);
+					m_Data->ActiveScene->OnObjectRenamed(object, oldName, tag.Tag);
 					renaming = false;
 					TRI_CORE_TRACE("Renamed object {0} to {1}", oldName, tag.Tag);
 				}
-				ImGui::Text("Characters remaining: %i", sizeof(buffer) - strlen(buffer));
+				ImGui::Text("Characters remaining: %i", sizeof(buffer) - strnlen(buffer, 64));
 				ImGui::EndPopup();
 			}
 		}
@@ -466,7 +467,7 @@ namespace TriEngine {
 			
 			if (ImGui::ImageButton("reload script button", (ImTextureID)m_Data->ReloadTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {\
 				engine.ClearAllScriptInstances(m_Data->ActiveScene.get());
-				engine.BuildScript(script.ScriptResource.get());
+				engine.BuildScript(script.ScriptResource);
 				engine.InstantiateScript(object);
 			}
 

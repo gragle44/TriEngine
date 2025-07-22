@@ -15,7 +15,7 @@ namespace TriEngine {
 		script->Name = std::filesystem::path(metadata.Filepath).filename().string();
 
 		ScriptEngine& engine = ScriptEngine::Get();
-		engine.BuildScript(script.get());
+		engine.BuildScript(script);
 
 		return script;
 	}
