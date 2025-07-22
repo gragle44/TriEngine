@@ -23,10 +23,9 @@ namespace TriEngine {
 
 	class Resource {
 	public:
-		ResourceMetadata MetaData;
-
-		template<typename T>
-		Reference<T> As() { return reinterpret_cast<T*>(this); }
+		Resource() = default;
+		Resource(const Resource& other) = default;
+		virtual ~Resource() = default;
 
 		operator bool() const {
 			return MetaData.Type != ResourceType::None;
@@ -36,8 +35,6 @@ namespace TriEngine {
 			return MetaData.ID == other.MetaData.ID;
 		}
 
-		Resource() = default;
-		Resource(const Resource& other) = default;
-		virtual ~Resource() = default;
+		ResourceMetadata MetaData;
 	};
 }

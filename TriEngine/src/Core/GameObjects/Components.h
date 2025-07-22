@@ -131,7 +131,7 @@ namespace TriEngine {
 	struct ScriptComponent {
 		std::shared_ptr<Script> ScriptResource;
 
-		ScriptBuild Build;
+		ScriptInstance* Instance = nullptr;
 
 		bool Active = true;
 

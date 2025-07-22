@@ -77,10 +77,27 @@ namespace TriEngine {
         m_Engine->ShutDownAndRelease();
     }
 
-    void ScriptEngine::CompileScript(Script* script) {
+    void ScriptEngine::BuildScript(Script* script) {
+        TRI_CORE_ASSERT(script, "Invalid script resource");
+
+        if (script->Module) {
+            TRI_CORE_INFO("Rebuilding script '{}'", script->Name);
+            script->Module->Discard();
+            script->Module = nullptr;
+            script->TypeInfo = nullptr;
+        }
+
+        if (!std::filesystem::exists(script->MetaData.Filepath)) [[unlikely]]
+        {
+            TRI_CORE_ERROR("Couldn't build script '{0}': invalid file path", script->MetaData.Filepath);
+            return;
+        }
+
+        std::string scriptName = std::filesystem::path(script->MetaData.Filepath).filename();
+
         CScriptBuilder builder;
         int32_t r = builder.StartNewModule(m_Engine, script->Name.data());
-        TRI_CORE_ASSERT(r >= 0, "Unrecoverable error while starting a new module");
+        TRI_CORE_ASSERT(r >= 0, "Unrecoverable error while starting a new script module");
 
         r = builder.AddSectionFromFile(script->MetaData.Filepath.c_str());
         if (r < 0)
@@ -98,72 +115,84 @@ namespace TriEngine {
 
         asIScriptModule* module = m_Engine->GetModule(script->Name.data());
 
-        ByteCodeStream stream(script->ByteCode);
-        module->SaveByteCode(&stream);
+        asITypeInfo* scriptTypeInfo = nullptr;
 
-        module->Discard();
-    }
+        int32_t objectTypeCount = module->GetObjectTypeCount();
+        for (int32_t i = 0; i < objectTypeCount; i++) {
+            asITypeInfo* type = module->GetObjectTypeByIndex(i);
 
-    void ScriptEngine::BuildScript(GameObject object) 
-    {
-        auto& sc = object.GetComponent<ScriptComponent>();
-        auto& script = sc.ScriptResource;
-
-        TRI_CORE_ASSERT(script, "Invalid script resource");
-        //TRI_CORE_ASSERT(!script->ByteCode.empty(), "Script has no bytecode");
-
-        if (sc.Build.Module) {
-            ClearScript(object);
-            TRI_CORE_INFO("Rebuilding script {} for object {}", script->Name, object.GetComponent<TagComponent>().Tag);
+            int32_t interfaceCount = type->GetInterfaceCount();
+            if (interfaceCount) {
+                if (interfaceCount > 1) 
+                    TRI_CORE_WARN("Scripts should only inherit from ScriptInterface");
+                asITypeInfo* baseType = type->GetInterface(0);
+                if (strcmp("ScriptInterface", baseType->GetName()) == 0) {
+                    if (scriptTypeInfo) {
+                        TRI_CORE_WARN("'{}': Please only extend ScriptInterface once per file", scriptName);
+                        continue;
+                    }
+                    scriptTypeInfo = type;
+                }
+            }
         }
-        TRI_CORE_ASSERT(sc.Build.Module == nullptr, "Attempted to build script that already has a built module");
 
-        if (!std::filesystem::exists(script->MetaData.Filepath)) {
-            TRI_CORE_ERROR("Couldn't build script '{0}': invalid file path", script->MetaData.Filepath);
+        if (!scriptTypeInfo) {
+            TRI_CORE_WARN("No class found that extends ScriptInterface in '{}'. Was there an error building the script?", scriptName);
             return;
         }
-        std::string scriptName(std::to_string(static_cast<uint32_t>(object.GetHandle())));
 
-        CScriptBuilder builder;
-        int32_t r = builder.StartNewModule(m_Engine, scriptName.c_str()); 
-        TRI_CORE_ASSERT(r >= 0, "Unrecoverable error while starting a new module");
+        script->Module = module;
+        script->TypeInfo = scriptTypeInfo;
 
-        auto *module = m_Engine->GetModule(scriptName.c_str());
-
-        ByteCodeStream stream(script->ByteCode);
-        module->LoadByteCode(&stream);
-
-        ScriptBuild build;
-        build.Module = module;
-        build.StartFunc = build.Module->GetFunctionByDecl("void on_start()");
-        build.StopFunc = build.Module->GetFunctionByDecl("void on_stop()");
-        build.UpdateFunc = build.Module->GetFunctionByDecl("void on_update(float)");
-        build.CollisionStartFunc = build.Module->GetFunctionByDecl("void on_collision_start(GameObject)");
-        build.CollisionStopFunc= build.Module->GetFunctionByDecl("void on_collision_stop(GameObject)");
-
-        sc.Build = build;
+        script->StartFunc = scriptTypeInfo->GetMethodByDecl("void OnStart()");
+        script->StopFunc = scriptTypeInfo->GetMethodByDecl("void OnStop()");
+        script->UpdateFunc = scriptTypeInfo->GetMethodByDecl("void OnUpdate(float deltatime)");
+        script->CollisionStartFunc = scriptTypeInfo->GetMethodByDecl("void OnCollisionStart(GameObject)");
+        script->CollisionStopFunc = scriptTypeInfo->GetMethodByDecl("void OnCollisionStop(GameObject)");
     }
 
-    void ScriptEngine::ClearScript(GameObject object) {
+    void ScriptEngine::InstantiateScript(GameObject object)
+    {
         auto& sc = object.GetComponent<ScriptComponent>();
 
-        if (sc.Build.Module) {
-            sc.Build.Module->Discard();
+        if (!sc.ScriptResource->TypeInfo) {
+            TRI_CORE_ERROR("Cannot instantiate script, see errors above");
+            return;
         }
 
-        sc.Build.Clear();
+        asbind20::script_object scriptObject = asbind20::instantiate_class(m_Context, sc.ScriptResource->TypeInfo);
+        // Prepare is called in asbind20::instantiate_class
+        m_Context->Unprepare();
+
+        m_ScriptInstances.emplace(static_cast<uint32_t>(object.GetHandle()), scriptObject);
+
+        sc.Instance = &m_ScriptInstances.at(static_cast<uint32_t>(object.GetHandle()));
+        EnumerateScript(sc.Instance);
     }
-    
 
-    void ScriptEngine::ClearAllScripts()
-    {
-        int32_t moduleCount = m_Engine->GetModuleCount();
-
-        for (int32_t i = 0; i < moduleCount-1; i++) {
-            auto* module = m_Engine->GetModuleByIndex(i);
-            if (module)
-                module->Discard();
+    void ScriptEngine::ClearScriptInstance(GameObject object) {
+        if (!m_ScriptInstances.contains(static_cast<uint32_t>(object.GetHandle()))) {
+            TRI_CORE_WARN("Script instances map doesn't contain key object '{}'", object.GetComponent<TagComponent>().Tag);
+            return;
         }
+
+        auto& sc = object.GetComponent<ScriptComponent>();
+        sc.Instance->Clear();
+
+        m_ScriptInstances.erase(static_cast<uint32_t>(object.GetHandle()));
+    }
+
+    void ScriptEngine::ClearAllScriptInstances(Scene* clearFrom)
+    {
+        TRI_CORE_ASSERT(clearFrom, "Tried to clear instances from invalid scene");
+        for (const auto& [objectid, instance] : m_ScriptInstances) {
+            GameObject object{static_cast<ObjectID>(objectid), clearFrom};
+            auto& sc = object.GetComponent<ScriptComponent>();
+            sc.Instance->Clear();
+            sc.Instance = nullptr;
+        }
+
+        m_ScriptInstances.clear();
     }
 
     static ScriptVariableType StringToVariableType(std::string_view typeName) {
@@ -182,6 +211,8 @@ namespace TriEngine {
         else if (typeName == "Float2") return ScriptVariableType::Vec2;
         else if (typeName == "Float3") return ScriptVariableType::Vec3;
         else if (typeName == "Float4") return ScriptVariableType::Vec4;
+        else if (typeName == "GameObject") return ScriptVariableType::GameObject;
+        else if (typeName == "Scene") return ScriptVariableType::Scene;
         else return ScriptVariableType::Unknown;
 
     }
@@ -207,46 +238,32 @@ namespace TriEngine {
         return type[typeID];
     }
 
-    std::vector<ScriptVariable> ScriptEngine::GetScriptProperties(ScriptBuild build) {
-        TRI_CORE_ASSERT(build.Module, "Invalid script module");
+    void ScriptEngine::EnumerateScript(ScriptInstance* script)
+    {
+        int32_t propertyCount = script->Object->GetPropertyCount();
 
-        int32_t globalVarCount = build.Module->GetGlobalVarCount();
+        script->Properties.reserve(propertyCount);
 
-        std::vector<ScriptVariable> properties;
-
-        for (int32_t i = 0; i < globalVarCount; i++) {
-            const char* name;
-            const char* nameSpace;
-            int32_t typeID;
-            bool isConst;
-
-            int32_t r = build.Module->GetGlobalVar(i, &name, &nameSpace, &typeID, &isConst);
-            TRI_CORE_ASSERT(r >= 0, "Error getting global variable");
-
-            // These global variables are reserved by the application
-            if (name == "gameObject" || name == "scene")
-                continue;
+        for (int32_t i = 0; i < propertyCount; i++) {
+            std::string_view propertyName = script->Object->GetPropertyName(i);
 
             ScriptVariableType dataType;
 
+            int32_t typeID = script->Object->GetPropertyTypeId(i);
             if (asbind20::is_primitive_type(typeID))
                 dataType = GetPrimitiveType(typeID);
             else {
-                asITypeInfo* typeInfo = m_Engine->GetTypeInfoById(typeID);
+                asITypeInfo *typeInfo = m_Engine->GetTypeInfoById(typeID);
                 TRI_CORE_ASSERT(typeInfo, "Invalid type info");
                 dataType = StringToVariableType(typeInfo->GetName());
             }
 
-            ScriptVariable variable;
-            variable.Name = name;
-            variable.Address = build.Module->GetAddressOfGlobalVar(i);
-            variable.Const = isConst;
-            variable.Type = dataType;
+            ScriptVariable property;
+            property.Address = script->Object->GetAddressOfProperty(i);
+            property.Type = dataType;
 
-            properties.push_back(std::move(variable));
+            script->Properties[propertyName.data()] = property;
         }
-
-        return properties;
     }
 
     void ScriptEngine::ExecuteContext() {
@@ -264,80 +281,88 @@ namespace TriEngine {
         m_Context->Unprepare();
     }
 
-    void ScriptEngine::StartScript(ScriptBuild build)
+    void ScriptEngine::StartScript(GameObject object)
     {
-        if (!build.StartFunc)
+        auto& sc = object.GetComponent<ScriptComponent>();
+        if (!sc.ScriptResource->StartFunc || !sc.Instance)
             return;
 
         //TODO: line callback
 
         int32_t r;
-        r = m_Context->Prepare(build.StartFunc);
+        r = m_Context->Prepare(sc.ScriptResource->StartFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
 
-        ExecuteContext();
+        m_Context->SetObject(sc.Instance->Object.get());
 
-    }
-
-    void ScriptEngine::StopScript(ScriptBuild build) 
-    {
-       if (!build.StopFunc)
-            return;
-
-        //TODO: line callback
-
-        int32_t r;
-        r = m_Context->Prepare(build.StopFunc);
-        TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
-        
         ExecuteContext();
     }
 
-    void ScriptEngine::UpdateScript(ScriptBuild build, float deltaTime) 
+    void ScriptEngine::StopScript(GameObject object)
     {
-        if (!build.UpdateFunc)
+        auto& sc = object.GetComponent<ScriptComponent>();
+        if (!sc.ScriptResource->StopFunc || !sc.Instance)
             return;
 
         //TODO: line callback
 
         int32_t r;
-        r = m_Context->Prepare(build.UpdateFunc);
+        r = m_Context->Prepare(sc.ScriptResource->StopFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
 
+        m_Context->SetObject(sc.Instance->Object.get());
+
+        ExecuteContext();
+    }
+
+    void ScriptEngine::UpdateScript(GameObject object, float deltaTime)
+    {
+        auto& sc = object.GetComponent<ScriptComponent>();
+        if (!sc.ScriptResource->UpdateFunc || !sc.Instance)
+            return;
+
+        //TODO: line callback
+
+        int32_t r;
+        r = m_Context->Prepare(sc.ScriptResource->UpdateFunc);
+        TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
+
+        m_Context->SetObject(sc.Instance->Object.get());
         m_Context->SetArgFloat(0, deltaTime);
 
         ExecuteContext();
-
     }
 
-    void ScriptEngine::OnCollisionStart(ScriptBuild build, GameObject collider) 
+    void ScriptEngine::OnCollisionStart(GameObject object, GameObject collider)
     {
-        if (!build.CollisionStartFunc)
+        auto& sc = object.GetComponent<ScriptComponent>();
+        if (!sc.ScriptResource->CollisionStartFunc || !sc.Instance)
             return;
         
         int32_t r;
-        r = m_Context->Prepare(build.CollisionStartFunc);
+        r = m_Context->Prepare(sc.ScriptResource->CollisionStartFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
 
+        m_Context->SetObject(sc.Instance->Object.get());
         m_Context->SetArgObject(0, &collider);
 
         ExecuteContext();
-
     }
 
-    void ScriptEngine::OnCollisionStop(ScriptBuild build, GameObject collider) 
+    void ScriptEngine::OnCollisionStop(GameObject object, GameObject collider)
     {
-        if (!build.CollisionStopFunc)
+        auto& sc = object.GetComponent<ScriptComponent>();
+        if (!sc.ScriptResource->CollisionStopFunc || !sc.Instance)
             return;
-        
+
         int32_t r;
-        r = m_Context->Prepare(build.CollisionStopFunc);
+        r = m_Context->Prepare(sc.ScriptResource->CollisionStopFunc);
         TRI_CORE_ASSERT(r >= 0, "Failed to prepare the context");
 
+        m_Context->SetObject(sc.Instance->Object.get());
         m_Context->SetArgObject(0, &collider);
 
         ExecuteContext();
-
     }
 
 }

@@ -1,47 +1,49 @@
-GameObject gameObject;
-Scene@ scene;
+class BirdScript : ScriptInterface {
+    void OnStart() {}
 
-float TIME_UNTIL_FALL = 0.5f;
+    void OnStop() {}
 
-float m_UpVelocity = 0.0f;
-float m_RotationVelocity = 0.0f;
+    void OnUpdate(float deltaTime) 
+    {
+        auto@ rigidBody = gameObject.GetRigidBody2DComponent();
+        auto@ transform = gameObject.GetTransform2DComponent();
 
-Float2 test;
+        if (IsKeyPressed(KeyCode::Space) || IsMouseButtonPressed(MouseButton::Left)) {
+            m_UpVelocity += 2.6f;
+            m_RotationVelocity = 10.0f;
+        }
+        else {
+            m_RotationVelocity = -3.0f;
+        }
 
-void on_start() 
-{
-    LogInfo(formatFloat2(test));
-}
+        m_UpVelocity -= 0.585f;
 
-void on_update(float deltaTime) 
-{
-    auto@ rigidBody = gameObject.GetRigidBody2DComponent();
-    auto@ transform = gameObject.GetTransform2DComponent();
+        if (m_UpVelocity > 9.1f)
+            m_UpVelocity = 9.1f;
+        else if (m_UpVelocity < -13.0f)
+            m_UpVelocity = -13.0f;
 
-    if (IsKeyPressed(KeyCode::Space) || IsMouseButtonPressed(MouseButton::Left)) {
-        m_UpVelocity += 2.6f;
-        m_RotationVelocity = 10.0f;
+        if (transform.Rotation > 45.0f && m_RotationVelocity > 0.0f)
+            m_RotationVelocity = 0.0f;
+        else if (transform.Rotation < -90.0f && m_RotationVelocity < 0.0f)
+            m_RotationVelocity = 0.0f;
+
+        rigidBody.SetVelocity(0.0f, m_UpVelocity);
+        rigidBody.SetAngularVelocity(m_RotationVelocity);
     }
-    else {
-        m_RotationVelocity = -3.0f;
+
+    void OnCollisionStart(GameObject collider) {
+        scene.Reset();
     }
 
-    m_UpVelocity -= 0.585f;
+    void OnCollisionStop(GameObject collider) {}
 
-    if (m_UpVelocity > 9.1f)
-        m_UpVelocity = 9.1f;
-    else if (m_UpVelocity < -13.0f)
-        m_UpVelocity = -13.0f;
+    GameObject gameObject;
+    Scene@ scene;
 
-    if (transform.Rotation > 45.0f && m_RotationVelocity > 0.0f)
-        m_RotationVelocity = 0.0f;
-    else if (transform.Rotation < -90.0f && m_RotationVelocity < 0.0f)
-        m_RotationVelocity = 0.0f;
+    float TIME_UNTIL_FALL = 0.5f;
 
-    rigidBody.SetVelocity(0.0f, m_UpVelocity);
-    rigidBody.SetAngularVelocity(m_RotationVelocity);
+    float m_UpVelocity = 0.0f;
+    float m_RotationVelocity = 0.0f;
 }
 
-void on_collision_start(GameObject collider) {
-    scene.Reset();
-}

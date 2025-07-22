@@ -18,6 +18,8 @@ namespace TriEngine {
         uint32_t m_CurrentPos = 0;
     };
 
+    class Scene;
+
     class ScriptEngine {
     public:
         static ScriptEngine& Get();
@@ -27,34 +29,29 @@ namespace TriEngine {
 
         ~ScriptEngine();
 
-        // Build a script module
-        void BuildScript(GameObject object);
-        // Compile a script into bytecode
-        void CompileScript(Script* script);
-        void ClearScript(GameObject object);
-        void ClearAllScripts();
+        void BuildScript(Script* script);
+        void InstantiateScript(GameObject object);
+        void ClearScriptInstance(GameObject object);
+        void ClearAllScriptInstances(Scene* clearFrom);
 
-        [[nodiscard]] std::vector<ScriptVariable> GetScriptProperties(ScriptBuild build);
-
-        void StartScript(ScriptBuild build);
-        void StopScript(ScriptBuild build);
-        void UpdateScript(ScriptBuild build, float deltaTime);
-        void OnCollisionStart(ScriptBuild build, GameObject collider);
-        void OnCollisionStop(ScriptBuild build, GameObject collider);
+        void StartScript(GameObject object);
+        void StopScript(GameObject object);
+        void UpdateScript(GameObject object, float deltaTime);
+        void OnCollisionStart(GameObject object, GameObject collider);
+        void OnCollisionStop(GameObject object, GameObject collider);
 
         template<typename T>
-        void SetGlobalVariable(const ScriptBuild& build, std::string_view decl, T value) 
+        void SetScriptProperty(const ScriptInstance* instance, const std::string& name, T value) 
         {
-            if (!build.Module) {
-                TRI_CORE_WARN("Tried to set a global variable on a script without a valid script module");
+            if (!instance)
+                return;
+            if (!instance->Properties.contains(name)) {
+                TRI_CORE_WARN("Script doesn't contain property '{}'", name);
                 return;
             }
                 
-            int32_t varIndex = build.Module->GetGlobalVarIndexByDecl(decl.data());
-            if (varIndex < 0)
-                return;
-
-            T* var = reinterpret_cast<T*>(build.Module->GetAddressOfGlobalVar(varIndex));  
+            auto& property = instance->Properties.at(name);
+            T* var = reinterpret_cast<T*>(property.Address);  
             *var = value;
         }
 
@@ -62,8 +59,13 @@ namespace TriEngine {
     private:
         ScriptEngine();
 
+        void EnumerateScript(ScriptInstance* script);
+
         void ExecuteContext();
         void ConfigureScriptEngine(asIScriptEngine* engine);
+
+        // Mapping of Object ids to script instances
+        std::unordered_map<uint32_t, ScriptInstance> m_ScriptInstances;
 
         asIScriptEngine* m_Engine;
         asIScriptContext* m_Context;

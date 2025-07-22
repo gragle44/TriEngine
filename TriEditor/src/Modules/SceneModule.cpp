@@ -224,7 +224,13 @@ namespace TriEngine {
 
 				ImGui::Text("Are you sure you want to delete this object? This action cannot be undone.");
 				if (ImGui::Button("Delete") || Input::IsKeyPressed(TRI_KEY_ENTER)) {
+					if (m_Data->SelectedItem == object)
+						m_Data->SelectedItem = {};
+
+					m_Data->RightSelectedItem = {};
+
 					m_Data->ActiveScene->DeleteGameObject(object);
+
 					deleting = false;
 				}
 				ImGui::EndPopup();
@@ -433,8 +439,8 @@ namespace TriEngine {
 		{
 			ScriptEngine& engine = ScriptEngine::Get();
 
-			if (!script.Build && !m_Data->SceneRunning) {
-				engine.BuildScript(object);
+			if (!script.Instance && !m_Data->SceneRunning) {
+				engine.InstantiateScript(object);
 			}
 
 			float size = ImGui::CalcItemWidth() / 1.5f;
@@ -457,63 +463,66 @@ namespace TriEngine {
 			}
 
 			ImGui::SameLine();
-			if (ImGui::ImageButton("reload script button", (ImTextureID)m_Data->ReloadTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
-				ResourceManager::ReloadResource(script.ScriptResource);
-				m_Data->ActiveScene->ReBuildScriptModulesOfScript(script.ScriptResource.get());
+			
+			if (ImGui::ImageButton("reload script button", (ImTextureID)m_Data->ReloadTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {\
+				engine.ClearAllScriptInstances(m_Data->ActiveScene.get());
+				engine.BuildScript(script.ScriptResource.get());
+				engine.InstantiateScript(object);
 			}
 
 			ImGui::Checkbox("Enabled", &script.Active);
 			HelpMarker("Whether the script should be updated and recieve events.", true);
 
-			//TODO: Recreating this each frame is probably bad for performance
-			auto properties = engine.GetScriptProperties(script.Build);
+			// The script couldn't be instantiated
+			if (!script.Instance)
+				return;
 
-			if (!properties.empty()) {
+			if (!script.Instance->Properties.empty()) {
 				ImGui::Spacing();
 				DrawCenteredText("Script Properties");
 				ImGui::Spacing();
 			}
 
-			for (const auto& property: properties) {
+			for (const auto& [name, property] : script.Instance->Properties) {
 				if (property.Type == ScriptVariableType::Bool) {
-					ImGui::Checkbox(property.Name.c_str(), reinterpret_cast<bool*>(property.Address));
+					ImGui::Checkbox(name.c_str(), reinterpret_cast<bool*>(property.Address));
 					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
 					}
 				}
 				else if (Utils::IsScriptVariableTypeScalar(property.Type)) {
 					float size = ImGui::CalcItemWidth() / 1.75f;
 					ImGui::PushItemWidth(size);
-					ImGui::InputScalar(property.Name.c_str(), ScriptScalarDataTypeToImGuiDataType(property.Type), property.Address, nullptr, nullptr, nullptr, ImGuiInputTextFlags_ElideLeft);
+					ImGui::InputScalar(name.c_str(), ScriptScalarDataTypeToImGuiDataType(property.Type), property.Address, nullptr, nullptr, nullptr, ImGuiInputTextFlags_ElideLeft);
 					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
 					}
 					ImGui::PopItemWidth();
 				}
 				else if (property.Type == ScriptVariableType::Vec2) {
 					float size = ImGui::CalcItemWidth() / 1.75f;
 					ImGui::PushItemWidth(size);
-					ImGui::InputFloat2(property.Name.c_str(), &reinterpret_cast<glm::vec2*>(property.Address)->x);
+					ImGui::InputFloat2(name.c_str(), &reinterpret_cast<glm::vec2*>(property.Address)->x);
 					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
 					}
 					ImGui::PopItemWidth();
 				}
 				else if (property.Type == ScriptVariableType::Vec3) {
 					float size = ImGui::CalcItemWidth() / 1.75f;
 					ImGui::PushItemWidth(size);
-					ImGui::InputFloat3(property.Name.c_str(), &reinterpret_cast<glm::vec3*>(property.Address)->x);
+					ImGui::InputFloat3(name.c_str(), &reinterpret_cast<glm::vec3*>(property.Address)->x);
 					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
 					}
 					ImGui::PopItemWidth();
 				}
 				else if (property.Type == ScriptVariableType::Vec4) {
 					float size = ImGui::CalcItemWidth() / 1.75f;
 					ImGui::PushItemWidth(size);
-					ImGui::InputFloat4(property.Name.c_str(), &reinterpret_cast<glm::vec4*>(property.Address)->x);
+					ImGui::InputFloat4(name.c_str(), &reinterpret_cast<glm::vec4*>(property.Address)->x);
 					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
 					}
 					ImGui::PopItemWidth();
 				}
@@ -521,9 +530,9 @@ namespace TriEngine {
 					float size = ImGui::CalcItemWidth() / 1.75f;
 					ImGui::PushItemWidth(size);
 					std::string* text = reinterpret_cast<std::string*>(property.Address);
-					ImGui::InputText(property.Name.c_str(), text);
+					ImGui::InputText(name.c_str(), text);
 					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(std::format("{} {}", property.Const ? "const" : "", magic_enum::enum_name(property.Type)).c_str());
+						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
 					}
 					ImGui::PopItemWidth();
 				}

@@ -24,14 +24,14 @@ namespace TriEngine {
 				auto& script = objectA.GetComponent<ScriptComponent>();
 
 				if (script.Active)
-					scriptEngine.OnCollisionStart(script.Build, objectB);
+					scriptEngine.OnCollisionStart(objectA, objectB);
 			}
 
 			if (objectB.HasComponent<ScriptComponent>()) {
 				auto& script = objectB.GetComponent<ScriptComponent>();
 
 				if (script.Active)
-					scriptEngine.OnCollisionStart(script.Build, objectA);
+					scriptEngine.OnCollisionStart(objectB, objectA);
 			}
 
 			if (objectA.HasComponent<NativeScriptComponent>()) {
@@ -65,14 +65,14 @@ namespace TriEngine {
 				auto& script = objectA.GetComponent<ScriptComponent>();
 
 				if (script.Active)
-					scriptEngine.OnCollisionStop(script.Build, objectB);
+					scriptEngine.OnCollisionStop(objectA, objectB);
 			}
 
 			if (objectB.HasComponent<ScriptComponent>()) {
 				auto& script = objectB.GetComponent<ScriptComponent>();
 
 				if (script.Active)
-					scriptEngine.OnCollisionStop(script.Build, objectA);
+					scriptEngine.OnCollisionStop(objectB, objectA);
 			}
 
 			if (objectA.HasComponent<NativeScriptComponent>()) {

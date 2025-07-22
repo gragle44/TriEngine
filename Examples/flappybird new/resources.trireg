@@ -1,26 +1,26 @@
 TriEngine Resource Registry
 ---
 - ID: 17179647349136765162
-  Filepath: assets\bird.as
+  Filepath: assets/bird.as
   Type: Script
 - ID: 9815572501052349791
-  Filepath: assets\background-day.png
+  Filepath: assets/background-day.png
   Type: Texture
 - ID: 13834338315665630903
-  Filepath: assets\pillar.as
+  Filepath: assets/pillar.as
   Type: Script
 - ID: 6273335110637716183
   Filepath: flappybird.tscn
   Type: Scene
 - ID: 4257225564271971941
-  Filepath: assets\pipe-green.png
+  Filepath: assets/pipe-green.png
   Type: Texture
 - ID: 9652873989147379302
-  Filepath: assets\yellowbird-midflap.png
+  Filepath: assets/yellowbird-midflap.png
   Type: Texture
 - ID: 8306858913585497046
   Filepath: ""
   Type: None
 - ID: 3414357080157574144
-  Filepath: assets\base.png
+  Filepath: assets/base.png
   Type: Texture

@@ -3,6 +3,7 @@
 #include "Core/Resources/Resource.h"
 
 #include "angelscript.h"
+#include "asbind20/asbind.hpp"
 
 #include <string>
 
@@ -26,7 +27,9 @@ namespace TriEngine {
         String,
         Vec2,
         Vec3,
-        Vec4
+        Vec4,
+        GameObject,
+        Scene
     };
 
     namespace Utils {
@@ -51,28 +54,28 @@ namespace TriEngine {
     }
 
     struct ScriptVariable {
-        std::string Name;
         void* Address;
-        bool Const;
         ScriptVariableType Type;
     };
 
-    struct ScriptBuild {
-        asIScriptModule* Module = nullptr;
+    struct ScriptInstance {
+        ScriptInstance() = default;
+        ScriptInstance(asbind20::script_object& object)
+            : Object(std::move(object)) {}
 
-        asIScriptFunction* StartFunc = nullptr;
-        asIScriptFunction* StopFunc = nullptr;
-        asIScriptFunction* UpdateFunc = nullptr;
-        asIScriptFunction* CollisionStartFunc = nullptr;
-        asIScriptFunction* CollisionStopFunc = nullptr;
-
-        operator bool() const noexcept {
-            return Module != nullptr;
+        operator bool() const noexcept
+        {
+            return Object.get() != nullptr;
         }
 
-        void Clear() {
-            *this = {};
+        void Clear()
+        {
+            Properties = {};
+            Object.reset();
         }
+
+        asbind20::script_object Object;
+        std::unordered_map<std::string, ScriptVariable> Properties;
     };
 
     class Script : public Resource {
@@ -83,6 +86,15 @@ namespace TriEngine {
         virtual ~Script() = default;
 
         std::string Name;
-        ByteBuffer ByteCode;
+
+        asIScriptModule* Module = nullptr;
+
+        asITypeInfo* TypeInfo = nullptr;
+
+        asIScriptFunction* StartFunc = nullptr;
+        asIScriptFunction* StopFunc = nullptr;
+        asIScriptFunction* UpdateFunc = nullptr;
+        asIScriptFunction* CollisionStartFunc = nullptr;
+        asIScriptFunction* CollisionStopFunc = nullptr;
     };
 }

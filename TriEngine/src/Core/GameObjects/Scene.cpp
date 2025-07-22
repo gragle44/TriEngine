@@ -129,49 +129,19 @@ namespace TriEngine {
 			body->CreateFixture(&fixtureDef);
 		}
 
-		/*
-		// Link child nodes to their parents
-		for (auto entity : view) {
-			GameObject object = { entity, this };
-
-			auto& rigidBody = object.GetComponent<RigidBody2DComponent>();
-			const auto& transform = object.GetComponent<Transform2DComponent>();
-			const auto& relationship = object.GetComponent<RelationshipComponent>();
-
-			if (!relationship.Parent)
-				continue;
-
-			GameObject parent = GetObjectByID(relationship.Parent);
-
-			if (!parent.HasComponent<RigidBody2DComponent>() || !parent.HasComponent<BoxCollider2DComponent>()) 
-				continue;
-
-			auto& parentRigidBody = parent.GetComponent<RigidBody2DComponent>();
-			const auto& parentTransform = parent.GetComponent<Transform2DComponent>();
-		
-			b2Body* parentBody = reinterpret_cast<b2Body*>(parentRigidBody.Body);
-			b2Body* body = reinterpret_cast<b2Body*>(rigidBody.Body);
-
-			b2WeldJointDef jointDef;
-			jointDef.Initialize(parentBody, body, parentBody->GetLocalPoint(parentBody->GetWorldCenter()));
-
-			m_PhysicsWorld->CreateJoint(&jointDef);
-		}
-		*/
+		ScriptEngine& scriptEngine = ScriptEngine::Get();
 
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
-
 			GameObject object(entity, this);
 
-			ScriptEngine& scriptEngine = ScriptEngine::Get();
-
-			scriptEngine.BuildScript(object);
 
 			if (sc.ScriptResource) {
-				scriptEngine.SetGlobalVariable<Scene*>(sc.Build, "Scene@ scene", this);
-				scriptEngine.SetGlobalVariable<GameObject>(sc.Build, "GameObject gameObject", object);
-				scriptEngine.StartScript(sc.Build);
+				scriptEngine.BuildScript(sc.ScriptResource.get());
+				scriptEngine.InstantiateScript(object);
+				scriptEngine.SetScriptProperty<Scene*>(sc.Instance, "scene", this);
+				scriptEngine.SetScriptProperty<GameObject>(sc.Instance, "gameObject", object);
+				scriptEngine.StartScript(object);
 			}
 		}
 		
@@ -194,13 +164,12 @@ namespace TriEngine {
 
 		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
+			GameObject object {entity, this};
 			if (sc.Active && sc.ScriptResource) {
-				scriptEngine.StopScript(sc.Build);
+				scriptEngine.StopScript(object);
 			}
-			sc.Build.Clear();
+			scriptEngine.ClearScriptInstance(object);
 		}
-
-		scriptEngine.ClearAllScripts();
 
 		delete m_PhysicsWorld;
 		m_PhysicsWorld = nullptr;
@@ -261,7 +230,7 @@ namespace TriEngine {
 			ScriptEngine& scriptEngine = ScriptEngine::Get();
 
 			if (sc.Active && sc.ScriptResource) {
-				scriptEngine.UpdateScript(sc.Build, deltaTime);
+				scriptEngine.UpdateScript({entity, this}, deltaTime);
 			}
 		}
 
@@ -365,8 +334,7 @@ namespace TriEngine {
 			if (*sc.ScriptResource == *script) {
 				ScriptEngine& scriptEngine = ScriptEngine::Get();
 
-				GameObject object(entity, this);
-				scriptEngine.BuildScript(object);
+				scriptEngine.BuildScript(sc.ScriptResource.get());
 			}
 		}
 	}
@@ -415,8 +383,6 @@ namespace TriEngine {
 		tagComponent.Tag = tag.empty() ? "Object" : tag;
 
 		object.AddComponent<Transform2DComponent>();
-
-		object.AddComponent<RelationshipComponent>();
 
 		m_GameObjects.emplace(uuid, object);
 		return object;

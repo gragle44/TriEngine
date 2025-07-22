@@ -24,21 +24,6 @@ namespace TriEngine {
 		s_ResourceRegistry.clear();
 	}
 
-	void ResourceManager::ReloadResource(ResourceID resourceID) noexcept {
-		if (s_Resources.contains(resourceID))
-			ReloadResource(s_Resources.at(resourceID));
-		else
-			TRI_CORE_ERROR("Cannot reload resource: invalid resource ID: '{}'", resourceID);
-	}
-
-	void ResourceManager::ReloadResource(Reference<Resource> resource) noexcept
-	{
-		TRI_CORE_ASSERT(s_Resources.contains(resource->MetaData.ID), "ResourceManager doesn't contain resource");
-		Reference<Resource> newResource = ResourceLoader::Load(resource->MetaData);
-		s_Resources[resource->MetaData.ID] = newResource;
-		*resource = *newResource;
-	}
-
 	Reference<Resource> ResourceManager::Load(ResourceMetadata& metadata)
 	{
 		Reference<Resource> resource = ResourceLoader::Load(metadata);

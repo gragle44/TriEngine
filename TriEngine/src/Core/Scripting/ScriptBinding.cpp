@@ -364,5 +364,12 @@ namespace TriEngine {
             .function("string formatFloat2(Float2 vec)", &formatVec2)
             .function("string formatFloat3(Float3 vec)", &formatVec3)
             .function("string formatFloat4(Float4 vec)", &formatVec4);
+
+        asbind20::interface(engine, "ScriptInterface")
+            .method("void OnStart()")
+            .method("void OnStop()")
+            .method("void OnUpdate(float deltatime)")
+            .method("void OnCollisionStart(GameObject)")
+            .method("void OnCollisionStop(GameObject)");
     }
 }
