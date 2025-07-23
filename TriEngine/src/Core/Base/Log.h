@@ -15,6 +15,8 @@ namespace TriEngine {
 
 		static Reference<spdlog::logger> GetCoreLogger() { return s_CoreLogger; }
 		static Reference<spdlog::logger> GetClientLogger() { return s_ClientLogger; }
+
+		static void AddSink(spdlog::sink_ptr sink) { s_CoreLogger->sinks().push_back(sink); s_ClientLogger->sinks().push_back(sink); }
 	private:
 		static std::shared_ptr<spdlog::logger> s_CoreLogger;
 		static std::shared_ptr<spdlog::logger> s_ClientLogger;

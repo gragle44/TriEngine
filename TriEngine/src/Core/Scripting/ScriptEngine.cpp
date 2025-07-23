@@ -173,6 +173,7 @@ namespace TriEngine {
                 continue;
             BuildScript(it->lock());
         }
+
     }
 
     void ScriptEngine::InstantiateScript(GameObject object)

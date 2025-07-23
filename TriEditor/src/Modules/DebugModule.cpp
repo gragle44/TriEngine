@@ -31,9 +31,7 @@ namespace TriEngine {
 		}
 		ImGui::End();
 
-		if (ImGui::Begin("Log")) {
+		m_Data->Sink->OnImGuiRender();
 
-		}
-		ImGui::End();
 	}
 }

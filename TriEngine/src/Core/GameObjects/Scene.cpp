@@ -143,6 +143,10 @@ namespace TriEngine {
 		{
 			GameObject object(entity, this);
 
+			// Clear the instance if it has been built in the editor already
+			if (sc.Instance)
+				scriptEngine.ClearScriptInstance(object);
+
 			if (sc.ScriptResource) {
 				scriptEngine.InstantiateScript(object);
 				scriptEngine.SetScriptProperty<Scene*>(sc.Instance, "scene", this);
@@ -415,10 +419,6 @@ namespace TriEngine {
 		auto node = m_GameObjectNameMapping.extract(oldName.data());
 		node.key() = newName;
 		m_GameObjectNameMapping.insert(std::move(node));
-
-		for (const auto [key, val] : m_GameObjectNameMapping) {
-			TRI_CORE_TRACE("Key: {}, Val: {}", key, static_cast<uint32_t>(val.GetHandle()));
-		}
 	}
 
     void Scene::DeleteGameObject(GameObject object)

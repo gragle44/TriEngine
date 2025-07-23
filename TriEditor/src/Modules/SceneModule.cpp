@@ -105,6 +105,9 @@ namespace TriEngine {
 
 	void SceneModule::DrawNode(GameObject& object)
 	{
+		// Object ID 0 is reserved for a dummy object
+		if (object.GetComponent<IDComponent>().ID == 0)
+			return;
 		auto& tag = object.GetComponent<TagComponent>();
 
 		ImGuiTreeNodeFlags flags = ((m_Data->SelectedItem == object) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;

@@ -13,6 +13,8 @@ enum class EditorState : uint8_t {
 };
 
 struct EditorData {
+	std::shared_ptr<imgui_sink_mt> Sink;
+
 	ImFont* EditorFont;
 	Reference<Texture2D> PlayTexture;
 	Reference<Texture2D> PauseTexture;

@@ -68,7 +68,7 @@ namespace TriEngine {
 		std::unordered_map<std::string, GameObject> m_GameObjectNameMapping;
 
 		// Pointer to avoid including GameObject.h
-		GameObject* m_DummyObject;
+		GameObject* m_DummyObject = nullptr;
 
 		Reference<Scene> m_ResetPoint = nullptr;
 
