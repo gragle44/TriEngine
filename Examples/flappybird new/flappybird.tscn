@@ -15,7 +15,7 @@ Objects:
       Scale: [1, 1]
     Camera2DComponent:
       Zoom: 12
-      AspectRatio: 1.57495594
+      AspectRatio: 1.80685925
       YScale: 1
       NearClip: -1
       FarClip: 1
@@ -48,7 +48,7 @@ Objects:
     TagComponent:
       Tag: Bottom Collider
     Transform2DComponent:
-      Position: [0, -9.5, 0.400000006]
+      Position: [0, -7.25, 0.400000006]
       Rotation: 0
       Scale: [12, 4]
     RigidBody2DComponent:
@@ -72,7 +72,7 @@ Objects:
     TagComponent:
       Tag: Pillar
     Transform2DComponent:
-      Position: [35, -10, 0.25]
+      Position: [20, -10, 0.25]
       Rotation: 0
       Scale: [2, 16]
     ScriptComponent:
@@ -113,7 +113,7 @@ Objects:
       Children:
         []
     TagComponent:
-      Tag: Background
+      Tag: Background1
     Transform2DComponent:
       Position: [-10, 0, -0.5]
       Rotation: 0
@@ -129,7 +129,7 @@ Objects:
       Children:
         []
     TagComponent:
-      Tag: Background
+      Tag: Background2
     Transform2DComponent:
       Position: [10, 0, -0.5]
       Rotation: 0
@@ -199,9 +199,9 @@ Objects:
       Children:
         []
     TagComponent:
-      Tag: Pillar
+      Tag: Pillar1
     Transform2DComponent:
-      Position: [20, -10, 0.25]
+      Position: [35, -10, 0.25]
       Rotation: 0
       Scale: [2, 16]
     ScriptComponent:
@@ -226,7 +226,7 @@ Objects:
       Children:
         []
     TagComponent:
-      Tag: InvertedPillar
+      Tag: InvertedPillar1
     Transform2DComponent:
       Position: [35, 10, 0.25]
       Rotation: 180
@@ -253,7 +253,7 @@ Objects:
       Children:
         []
     TagComponent:
-      Tag: Pillar
+      Tag: Pillar2
     Transform2DComponent:
       Position: [50, -10, 0.25]
       Rotation: 0
@@ -280,7 +280,7 @@ Objects:
       Children:
         []
     TagComponent:
-      Tag: InvertedPillar
+      Tag: InvertedPillar2
     Transform2DComponent:
       Position: [50, 10, 0.25]
       Rotation: 180

@@ -24,6 +24,10 @@ namespace TriEngine {
         return this_->ScriptResource->Name;
     }
 
+    static const std::string& ObjectGetName_Proxy(GameObject* this_) {
+        return this_->GetComponent<TagComponent>().Tag;
+    }
+
     static void BindComponents(asIScriptEngine* engine) {
         asbind20::ref_class<Transform2DComponent>(
             engine,
@@ -150,14 +154,14 @@ namespace TriEngine {
     }
 
     #define REGISTER_COMPONENT_METHODS(C) \
-    .method("bool Has"#C"()", &HasComponentProxy<C>) \
+    .method("bool Has"#C"() const", &HasComponentProxy<C>) \
     .method(#C"@ Add"#C"()", &AddComponentProxy<C>) \
     .method(#C"@ Get"#C"()", &GetComponentProxy<C>) \
     .method("void Remove"#C"()", &RemoveComponentProxy<C>)
 
     #define REGISTER_CONST_COMPONENT_METHODS(C) \
-        .method("bool Has"#C"()", &HasComponentProxy<C>) \
-        .method("const "#C"@ Get"#C"()", &ConstGetComponentProxy<C>) \
+        .method("bool Has"#C"() const", &HasComponentProxy<C>) \
+        .method("const "#C"@ Get"#C"() const", &ConstGetComponentProxy<C>) \
 
     static void BindObjectAndScene(asIScriptEngine* engine) {
         auto& gameObjectClass = asbind20::value_class<GameObject>(
@@ -168,6 +172,7 @@ namespace TriEngine {
             .behaviours_by_traits()
             .opEquals()
             .opImplConv<bool>()
+            .method("const string& GetName() const", &ObjectGetName_Proxy)
             REGISTER_CONST_COMPONENT_METHODS(IDComponent)
             REGISTER_CONST_COMPONENT_METHODS(TagComponent)
             REGISTER_COMPONENT_METHODS(RigidBody2DComponent)
@@ -183,7 +188,7 @@ namespace TriEngine {
             .method("void Start()", &Scene::Start)
             .method("void Stop()", &Scene::Stop)
             .method("const string& GetName() const", &Scene::GetName)
-            .method("bool IsObjectValid(GameObject object)", &Scene::IsObjectValid)
+            .method("bool IsObjectValid(GameObject object) const", &Scene::IsObjectValid)
             .method("GameObject CreateGameObject(const string& in = \"\")", &Scene::CreateGameObject)
             .method("GameObject CreateGameObjectUUID(UUID uuid, const string& in = \"\")", &Scene::CreateGameObjectUUID)
             .method("GameObject GetGameObject(const string& in)", &Scene::GetObjectByName)

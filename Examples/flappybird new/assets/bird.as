@@ -8,12 +8,16 @@ class BirdScript : ScriptInterface {
         auto@ rigidBody = gameObject.GetRigidBody2DComponent();
         auto@ transform = gameObject.GetTransform2DComponent();
 
+        m_TimeSinceSpacePressed += deltaTime;
+
         if (IsKeyPressed(KeyCode::Space) || IsMouseButtonPressed(MouseButton::Left)) {
+            m_TimeSinceSpacePressed = 0.0f;
             m_UpVelocity += 2.6f;
-            m_RotationVelocity = 10.0f;
+            m_RotationVelocity = 20.0f;
         }
         else {
-            m_RotationVelocity = -3.0f;
+            if (m_TimeSinceSpacePressed >= TIME_UNTIL_FALL)
+                m_RotationVelocity = -5.0f;
         }
 
         m_UpVelocity -= 0.585f;
@@ -23,7 +27,7 @@ class BirdScript : ScriptInterface {
         else if (m_UpVelocity < -13.0f)
             m_UpVelocity = -13.0f;
 
-        if (transform.Rotation > 45.0f && m_RotationVelocity > 0.0f)
+        if (transform.Rotation > 15.0f && m_RotationVelocity > 0.0f)
             m_RotationVelocity = 0.0f;
         else if (transform.Rotation < -90.0f && m_RotationVelocity < 0.0f)
             m_RotationVelocity = 0.0f;
@@ -41,9 +45,11 @@ class BirdScript : ScriptInterface {
     GameObject gameObject;
     Scene@ scene;
 
-    float TIME_UNTIL_FALL = 0.5f;
+    float TIME_UNTIL_FALL = 0.25f;
 
     float m_UpVelocity = 0.0f;
     float m_RotationVelocity = 0.0f;
+
+    float m_TimeSinceSpacePressed = 0.0f;    
 }
 

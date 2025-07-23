@@ -99,7 +99,9 @@ namespace TriEngine {
 
         bool alreadyExists = it != m_Scripts.end();
 
-        if (alreadyExists) {
+        if (!alreadyExists)
+            m_Scripts.emplace_back(script);
+        else {
             TRI_CORE_INFO("Rebuilding script '{}'", script->Name);
             script->Module->Discard();
             script->Module = nullptr;
@@ -162,9 +164,6 @@ namespace TriEngine {
         script->UpdateFunc = scriptTypeInfo->GetMethodByDecl("void OnUpdate(float deltatime)");
         script->CollisionStartFunc = scriptTypeInfo->GetMethodByDecl("void OnCollisionStart(GameObject)");
         script->CollisionStopFunc = scriptTypeInfo->GetMethodByDecl("void OnCollisionStop(GameObject)");
-
-        if (!alreadyExists)
-            m_Scripts.emplace_back(script);
     }
 
     void ScriptEngine::RebuildAllScripts() {
