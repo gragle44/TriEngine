@@ -1,6 +1,9 @@
 #include "tripch.h"
 
 #include "ResourceManager.h"
+
+#include "ResourceArchive.h"
+
 #include "Projects/ProjectManager.h"
 
 #include "magic_enum.hpp"
@@ -8,25 +11,28 @@
 namespace TriEngine {
 
 	std::unordered_map<ResourceID, Reference<Resource>> ResourceManager::s_Resources;
-	std::unordered_map<ResourceID, ResourceMetadata> ResourceManager::s_ResourceRegistry;
+	ResourceRegistry* ResourceManager::s_ResourceRegistry;
 
-	std::filesystem::path ResourceManager::s_ResourceRegistryPath;
-
-	void ResourceManager::Init()
-	{
-		s_ResourceRegistryPath = ProjectManager::GetCurrent()->GetWorkingDirectory() / "resources.trireg";
-		LoadResourceRegistry();
+    void ResourceManager::Init()
+    {
+		auto resourceRegistryPath = ProjectManager::GetCurrent()->GetWorkingDirectory() / "resources.trireg";
+		s_ResourceRegistry = ResourceRegistry::Create(resourceRegistryPath);
+		s_ResourceRegistry->Load();
 	}
 
 	void ResourceManager::Shutdown()
 	{
 		s_Resources.clear();
-		s_ResourceRegistry.clear();
+		delete s_ResourceRegistry;
 	}
 
-	Reference<Resource> ResourceManager::Load(ResourceMetadata& metadata)
+	Reference<Resource> ResourceManager::Load(const ResourceMetadata& metadata)
 	{
-		Reference<Resource> resource = ResourceLoader::Load(metadata);
+		Reference<Resource> resource;
+		if (s_ResourceRegistry->IsBinaryRegistry())
+			resource = ResourceLoader::LoadBinary(metadata);
+		else
+			resource = ResourceLoader::Load(metadata);
 		s_Resources[metadata.ID] = resource;
 		return resource;
 	}
@@ -34,26 +40,27 @@ namespace TriEngine {
 	void ResourceManager::Remove(ResourceID id)
 	{
 		if (ResourceExists(id)) {
-			ResourceMetadata metadata = s_ResourceRegistry[id];
+			ResourceMetadata metadata = s_ResourceRegistry->GetMetaData(id);
 
 			std::string resourceMetadataPath = metadata.Filepath + ".meta";
 
 			if (std::filesystem::exists(resourceMetadataPath))
 				std::filesystem::remove(resourceMetadataPath);
 
-			s_ResourceRegistry.erase(id);
-			SaveResourceRegistry();
+			s_ResourceRegistry->Remove(id);
+			s_ResourceRegistry->Save();
 		}
 	}
 
 	void ResourceManager::SaveResource(Reference<Resource> resource)
 	{
+		TRI_CORE_ASSERT(!s_ResourceRegistry->IsBinaryRegistry(), "Resources loaded from binary archives should not be saved during runtime");
 		ResourceLoader::Save(resource);
 	}
 
 	ResourceID ResourceManager::GetIDFromPath(const std::string& path)
 	{
-		for (const auto& [id, metadata] : s_ResourceRegistry) {
+		for (const auto& [id, metadata] : s_ResourceRegistry->GetRegistry()) {
 			if (metadata.Filepath == path)
 				return metadata.ID;
 		}
@@ -82,24 +89,88 @@ namespace TriEngine {
 
 	ResourceMetadata& ResourceManager::GetMetadata(ResourceID id)
 	{
-		return s_ResourceRegistry.at(id);
+		return s_ResourceRegistry->GetMetaData(id);
 	}
 
-	ResourceType ResourceManager::GetTypeFromExtension(const std::filesystem::path& filePath)
-	{
+    void ResourceManager::CreateResourceArchive()
+    {	
+		// The pipeline will be:
+		// Set resource offset to current offset
+		// Save resource
+		// Jump to end of file to get new offset
+
+		for (auto& [id, metadata] : s_ResourceRegistry->GetRegistry()) {
+			if (!s_Resources.contains(id))
+				Load(metadata);
+		}
+
+		std::vector<std::vector<Reference<Resource>>> resourcesByIndex;
+		// TODO: remove this magic number
+		resourcesByIndex.resize(64);
+
+		for (const auto& [id, resource] : s_Resources) {
+			resourcesByIndex[resource->MetaData.ArchiveIndex].push_back(resource);
+		}
+
+		uint32_t index = 0;
+		for (auto& resourceArchiveList : resourcesByIndex) {
+			if (resourceArchiveList.empty()) {
+				index++;
+				continue;
+			}
+
+			uint32_t currentOffset = sizeof(ArchiveHeader);
+
+			ArchiveHeader header;
+			memcpy(&header.Magic, RESOURCE_HEADER_MAGIC, sizeof(uint32_t));
+			header.Version = 0;
+			header.Index = index;
+			header.FileCount = resourceArchiveList.size();
+
+			std::filesystem::path archivePath = ProjectManager::GetCurrent()->GetAbsolutePath(std::format("export/data/{}.pck", index));
+			if (!std::filesystem::exists(archivePath.parent_path()))
+				std::filesystem::create_directories(archivePath.parent_path());
+
+			std::ofstream archive(archivePath, std::ios::binary);
+			archive.write(reinterpret_cast<char*>(&header), sizeof(header));
+
+			for (auto& resource : resourceArchiveList) {
+				resource->MetaData.ArchiveOffset = currentOffset;
+				// TODO: pass the stream into savebinary so the file isnt being opened/closed constantly
+				ResourceLoader::SaveBinary(resource, archive);
+				archive.seekp(0, std::ios::end);
+				currentOffset = static_cast<uint32_t>(archive.tellp());
+			}
+
+			archive.close();
+			index++;
+		}
+
+		auto resourceRegistryPath = ProjectManager::GetCurrent()->GetWorkingDirectory() / "export/resources.trireg";
+		BinaryResourceRegistry binaryRegistry(resourceRegistryPath);
+
+		// change this to include index and offset once resources are saved earlier
+		for (const auto& [id, resource] : s_Resources) {
+			binaryRegistry.SetMetaData(id, resource->MetaData);
+		}
+		binaryRegistry.Save();
+
+		// Free unused resources after creating them earlier
+		FreeUnused();
+    }
+
+    void ResourceManager::FreeUnused()
+    {
+		for (auto& [id, resource] : s_Resources) {
+			if (resource.use_count() == 1)
+				s_Resources.erase(id);
+		}
+    }
+
+    ResourceType ResourceManager::GetTypeFromExtension(const std::filesystem::path &filePath)
+    {
 		std::filesystem::path extension = filePath.extension();
 		return GetTypeFromString(extension.generic_string());
-	}
-
-	std::string ResourceManager::GetStringFromType(ResourceType type)
-	{
-		switch (type)
-		{
-			case TriEngine::ResourceType::Texture: return "Texture";
-			case TriEngine::ResourceType::Scene: return "Scene";
-			case TriEngine::ResourceType::Script: return "Script";
-			default: return "None";
-		}
 	}
 	
 	ResourceType ResourceManager::GetTypeFromString(const std::string& type)
@@ -110,53 +181,5 @@ namespace TriEngine {
 		else if (type == ".tscn") return ResourceType::Scene;
 		else if (type == ".as") return ResourceType::Script;
 		else return ResourceType::None;
-	}
-
-	void ResourceManager::LoadResourceRegistry()
-	{
-
-		if (!std::filesystem::exists(s_ResourceRegistryPath)) {
-			TRI_CORE_WARN("Couldn't find Resource Registry: {0}", s_ResourceRegistryPath);
-			return;
-		}
-
-		auto registry = YAML::LoadAllFromFile(s_ResourceRegistryPath.generic_string());
-
-		auto registryMetadata = registry[1];
-
-		for (auto data : registryMetadata) {
-			ResourceMetadata metadata;
-			metadata.ID = data["ID"].as<uint64_t>();
-			metadata.Filepath = ProjectManager::GetCurrent()->GetAbsolutePath(data["Filepath"].as<std::string>()).string();
-			metadata.Type = magic_enum::enum_cast<ResourceType>(data["Type"].as<std::string>()).value_or(ResourceType::None);
-			s_ResourceRegistry[metadata.ID] = metadata;
-		}
-	}
-
-	void ResourceManager::SaveResourceRegistry()
-	{
-		YAML::Emitter out;
-
-		out << "TriEngine Resource Registry";
-
-		out << YAML::BeginSeq;
-
-		for (const auto& [id, metadata] : s_ResourceRegistry) {
-			std::string filepath = std::filesystem::relative(metadata.Filepath, ProjectManager::GetCurrent()->GetWorkingDirectory()).generic_string();
-
-			#ifdef TRI_PLATFORM_WINDOWS
-				std::replace(filepath.begin(), filepath.end(), '\\', '/');
-			#endif
-
-			out << YAML::BeginMap;
-			out << YAML::Key << "ID" << YAML::Value << id;
-			out << YAML::Key << "Filepath" << YAML::Value << filepath;
-			out << YAML::Key << "Type" << YAML::Value << GetStringFromType(metadata.Type);
-			out << YAML::EndMap;
-		}
-		out << YAML::EndSeq;
-
-		std::ofstream fout(s_ResourceRegistryPath);
-		fout << out.c_str();
 	}
 }

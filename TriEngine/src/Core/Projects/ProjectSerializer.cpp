@@ -57,7 +57,12 @@ namespace TriEngine {
 	ProjectSerializer::ProjectSerializer(Reference<Project> project)
 		:m_Project(project) {}
 
-	void ProjectSerializer::Serialize(const std::filesystem::path& filePath)
+	void ProjectSerializer::Serialize(const std::filesystem::path& path) {
+		std::ofstream file(path);
+		Serialize(file);
+	}
+
+	void ProjectSerializer::Serialize(std::ostream& stream)
 	{
 		ProjectData data = m_Project->GetProjectData();
 
@@ -82,20 +87,24 @@ namespace TriEngine {
 
 		TRI_CORE_ASSERT(out.good(), "Failed to serialize project");
 
-		std::ofstream fout(filePath);
-		fout << out.c_str();
+		stream << out.c_str();
 	}
 
-	void ProjectSerializer::Deserialize(const std::filesystem::path& filePath)
+	void ProjectSerializer::Deserialize(const std::filesystem::path& path) {
+		std::ifstream file(path);
+		Deserialize(file);
+	}
+
+	void ProjectSerializer::Deserialize(std::istream& stream)
 	{
-		auto project = YAML::LoadAllFromFile(filePath.string());
+		auto project = YAML::LoadAll(stream);
 
 		std::string header;
 		if (project[0].IsScalar())
 			header = project[0].as<std::string>();
 
 		if (header != projectHeader) {
-			TRI_CORE_ERROR("Deserialized file was not of type TriEngine Project: \"{0}\"", filePath);
+			TRI_CORE_ERROR("Deserialized file was not of type TriEngine Project");
 			TRI_CORE_ASSERT(false, "See above error");
 			return;
 		}

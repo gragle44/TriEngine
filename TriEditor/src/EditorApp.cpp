@@ -213,6 +213,11 @@ bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
 		if (Input::IsKeyPressed(TRI_KEY_LEFT_CONTROL) || Input::IsKeyPressed(TRI_KEY_RIGHT_CONTROL))
 			m_Data->CmdHistory.Redo();
 	}
+	else if (e.GetKeyCode() == TRI_KEY_B) {
+		ResourceManager::CreateResourceArchive();
+		ProjectManager::Save(ProjectManager::GetCurrent()->GetAbsolutePath("export/game.dat").string());
+	}
+
 	return false;
 }
 

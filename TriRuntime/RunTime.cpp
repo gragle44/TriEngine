@@ -3,6 +3,9 @@
 
 #include "App.h"
 
+// TODO: Define this in build system instead of here
+#define GAME_DATA_LOCATION "game.dat"
+
 using namespace TriEngine;
 
 class Runtime : public TriEngine::Application {
@@ -22,19 +25,26 @@ public:
 
 TriEngine::Application* TriEngine::CreateApplication(int argc, char** argv) {
 
-    if (argc == 0) {
-        TRI_CORE_ERROR("Please provide a project path to load");
-        return nullptr;
+    std::filesystem::path path;
+    if (argc == 1) {
+        path = std::filesystem::current_path() / GAME_DATA_LOCATION;
+    }
+    else {
+        path = argv[1];
     }
 
-    const char* filepath = argv[1];
-    if (std::filesystem::exists(filepath)) {
-        const char* extension = &filepath[strlen(filepath) - 4];
-        if (strcmp(extension, ".tri") != 0) {
+    if (std::filesystem::exists(path)) {
+        auto extension = path.extension();
+        if (extension == ".tri") {
+            ProjectManager::Load(path, false);
+        }
+        else if (extension == ".dat") {
+            ProjectManager::Load(path, true);
+        }
+        else {
             TRI_CORE_ERROR("Invalid project extension");
             return nullptr;
         }
-        ProjectManager::Load(filepath);
     }
 
     auto& projectData = ProjectManager::GetCurrent()->GetProjectData();

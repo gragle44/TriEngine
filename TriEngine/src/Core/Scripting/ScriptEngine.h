@@ -32,6 +32,8 @@ namespace TriEngine {
         void BuildScript(Reference<Script> script);
         void RebuildAllScripts();
 
+        ByteBuffer SaveByteCode(Reference<Script> script);
+
         void InstantiateScript(GameObject object);
 
         void ClearScriptInstance(GameObject object);

@@ -3,6 +3,7 @@
 #include "Resource.h"
 
 #include "ResourceLoader.h"
+#include "ResourceRegistry.h"
 
 #include <filesystem>
 #include <unordered_map>
@@ -21,24 +22,26 @@ namespace TriEngine {
 	}
 
 	class ResourceManager {
-
 	public:
+		static void InitBinary();
 		static void Init();
 		static void Shutdown();
 
-		static bool ResourceExists(ResourceID id) { return s_ResourceRegistry.contains(id); }
+		static bool ResourceExists(ResourceID id) { return s_ResourceRegistry->ResourceExists(id); }
 		static bool ResourceLoaded(ResourceID id) { return s_Resources.contains(id); }
 		
-		static Reference<Resource> Load(ResourceMetadata& metadata);
+		static Reference<Resource> Load(const ResourceMetadata& metadata);
 		static void Remove(ResourceID id);
 
 		static void SaveResource(Reference<Resource> resource);
 
-		static const std::unordered_map<ResourceID, ResourceMetadata>& GetResourceRegistry() { return s_ResourceRegistry; }
+		static const ResourceRegistry* GetResourceRegistry() { return s_ResourceRegistry; }
 
 		static ResourceID GetIDFromPath(const std::string& path);
 		static Reference<Resource> Get(ResourceID id);
 		static ResourceMetadata& GetMetadata(ResourceID id);
+
+		static void CreateResourceArchive();
 
 		template <typename T, typename... Args>
 		static Reference<T> Create(const std::string& filePath, Args &&...args) {
@@ -49,8 +52,8 @@ namespace TriEngine {
 			metadata.Type = GetTypeFromExtension(filePath);
 			metadata.Filepath = filePath;
 
-			s_ResourceRegistry[metadata.ID] = metadata;
-			SaveResourceRegistry();
+			s_ResourceRegistry->SetMetaData(metadata.ID, metadata);
+			s_ResourceRegistry->Save();
 
 			Reference<T> resource = std::reinterpret_pointer_cast<T>(Load(metadata));
 
@@ -60,18 +63,14 @@ namespace TriEngine {
 			return resource;
 		}
 
-		static void LoadResourceRegistry();
-		static void SaveResourceRegistry();
-
 	private:
 		static std::unordered_map<ResourceID, Reference<Resource>> s_Resources;
-		static std::unordered_map<ResourceID, ResourceMetadata> s_ResourceRegistry;
+		static ResourceRegistry* s_ResourceRegistry;
 
-		static std::filesystem::path s_ResourceRegistryPath;
+		static void FreeUnused();
 
 		static ResourceType GetTypeFromExtension(const std::filesystem::path& filePath);
 
-		static std::string GetStringFromType(ResourceType type);
 		static ResourceType GetTypeFromString(const std::string& type);
 	};
 }

@@ -8,6 +8,8 @@
 #include "Core/GameObjects/GameObject.h"
 #include "Core/GameObjects/Components.h"
 
+#include "Core/Projects/ProjectManager.h"
+
 #include "scriptbuilder/scriptbuilder.h"
 #include "asbind20/asbind.hpp"
 
@@ -30,7 +32,7 @@ static void MessageCallback(const asSMessageInfo* msg, void* param)
 
 namespace TriEngine {
 
-    int ByteCodeStream::Write(const void *ptr, uint32_t size) {
+    int ByteCodeStream::Write(const void* ptr, uint32_t size) {
         if (size == 0)
             return -1;
 
@@ -42,11 +44,11 @@ namespace TriEngine {
         return 0;
     }
 
-    int ByteCodeStream::Read(void *ptr, uint32_t size) {
+    int ByteCodeStream::Read(void* ptr, uint32_t size) {
         // The buffer will be empty if there was an error compiling the script
         if (size == 0 || m_Buffer.empty())
             return -1;
-        TRI_CORE_ASSERT(m_Buffer.size() >= m_CurrentPos + size, "Attempted to read past the size of the buffer")
+        TRI_CORE_ASSERT(m_Buffer.size() >= m_CurrentPos + size, "Attempted to read past the size of the buffer");
         memcpy(ptr, &m_Buffer[m_CurrentPos], size);
         m_CurrentPos += size;
         return 0;
@@ -66,6 +68,11 @@ namespace TriEngine {
         // Performance increase
         m_Engine->SetEngineProperty(asEP_BUILD_WITHOUT_LINE_CUES, true);
 
+        // TODO: do this in a better way
+        if (ProjectManager::GetCurrentProjectData().Binary)
+            // Needed for bytecode loading to work for some reason
+            m_Engine->SetEngineProperty(asEP_INIT_GLOBAL_VARS_AFTER_BUILD, false);
+
         m_Engine->SetMessageCallback(asFUNCTION(MessageCallback), 0, asCALL_CDECL);
         Utils::ConfigureScriptEngine(m_Engine);
 
@@ -82,9 +89,9 @@ namespace TriEngine {
     void ScriptEngine::BuildScript(Reference<Script> script) {
         TRI_CORE_ASSERT(script, "Invalid script resource");
 
-        if (!std::filesystem::exists(script->MetaData.Filepath)) [[unlikely]]
+        if (!std::filesystem::exists(script->MetaData.Filepath) && script->Bytecode.empty()) [[unlikely]]
         {
-            TRI_CORE_ERROR("Couldn't build script '{0}': invalid file path", script->MetaData.Filepath);
+            TRI_CORE_ERROR("Couldn't build script '{0}': invalid file path or no valid bytecode", script->MetaData.Filepath);
             return;
         }
 
@@ -114,21 +121,27 @@ namespace TriEngine {
         int32_t r = builder.StartNewModule(m_Engine, script->Name.data());
         TRI_CORE_ASSERT(r >= 0, "Unrecoverable error while starting a new script module");
 
-        r = builder.AddSectionFromFile(script->MetaData.Filepath.c_str());
-        if (r < 0)
-        {
-            TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
-            return;
-        }
-
-        r = builder.BuildModule();
-        if (r < 0)
-        {
-            TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
-            return;
-        }
-
         asIScriptModule* module = m_Engine->GetModule(script->Name.data());
+
+        if (!script->Bytecode.empty()) {
+            ByteCodeStream stream(script->Bytecode);
+            module->LoadByteCode(&stream, &script->HasDebugInfo);
+        }
+        else {
+            r = builder.AddSectionFromFile(script->MetaData.Filepath.c_str());
+            if (r < 0)
+            {
+                TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
+                return;
+            }
+
+            r = builder.BuildModule();
+            if (r < 0)
+            {
+                TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
+                return;
+            }
+        }
 
         asITypeInfo* scriptTypeInfo = nullptr;
 
@@ -173,6 +186,21 @@ namespace TriEngine {
             BuildScript(it->lock());
         }
 
+    }
+
+    ByteBuffer ScriptEngine::SaveByteCode(Reference<Script> script)
+    {
+        if (!script->Module) {
+            TRI_CORE_ERROR("Error saving bytecode: invalid script module");
+            return {};
+        }
+
+        ByteBuffer buffer;
+        ByteCodeStream stream(buffer);
+
+        script->Module->SaveByteCode(&stream, true);
+
+        return buffer;
     }
 
     void ScriptEngine::InstantiateScript(GameObject object)

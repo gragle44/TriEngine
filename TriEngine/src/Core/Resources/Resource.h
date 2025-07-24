@@ -16,9 +16,11 @@ namespace TriEngine {
 	};
 
 	struct ResourceMetadata {
-		ResourceType Type = ResourceType::None;
 		ResourceID ID = 0;
-		std::string Filepath = "";
+		ResourceType Type = ResourceType::None;
+		std::string Filepath = ""; // Filepath of the resource or filepath of the archive it is stored
+		uint32_t ArchiveIndex = 0;	// The index of the archive this resource file is contained in, binary only
+		uint64_t ArchiveOffset; // Offset in bytes of the resource in the archive, binary only
 	};
 
 	class Resource {

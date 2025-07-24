@@ -87,6 +87,9 @@ namespace TriEngine {
 
         std::string Name;
 
+        // Will be empty when running in the editor
+        ByteBuffer Bytecode;
+
         asIScriptModule* Module = nullptr;
 
         asITypeInfo* TypeInfo = nullptr;
@@ -96,5 +99,7 @@ namespace TriEngine {
         asIScriptFunction* UpdateFunc = nullptr;
         asIScriptFunction* CollisionStartFunc = nullptr;
         asIScriptFunction* CollisionStopFunc = nullptr;
+
+        bool HasDebugInfo = true;
     };
 }

@@ -2,6 +2,10 @@
 
 #include "TextureLoader.h"
 
+#include "ResourceArchive.h"
+
+#include "Core/Projects/ProjectManager.h"
+
 #include "filesystem"
 #include "stb_image.h"
 #include "yaml-cpp/yaml.h"
@@ -9,7 +13,7 @@
 
 namespace TriEngine {
 
-	Reference<Resource> TextureLoader::Load(ResourceMetadata& metadata)
+	Reference<Resource> TextureLoader::Load(const ResourceMetadata& metadata)
 	{
 		stbi_set_flip_vertically_on_load(1);
 
@@ -64,5 +68,48 @@ namespace TriEngine {
 
 		std::ofstream fout(metadataPath);
 		fout << out.c_str();
+	}
+
+	Reference<Resource> TextureLoader::LoadBinary(const ResourceMetadata& metadata)
+	{
+		ArchivedFileHeader header;
+		TextureSettings settings;
+		ByteBuffer buffer;
+
+		std::filesystem::path archivePath = ProjectManager::GetCurrent()->GetAbsolutePath(std::format("data/{}.pck", metadata.ArchiveIndex));
+		std::ifstream archive(archivePath, std::ios::binary);
+		archive.seekg(metadata.ArchiveOffset, std::ios::beg);
+
+		archive.read(reinterpret_cast<char*>(&header), sizeof(header));
+		archive.read(reinterpret_cast<char*>(&settings), sizeof(settings));
+		uint32_t textureSize = (header.EncryptedSize - sizeof(header)) - sizeof(settings);
+		buffer.resize(textureSize);
+		archive.read(reinterpret_cast<char*>(buffer.data()), textureSize);
+
+		archive.close();
+
+		Reference<Texture2D> texture = Texture2D::Create(buffer, settings);
+		texture->MetaData = metadata;
+
+		return texture;
+	}
+
+	void TextureLoader::SaveBinary(Reference<Resource> resource, std::ostream& stream)
+	{
+		Reference<Texture2D> texture = std::dynamic_pointer_cast<Texture2D>(resource);
+		ResourceMetadata& metadata = texture->MetaData;
+		const TextureSettings& texSettings = texture->GetSettings();
+
+		const uint32_t size = sizeof(ArchivedFileHeader) + sizeof(TextureSettings) + texture->GetData().size();
+
+		ArchivedFileHeader header;
+		header.Type = texture->MetaData.Type;
+		header.Size = size;
+		header.CompressedSize = size;
+		header.EncryptedSize = size;
+
+		stream.write(reinterpret_cast<char*>(&header), sizeof(header));
+		stream.write(reinterpret_cast<const char*>(&texSettings), sizeof(TextureSettings));
+		stream.write(reinterpret_cast<char*>(texture->GetData().data()), texture->GetData().size());
 	}
 }

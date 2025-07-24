@@ -426,41 +426,55 @@ namespace TriEngine {
 
 	void SceneSerializer::Serialize(const std::string& filePath)
 	{
+		std::ofstream fout(filePath);
+		Serialize(fout);
+	}
+
+    void SceneSerializer::Serialize(std::ostream& stream)
+    {
 		YAML::Emitter out;
 		out << SCENE_HEADER_TEXT;
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << m_Scene->m_Name;
 		out << YAML::Key << "Objects" << YAML::Value << YAML::BeginSeq;
 
-		for (auto entity : m_Scene->m_Registry.view<entt::entity>()) {
+		for (auto entity : m_Scene->m_Registry.view<entt::entity>())
+		{
 			GameObject object(entity, m_Scene.get());
 			SerializeEntity(out, object);
 		}
 
 		out << YAML::EndSeq;
 		out << YAML::EndMap;
-		
+
 		TRI_CORE_ASSERT(out.good(), "Failed to serialize scene");
 
-		std::ofstream fout(filePath);
-		fout << out.c_str();
+		stream.write(out.c_str(), out.size());
 	}
 
-	void SceneSerializer::Deserialize(const std::string& filePath)
+    void SceneSerializer::Deserialize(const std::string& filePath)
 	{
-		auto scene = YAML::LoadAllFromFile(filePath);
+		std::ifstream file(filePath);
+		Deserialize(file);
+	}
 
-		if (!scene[0].IsDefined()) {
-			TRI_CORE_ERROR("Deserialized file was invalid: \"{0}\"", filePath);
+	void SceneSerializer::Deserialize(std::istream& stream)
+	{
+		auto scene = YAML::LoadAll(stream);
+
+		if (!scene[0].IsDefined())
+		{
+			TRI_CORE_ERROR("Deserialized scene data stream was invalid");
 			return;
 		}
 
-		std::string header; 
+		std::string header;
 		if (scene[0].IsScalar())
 			header = scene[0].as<std::string>();
 
-		if (header != SCENE_HEADER_TEXT) {
-			TRI_CORE_ERROR("Deserialized file was not of type TriEngine Scene: \"{0}\"", filePath);
+		if (header != SCENE_HEADER_TEXT)
+		{
+			TRI_CORE_ERROR("Deserialized file was not of type TriEngine Scene");
 			return;
 		}
 
@@ -472,9 +486,9 @@ namespace TriEngine {
 
 		auto entities = scene[1]["Objects"];
 
-		for (auto entity : entities) {
+		for (auto entity : entities)
+		{
 			DeserializeEntity(entity);
 		}
 	}
-	
 }

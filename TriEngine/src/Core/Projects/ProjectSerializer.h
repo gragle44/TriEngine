@@ -11,7 +11,9 @@ namespace TriEngine {
 		ProjectSerializer(Reference<Project> project);
 
 		void Serialize(const std::filesystem::path& filePath);
+		void Serialize(std::ostream& stream);
 		void Deserialize(const std::filesystem::path& filePath);
+		void Deserialize(std::istream& stream);
 	private:
 		Reference<Project> m_Project;
 	};

@@ -23,6 +23,7 @@ namespace TriEngine {
 	struct ProjectData {
 		std::string Name = "Untitled Project";
 		ResourceID StartupSceneID = 0;
+		bool Binary = false;
 
 		ProjectWindowSettings WindowSettings;
 		ProjectRenderingSettings RenderingSettings;

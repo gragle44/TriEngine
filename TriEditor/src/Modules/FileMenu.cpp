@@ -187,7 +187,7 @@ namespace TriEngine {
 				ImGui::TableSetupColumn("");
 				ImGui::TableHeadersRow();
 
-				const auto& resourceRegistry = ResourceManager::GetResourceRegistry();
+				const auto& resourceRegistry = ResourceManager::GetResourceRegistry()->GetRegistry();
 
 				auto registryBegin = resourceRegistry.begin();
 
