@@ -80,11 +80,11 @@ namespace TriEngine {
 
 	void Scene::Start()
 	{
-		m_ResetPoint = Copy();
+		m_ResetPoint = std::make_unique<Scene>();
+		m_ResetPoint->Copy(this);
 
 		CreateGameObjectUUID(0, "Invalid Object");
 		m_DummyObject = &m_GameObjects.at(0);
-
 
 		auto cameraView = m_Registry.view<Camera2DComponent>();
 
@@ -187,9 +187,9 @@ namespace TriEngine {
 		delete m_ContactListener;
 		m_ContactListener = nullptr;
 
-		m_Registry.clear();
-		m_GameObjects.clear();
-		m_GameObjectNameMapping.clear();
+		//m_Registry.clear();
+		//m_GameObjects.clear();
+		//m_GameObjectNameMapping.clear();
 	}
 
 	void Scene::Reset() 
@@ -203,19 +203,7 @@ namespace TriEngine {
 			m_ShouldReset = false;
 			Stop();
 
-			auto idView = m_ResetPoint->m_Registry.view<IDComponent>();
-
-			for (auto entity : idView) {
-				GameObject object = { entity, m_ResetPoint.get() };
-
-				const std::string& name = object.GetComponent<TagComponent>().Tag;
-
-				auto id = object.GetComponent<IDComponent>().ID;
-
-				GameObject newObject = CreateGameObjectUUID(id, name);
-
-				CopyAllComponents(newObject, object);
-			}
+			Copy(m_ResetPoint.get());
 
 			Start();
 		}
@@ -348,27 +336,32 @@ namespace TriEngine {
 		return CreateGameObjectUUID(UUID(), tag);
 	}
 
-	Reference<Scene> Scene::Copy()
+	void Scene::Copy(Scene* other)
 	{
-		Reference<Scene> newScene = Scene::Create(m_Name);
+		TRI_CORE_ASSERT(other, "Scene was null");
 
-		newScene->MetaData = MetaData;
+		if (!m_GameObjects.empty()) {
+			m_Registry.clear();
+			m_GameObjects.clear();
+			m_GameObjectNameMapping.clear();
+		}
 
-		auto idView = m_Registry.view<IDComponent>();
+		m_Name = other->m_Name;
+		MetaData = other->MetaData;
+
+		auto idView = other->m_Registry.view<IDComponent>();
 
 		for (auto entity : idView) {
-			GameObject object = { entity, this };
+			GameObject object = { entity, other };
 
 			const std::string& name = object.GetComponent<TagComponent>().Tag;
 
 			auto id = object.GetComponent<IDComponent>().ID;
 
-			GameObject newObject = newScene->CreateGameObjectUUID(id, name);
+			GameObject newObject = CreateGameObjectUUID(id, name);
 
 			CopyAllComponents(newObject, object);
 		}
-
-		return newScene;
 	}
 
 	std::string Scene::IncrementObjectName(const std::string& name)

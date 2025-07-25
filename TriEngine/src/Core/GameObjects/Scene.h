@@ -24,7 +24,9 @@ namespace TriEngine {
 		static Reference<Scene> Create();
 		static Reference<Scene> Create(const std::string& name);
 
-		Reference<Scene> Copy();
+		// Copies the data from other into the scene
+		void Copy(Reference<Scene> other) { Copy(other.get()); }
+		void Copy(Scene* other);
 
 		void Start();
 		void Stop();
@@ -70,7 +72,7 @@ namespace TriEngine {
 		// Pointer to avoid including GameObject.h
 		GameObject* m_DummyObject = nullptr;
 
-		Reference<Scene> m_ResetPoint = nullptr;
+		std::unique_ptr<Scene> m_ResetPoint = nullptr;
 
 		b2World* m_PhysicsWorld = nullptr;
 		ContactListener* m_ContactListener = nullptr;

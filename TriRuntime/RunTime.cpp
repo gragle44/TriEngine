@@ -4,7 +4,7 @@
 #include "App.h"
 
 // TODO: Define this in build system instead of here
-#define GAME_DATA_LOCATION "game.dat"
+#define GAME_DATA_LOCATION "game.pck"
 
 using namespace TriEngine;
 
@@ -38,7 +38,7 @@ TriEngine::Application* TriEngine::CreateApplication(int argc, char** argv) {
         if (extension == ".tri") {
             ProjectManager::Load(path, false);
         }
-        else if (extension == ".dat") {
+        else if (extension == ".pck") {
             ProjectManager::Load(path, true);
         }
         else {

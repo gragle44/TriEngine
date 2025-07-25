@@ -21,10 +21,12 @@ namespace TriEngine {
 	{
 		static bool showSettings = false;
 		static bool showResourceViewer = false;
+		static bool showExportMenu = false;
 
 		if (ImGui::BeginMenu("Project")) {
 			ImGui::MenuItem("Settings", nullptr, &showSettings);
 			ImGui::MenuItem("Resource Viewer", nullptr, &showResourceViewer);
+			ImGui::MenuItem("Export", nullptr, &showExportMenu);
 			ImGui::EndMenu();
 		}
 
@@ -33,6 +35,9 @@ namespace TriEngine {
 
 		if (showResourceViewer)
 			RenderResourceViewer(&showResourceViewer);
+
+		if (showExportMenu)
+			RenderExportMenu(&showExportMenu);
 
 	}
 
@@ -262,4 +267,22 @@ namespace TriEngine {
 				ImGui::End();
 			}
 	}
+
+	void FileMenu::RenderExportMenu(bool* show)
+	{
+		if (ImGui::Begin("Export Project", show)) {
+			static bool compress = false;
+			static bool encrypt = false;
+
+			ImGui::Checkbox("Compress", &compress);
+			ImGui::Checkbox("Encrypt", &encrypt);
+
+			if (ImGui::Button("Export")) {
+				ResourceManager::CreateResourceArchive();
+				ProjectManager::Save(ProjectManager::GetCurrent()->GetAbsolutePath("export/game.pck").string(), true);
+				*show = false;
+			}
+			ImGui::End();
+		}
+    }
 }

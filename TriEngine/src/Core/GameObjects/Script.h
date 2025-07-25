@@ -1,7 +1,5 @@
 #pragma once
 
-#include "nameof/nameof.hpp"
-
 #include "GameObject.h"
 
 namespace TriEngine {
@@ -59,7 +57,7 @@ namespace TriEngine {
 
 		template<typename T>
 		static void Register() {
-			std::string scriptName = std::string(NAMEOF_TYPE(T));
+			std::string scriptName = typeid(T).name();
 			FactoryFunction factoryFunction = []() -> std::unique_ptr<NativeScript> { return std::make_unique<T>(); };
 			Registry().emplace(scriptName, factoryFunction);
 		}

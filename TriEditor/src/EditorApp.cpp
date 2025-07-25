@@ -124,7 +124,7 @@ void EditorLayer::OnAttach()
 
 	m_Data->RestoreScene = Scene::Create();
 
-	m_Data->ActiveScene = m_Data->RestoreScene;
+	m_Data->ActiveScene = Scene::Create();
 
 	TextureSettings iconTextureSettings;
 	iconTextureSettings.Filter = TextureFilter::Linear;
@@ -146,6 +146,7 @@ void EditorLayer::OnDetach()
 void EditorLayer::OnUpdate(float deltaTime)
 {
 	m_DebugModule.OnUpdate(deltaTime);
+	
 	if (m_Data->PrevViewPortSize.x != m_Data->ViewPortSize.x || m_Data->PrevViewPortSize.y != m_Data->ViewPortSize.y && m_Data->ViewPortSize.x > 0 && m_Data->ViewPortSize.y > 0) {
 		m_Data->PrevViewPortSize = m_Data->ViewPortSize;
 
@@ -213,10 +214,6 @@ bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
 		if (Input::IsKeyPressed(TRI_KEY_LEFT_CONTROL) || Input::IsKeyPressed(TRI_KEY_RIGHT_CONTROL))
 			m_Data->CmdHistory.Redo();
 	}
-	else if (e.GetKeyCode() == TRI_KEY_B) {
-		ResourceManager::CreateResourceArchive();
-		ProjectManager::Save(ProjectManager::GetCurrent()->GetAbsolutePath("export/game.dat").string());
-	}
 
 	return false;
 }
@@ -228,13 +225,11 @@ void EditorLayer::StartScene()
 
 	m_Data->SceneRunning = true;
 	m_Data->SceneCurrentState = EditorState::Play;
-	m_Data->RestoreScene = m_Data->ActiveScene->Copy();
+	m_Data->RestoreScene->Copy(m_Data->ActiveScene);
 
 	m_Data->ActiveScene->OnViewportResized(m_Data->ViewPortSize.x, m_Data->ViewPortSize.y);
 	m_Data->ActiveScene->Start();
 	TRI_CORE_ASSERT(*m_Data->ActiveScene == *m_Data->RestoreScene, "Active Scene and Restore Scene have different IDs")
-
-	//todo: when making a new project, set the new scene as startup
 }
 
 void EditorLayer::StopScene()
@@ -242,18 +237,21 @@ void EditorLayer::StopScene()
 	m_Data->SelectedItem = {};
 	m_Data->RightSelectedItem = {};
 
+	if (m_Data->SceneRunning == true) {
+		m_Data->ActiveScene->Stop();
+		m_Data->ActiveScene->Copy(m_Data->RestoreScene);
+		TRI_CORE_ASSERT(*m_Data->ActiveScene == *m_Data->RestoreScene, "Active Scene and Restore Scene have different IDs");
+	}
+
 	m_Data->SceneRunning = false;
 	m_Data->SceneCurrentState = EditorState::Edit;
-	m_Data->ActiveScene->Stop();
-	m_Data->ActiveScene = m_Data->RestoreScene->Copy();
-	TRI_CORE_ASSERT(*m_Data->ActiveScene == *m_Data->RestoreScene, "Active Scene and Restore Scene have different IDs")
 }
 
 void EditorLayer::LoadEmptyScene()
 {
 	StopScene();
 	m_Data->ActiveScene = Scene::Create();
-	m_Data->RestoreScene = m_Data->ActiveScene->Copy();
+	m_Data->RestoreScene->Copy(m_Data->ActiveScene);
 
 }
 
@@ -281,7 +279,7 @@ void EditorLayer::NewProject(const std::string& path) {
 	ResourceManager::Init();
 
 	m_Data->ActiveScene = ResourceManager::Create<Scene>(scenePath);
-	m_Data->RestoreScene = m_Data->ActiveScene->Copy();
+	m_Data->RestoreScene->Copy(m_Data->ActiveScene);
 
 	ProjectManager::GetCurrent()->GetProjectData().StartupSceneID = m_Data->ActiveScene->MetaData.ID;
 	SaveProject(path);
@@ -478,8 +476,7 @@ void EditorLayer::RenderPlaybuttons()
 	Reference<Texture2D>& currentTexture = m_Data->SceneRunning ? m_Data->PauseTexture : m_Data->PlayTexture;
 
 	if (ImGui::ImageButton("play_pause_button", (ImTextureID)currentTexture->GetID(), { size, size })) {
-		m_Data->SceneRunning = !m_Data->SceneRunning;
-		if (m_Data->SceneRunning)
+		if (!m_Data->SceneRunning)
 			StartScene();
 		else {
 			StopScene();

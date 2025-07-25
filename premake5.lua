@@ -25,7 +25,6 @@ IncludeDir["yaml_cpp"] = "TriEngine/vendor/yaml_cpp/include"
 IncludeDir["nativefiledialog"] = "TriEngine/vendor/nativefiledialog/src/include"
 IncludeDir["glm"] = "TriEngine/vendor/glm"
 IncludeDir["entt"] = "TriEngine/vendor/entt"
-IncludeDir["nameof"] = "TriEngine/vendor/nameof"
 IncludeDir["magic_enum"] = "TriEngine/vendor/magic_enum"
 IncludeDir["angelscript"] = "TriEngine/vendor/angelscript/angelscript/include"
 IncludeDir["asbind20"] = "TriEngine/vendor/asbind20/include"
@@ -112,7 +111,6 @@ project "TriEngine"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.nameof}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.nativefiledialog}",
 		"%{IncludeDir.magic_enum}",
@@ -209,7 +207,6 @@ project "TriEditor"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.nameof}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.box2D}",
 		"%{IncludeDir.nativefiledialog}",
@@ -292,7 +289,6 @@ project "TriRuntime"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.nameof}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.box2D}",
 		"%{IncludeDir.nativefiledialog}",

@@ -5,6 +5,7 @@
 #include "ResourceArchive.h"
 
 #include "Projects/ProjectManager.h"
+#include "Utils/PlatformUtils.h"
 
 #include "magic_enum.hpp"
 
@@ -55,6 +56,7 @@ namespace TriEngine {
 	void ResourceManager::SaveResource(Reference<Resource> resource)
 	{
 		TRI_CORE_ASSERT(!s_ResourceRegistry->IsBinaryRegistry(), "Resources loaded from binary archives should not be saved during runtime");
+		TRI_CORE_ASSERT(s_ResourceRegistry->ResourceExists(resource->MetaData.ID), "Resource registry does not contain resource. Was this resource created with ResourceManager::Create?")
 		ResourceLoader::Save(resource);
 	}
 
@@ -94,10 +96,9 @@ namespace TriEngine {
 
     void ResourceManager::CreateResourceArchive()
     {	
-		// The pipeline will be:
-		// Set resource offset to current offset
-		// Save resource
-		// Jump to end of file to get new offset
+		float startTime = Time::GetTime();
+
+		TRI_CORE_INFO("Exporting project {}", ProjectManager::GetCurrentProjectData().Name);
 
 		for (auto& [id, metadata] : s_ResourceRegistry->GetRegistry()) {
 			if (!s_Resources.contains(id))
@@ -119,6 +120,8 @@ namespace TriEngine {
 				continue;
 			}
 
+			TRI_CORE_INFO("Creating resource archive {}...", index);
+
 			uint32_t currentOffset = sizeof(ArchiveHeader);
 
 			ArchiveHeader header;
@@ -136,7 +139,6 @@ namespace TriEngine {
 
 			for (auto& resource : resourceArchiveList) {
 				resource->MetaData.ArchiveOffset = currentOffset;
-				// TODO: pass the stream into savebinary so the file isnt being opened/closed constantly
 				ResourceLoader::SaveBinary(resource, archive);
 				archive.seekp(0, std::ios::end);
 				currentOffset = static_cast<uint32_t>(archive.tellp());
@@ -145,6 +147,8 @@ namespace TriEngine {
 			archive.close();
 			index++;
 		}
+
+		TRI_CORE_INFO("Saving resource registry...");
 
 		auto resourceRegistryPath = ProjectManager::GetCurrent()->GetWorkingDirectory() / "export/resources.trireg";
 		BinaryResourceRegistry binaryRegistry(resourceRegistryPath);
@@ -157,6 +161,8 @@ namespace TriEngine {
 
 		// Free unused resources after creating them earlier
 		FreeUnused();
+
+		TRI_CORE_INFO("Done! Took {}s", Time::GetTime() - startTime);
     }
 
     void ResourceManager::FreeUnused()

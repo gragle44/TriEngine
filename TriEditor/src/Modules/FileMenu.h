@@ -19,6 +19,7 @@ namespace TriEngine {
 		void RenderResourceViewer(bool* show);
 		void RenderResourceEditor(bool* show, uint64_t& id);
 
+		void RenderExportMenu(bool* show);
 
 		EditorData* m_Data;
 	};
