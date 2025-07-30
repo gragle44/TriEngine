@@ -12,8 +12,6 @@ class PillarScript : ScriptInterface {
         m_InvertedPillar.GetTransform2DComponent().Position.y += displacement;
     }
 
-    void OnStop() {}
-
     void OnUpdate(float deltaTime) 
     {
         auto@ body = gameObject.GetRigidBody2DComponent();
@@ -33,9 +31,6 @@ class PillarScript : ScriptInterface {
             body.SetPosition(newPos);
         }
     }
-
-    void OnCollisionStart(GameObject collider) {}
-    void OnCollisionStop(GameObject collider) {}
 
     GameObject gameObject;
     Scene@ scene;

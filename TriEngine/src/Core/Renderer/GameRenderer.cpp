@@ -52,17 +52,17 @@ namespace TriEngine {
 
 		Renderer2D::Begin(cameraProjection, cameraTransform, m_MainRenderpass);
 
-		auto group = scene->m_Registry.group<Transform2DComponent>(entt::get<Sprite2DComponent>);
+		auto view = scene->m_Registry.view<TransformComponent, Sprite2DComponent>();
 
-		for (auto entity : group) {
-			auto [transform, sprite] = group.get<Transform2DComponent, Sprite2DComponent>(entity);
+		for (auto entity : view) {
+			auto [transform, sprite] = view.get<TransformComponent, Sprite2DComponent>(entity);
 
 			bool empty = sprite.Texture->GetData().empty();
 			if (!empty) {
-				Renderer2D::SubmitQuad({ .Transform = transform.GetTransform(), .Tint = sprite.Tint, .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor, .Transparent = sprite.HasTransparency() });
+				Renderer2D::SubmitQuad({ .Transform = transform.Transform, .Tint = sprite.Tint, .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor, .Transparent = sprite.HasTransparency() });
 			}
 			else {
-				Renderer2D::SubmitQuad(ColoredQuad(transform.GetTransform(), sprite.Tint, sprite.TilingFactor, sprite.HasTransparency()));
+				Renderer2D::SubmitQuad(ColoredQuad(transform.Transform, sprite.Tint, sprite.TilingFactor, sprite.HasTransparency()));
 			}
 
 		}
@@ -107,40 +107,43 @@ namespace TriEngine {
 		m_MainRenderpass->Target->Bind();
 		Renderer2D::Begin(cameraProjection, cameraTransform, m_MainRenderpass);
 
-		auto group = scene->m_Registry.group<Transform2DComponent>(entt::get<Sprite2DComponent>);
+		auto view = scene->m_Registry.view<TransformComponent, Sprite2DComponent>();
 
-		for (auto entity : group) {
-			auto [transform, sprite] = group.get<Transform2DComponent, Sprite2DComponent>(entity);
+		for (auto entity : view) {
+			auto [transform, sprite] = view.get<TransformComponent, Sprite2DComponent>(entity);
 
 			bool empty = sprite.Texture->GetData().empty();
 			if (!empty) {
-				Renderer2D::SubmitQuad({ .Transform = transform.GetTransform(), .Tint = sprite.Tint, .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor, .EntityId = (int32_t)entity, .Transparent = sprite.HasTransparency() });
+				Renderer2D::SubmitQuad({ .Transform = transform.Transform, .Tint = sprite.Tint, .Texture = sprite.Texture, .TilingFactor = sprite.TilingFactor, .EntityId = (int32_t)entity, .Transparent = sprite.HasTransparency() });
 			}
 			else {
-				Renderer2D::SubmitQuad(ColoredQuad(transform.GetTransform(), sprite.Tint, sprite.TilingFactor, (int32_t)entity, sprite.HasTransparency()));
+				Renderer2D::SubmitQuad(ColoredQuad(transform.Transform, sprite.Tint, sprite.TilingFactor, (int32_t)entity, sprite.HasTransparency()));
 			}
 
 		}
 
+		// Draw object outlines when selected in the editor
 		if (selectedObject && *selectedObject) {
 			RenderCommand::SetLineWidth(3);
 
-			auto& transform = selectedObject->GetComponent<Transform2DComponent>();
+			static constexpr std::array<glm::vec4, 4> baseVertices = {
+				glm::vec4{-0.5f, -0.5f, 1.0f, 1.0f},
+				glm::vec4{ 0.5f, -0.5f, 1.0f, 1.0f},
+				glm::vec4{-0.5f,  0.5f, 1.0f, 1.0f},
+				glm::vec4{ 0.5f,  0.5f, 1.0f, 1.0f}
+			};
 
-			glm::vec3 lineVertices[4];
+			auto& transform = selectedObject->GetComponent<TransformComponent>();
 
-			lineVertices[0] = {transform.Position.x - transform.Scale.x * 0.5f, transform.Position.y - transform.Scale.y * 0.5f, 1.0f};
-			lineVertices[1] = {transform.Position.x + transform.Scale.x * 0.5f, transform.Position.y - transform.Scale.y * 0.5f, 1.0f};
-			lineVertices[2] = {transform.Position.x - transform.Scale.x * 0.5f, transform.Position.y + transform.Scale.y * 0.5f, 1.0f};
-			lineVertices[3] = {transform.Position.x + transform.Scale.x * 0.5f, transform.Position.y + transform.Scale.y * 0.5f, 1.0f};
+			std::array<glm::vec3, 4> lineVertices;
+			for (int32_t i = 0; i < 4; i++) {
+				lineVertices[i] = transform.Transform * baseVertices[i];
+			}
 
 			Renderer2D::SubmitLine({.Position1 = lineVertices[0], .Position2 = lineVertices[1]});
 			Renderer2D::SubmitLine({.Position1 = lineVertices[1], .Position2 = lineVertices[3]});
 			Renderer2D::SubmitLine({.Position1 = lineVertices[3], .Position2 = lineVertices[2]});
 			Renderer2D::SubmitLine({.Position1 = lineVertices[2], .Position2 = lineVertices[0]});
-
-			//Renderer2D::SubmitLine({.Position1 = {0.0f, 0.0f, 1.0f}, .Position2 = {3.0f, 3.0f, 1.0f}});
-			//Renderer2D::SubmitLine({.Position1 = {-2.0f, 0.0f, 1.0f}, .Position2 = {5.0f, 3.0f, 1.0f}});
 		}
 
 		Renderer2D::End();

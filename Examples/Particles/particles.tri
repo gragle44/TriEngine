@@ -1,0 +1,11 @@
+TriEngine Project File
+---
+Project: Untitled Project
+StartupSceneID: 7596329294036577986
+WindowSettings:
+  Width: 1280
+  Height: 720
+  Resizable: true
+  VSync: On
+RenderingSettings:
+  ClearColor: [0.150000006, 0.150000006, 0.150000006, 1]

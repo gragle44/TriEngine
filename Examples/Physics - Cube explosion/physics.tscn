@@ -1,0 +1,141 @@
+TriEngine Scene File
+---
+Scene: Scene
+Objects:
+  - Entity: 9403309831627032174
+    RelationshipComponent:
+      Parent: 5294972261292219484
+      Children:
+        []
+    TagComponent:
+      Tag: Object
+    Transform2DComponent:
+      Position: [-3.5, 2.75, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [0, 0.452316284, 1, 1]
+      TilingFactor: 1
+  - Entity: 7240228690923727807
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
+    TagComponent:
+      Tag: Floor
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [32, 1]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 26952919908124455
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
+    TagComponent:
+      Tag: Camera
+    Transform2DComponent:
+      Position: [0, 8.25, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    Camera2DComponent:
+      Zoom: 18
+      AspectRatio: 1.83768654
+      YScale: 1
+      NearClip: -1
+      FarClip: 1
+      Resizable: true
+      Primary: true
+  - Entity: 17938683490819828226
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
+    TagComponent:
+      Tag: Wall1
+    Transform2DComponent:
+      Position: [-15.5, 8, 0]
+      Rotation: 90
+      Scale: [15, 1]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 5195344615171346196
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
+    TagComponent:
+      Tag: Wall2
+    Transform2DComponent:
+      Position: [15.5, 8, 0]
+      Rotation: 90
+      Scale: [15, 1]
+    RigidBody2DComponent:
+      Type: Static
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [1, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 5294972261292219484
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        - ID: 9403309831627032174
+    TagComponent:
+      Tag: Cube
+    Transform2DComponent:
+      Position: [0, 9.75, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    RigidBody2DComponent:
+      Type: Dynamic
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [1, 0, 0, 1]
+      TilingFactor: 1

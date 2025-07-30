@@ -163,6 +163,7 @@ void EditorLayer::OnUpdate(float deltaTime)
 		if (m_Data->ViewPortHovered)
 			m_Data->Camera->OnUpdate(deltaTime);
 
+		m_Data->ActiveScene->OnEditorUpdate(deltaTime);
 		m_Data->Renderer->RenderSceneEditor(m_Data->ActiveScene.get(), m_Data->Camera.get(), m_Data->SelectedItem);
 
 		if (m_Data->ViewPortHovered && Input::IsMouseButtonPressed(TRI_MOUSE_BUTTON_LEFT)) {

@@ -4,6 +4,7 @@
 #include "Core/Base/UUID.h"
 #include "Components.h"
 #include "GameObject.h"
+#include "Prefab.h"
 #include "Script.h"
 
 #include "Core/Base/Input.h"
@@ -31,6 +32,8 @@ namespace TriEngine {
 		default: return b2BodyType::b2_staticBody;
 		}
 	}
+
+	entt::registry Scene::s_PrefabRegistry;
 
 	Scene::Scene()
 		:m_Name("Scene")
@@ -69,6 +72,7 @@ namespace TriEngine {
 	static void CopyAllComponents(GameObject newObject, GameObject oldObject) {
 		CopyComponent<RelationshipComponent>(newObject, oldObject);
 		CopyComponent<Transform2DComponent>(newObject, oldObject);
+		CopyComponent<TransformComponent>(newObject, oldObject);
 		CopyComponent<RigidBody2DComponent>(newObject, oldObject);
 		CopyComponent<BoxCollider2DComponent>(newObject, oldObject);
 		CopyComponent<NativeScriptComponent>(newObject, oldObject);
@@ -76,6 +80,37 @@ namespace TriEngine {
 		CopyComponent<Camera2DComponent>(newObject, oldObject);
 		CopyComponent<Sprite2DComponent>(newObject, oldObject);
 		CopyComponent<ParticleEmmiterComponent>(newObject, oldObject);
+	}
+
+	static void AddChildAsFixture(GameObject object, const glm::vec2& parentPosition, float parentRotation, b2Body* parentBody) {
+		if (!object.HasComponent<BoxCollider2DComponent>())
+			return;
+
+		const auto& collider = object.GetComponent<BoxCollider2DComponent>();
+		const auto& transform = object.GetComponent<Transform2DComponent>();
+		const auto& worldTransform = object.GetComponent<TransformComponent>();
+		const auto& relationship = object.GetComponent<RelationshipComponent>();
+		b2PolygonShape box;
+
+
+		b2Vec2 b2parentPosition = {parentPosition.x, parentPosition.y};
+		box.SetAsBox(collider.Size.x * abs(transform.Scale.x), collider.Size.y * abs(transform.Scale.y), b2parentPosition, glm::radians(parentRotation));
+
+		b2FixtureDef fixtureDef;
+		fixtureDef.shape = &box;
+		fixtureDef.density = collider.Density;
+		fixtureDef.friction = collider.Friction;
+		fixtureDef.restitution = collider.Restitution;
+		fixtureDef.restitutionThreshold = collider.RestitutionThreshold;
+
+		parentBody->CreateFixture(&fixtureDef);
+
+		for (UUID childid : relationship.Children)
+		{
+			glm::vec2 position = (parentPosition + glm::vec2{transform.Position.x, transform.Position.y});
+			float rotation = parentRotation + transform.Rotation;
+			AddChildAsFixture(object.GetScene()->GetObjectByID(childid), position, rotation, parentBody);
+		}
 	}
 
 	void Scene::Start()
@@ -110,29 +145,38 @@ namespace TriEngine {
 			auto& rigidBody = object.GetComponent<RigidBody2DComponent>();
 			auto& collider = object.GetComponent<BoxCollider2DComponent>();
 			auto& transform = object.GetComponent<Transform2DComponent>();
+			const auto& relationship = object.GetComponent<RelationshipComponent>();
 
-			b2BodyDef bodyDef;
-			bodyDef.type = BodyTypeToB2Type(rigidBody.Type);
-			bodyDef.position.Set(transform.Position.x, transform.Position.y);
-			bodyDef.angle = glm::radians(transform.Rotation);
-			bodyDef.userData.pointer = (uintptr_t)&m_GameObjects.at(object.GetComponent<IDComponent>().ID);
+			//TODO: let children have their own rigid bodies
+			if (!relationship.Parent) {
+				b2BodyDef bodyDef;
+				bodyDef.type = BodyTypeToB2Type(rigidBody.Type);
+				bodyDef.position.Set(transform.Position.x, transform.Position.y);
+				bodyDef.angle = glm::radians(transform.Rotation);
+				bodyDef.userData.pointer = (uintptr_t)&m_GameObjects.at(object.GetComponent<IDComponent>().ID);
 
-			b2Body* body = m_PhysicsWorld->CreateBody(&bodyDef);
+				b2Body* body = m_PhysicsWorld->CreateBody(&bodyDef);
 
-			rigidBody.Body = body;
-
-			b2PolygonShape box;
-
-			box.SetAsBox(collider.Size.x * abs(transform.Scale.x), collider.Size.y * abs(transform.Scale.y));
+				rigidBody.Body = body;
 				
-			b2FixtureDef fixtureDef;
-			fixtureDef.shape = &box;
-			fixtureDef.density = collider.Density;
-			fixtureDef.friction = collider.Friction;
-			fixtureDef.restitution = collider.Restitution;
-			fixtureDef.restitutionThreshold = collider.RestitutionThreshold;
 
-			body->CreateFixture(&fixtureDef);
+				b2PolygonShape box;
+
+				box.SetAsBox(collider.Size.x * abs(transform.Scale.x), collider.Size.y * abs(transform.Scale.y));
+					
+				b2FixtureDef fixtureDef;
+				fixtureDef.shape = &box;
+				fixtureDef.density = collider.Density;
+				fixtureDef.friction = collider.Friction;
+				fixtureDef.restitution = collider.Restitution;
+				fixtureDef.restitutionThreshold = collider.RestitutionThreshold;
+
+				body->CreateFixture(&fixtureDef);
+
+				for (UUID childid : relationship.Children) {
+					AddChildAsFixture(GetObjectByID(childid), {transform.Position.x, transform.Position.y}, transform.Rotation, body);
+				}
+			}
 		}
 
 		ScriptEngine& scriptEngine = ScriptEngine::Get();
@@ -192,13 +236,8 @@ namespace TriEngine {
 		//m_GameObjectNameMapping.clear();
 	}
 
-	void Scene::Reset() 
-	{
-		m_ShouldReset = true;
-	}
-
-	void Scene::ShouldReset()
-	{
+    void Scene::ShouldReset()
+    {
 		if (m_ShouldReset) {
 			m_ShouldReset = false;
 			Stop();
@@ -208,6 +247,21 @@ namespace TriEngine {
 			Start();
 		}
 	}
+
+	void Scene::UpdateTransform(GameObject object, const glm::mat4& parentTransform)
+    {
+		auto& transform = object.GetComponent<TransformComponent>();
+		const auto& localTransform = object.GetComponent<Transform2DComponent>();
+		const auto& relationship = object.GetComponent<RelationshipComponent>();
+
+		glm::mat4 localMatrix = localTransform.GetTransform();
+		transform.Transform = localMatrix * parentTransform;
+
+		for (auto childID : relationship.Children) {
+			GameObject child = GetObjectByID(childID);
+			UpdateTransform(child, transform.Transform);
+		}
+    }
 
 	void Scene::OnUpdate(float deltaTime)
 	{
@@ -255,6 +309,14 @@ namespace TriEngine {
 
 		}
 
+		auto transformView = m_Registry.view<Transform2DComponent, TransformComponent, RelationshipComponent>();
+
+		for (auto [entity, transform2d, transform, relationship] : transformView.each()) {
+			if (relationship.Parent == static_cast<UUID>(0)) {
+				UpdateTransform({entity, this}, glm::mat4(1.0f));
+			}
+		}
+
 		auto particleView = m_Registry.view<ParticleEmmiterComponent, Transform2DComponent>();
 
 		ParticleSystem::GetData().ShouldRender = false;
@@ -262,6 +324,9 @@ namespace TriEngine {
 		ParticleSystem::GetData().FreelistBuffer->Bind(1);
 
 		// Particle spawn updates
+
+		// TODO: when creating particles, calculate their global transform
+
 		ParticleSystem::GetData().EmmisionShader->Bind();
 
 		for (auto entity : particleView) {
@@ -276,7 +341,6 @@ namespace TriEngine {
 		RenderCommand::MemoryBarrier();
 
 		// Particle Updates
-
 		ParticleSystem::GetData().UpdateShader->Bind();
 
 		for (auto entity : particleView) {
@@ -290,6 +354,18 @@ namespace TriEngine {
 		RenderCommand::MemoryBarrier();
 
 		ShouldReset();
+	}
+
+	void Scene::OnEditorUpdate(float deltaTime) {
+		auto transformView = m_Registry.view<Transform2DComponent, TransformComponent, RelationshipComponent>();
+
+		for (auto [entity, transform2d, transform, relationship] : transformView.each())
+		{
+			if (relationship.Parent == static_cast<UUID>(0))
+			{
+				UpdateTransform({entity, this}, glm::mat4(1.0f));
+			}
+		}
 	}
 
 	void Scene::OnViewportResized(uint32_t width, uint32_t height)
@@ -311,17 +387,34 @@ namespace TriEngine {
 
 	}
 
+	void Scene::AddChildToObject(GameObject object, GameObject child)
+	{
+		child.GetComponent<RelationshipComponent>().Parent = object.GetComponent<IDComponent>().ID;
+
+		object.GetComponent<RelationshipComponent>().Children.push_back(child.GetComponent<IDComponent>().ID);
+	}
+
 	GameObject Scene::DuplicateObject(GameObject object)
 	{
 		TRI_CORE_ASSERT(IsObjectValid(object), "Tried to duplicate an invalid object");
 		GameObject newObject = CreateGameObject(object.GetComponent<TagComponent>().Tag);
 
+		const auto& relationship = object.GetComponent<RelationshipComponent>();
+
 		CopyAllComponents(newObject, object);
+
+		// Replaces the copied relationship component
+		auto& newRelationship = newObject.AddComponent<RelationshipComponent>(relationship.Parent);
+
+		for (UUID childid : relationship.Children) {
+			GameObject newChild = DuplicateObject(GetObjectByID(childid));
+			newRelationship.Children.push_back(newChild.GetID());
+		}
 
 		return newObject;
 	}
 
-	void Scene::SetMainCamera(GameObject camera)
+    void Scene::SetMainCamera(GameObject camera)
 	{
 		TRI_CORE_ASSERT(false, "Not implemented");
 	}
@@ -379,6 +472,8 @@ namespace TriEngine {
 		GameObject object(m_Registry.create(), this);
 		object.AddComponent<IDComponent>(uuid);
 
+		object.AddComponent<RelationshipComponent>();
+
 		TRI_CORE_ASSERT(uuid == object.GetComponent<IDComponent>().ID, "UUIDs did not match when creating object");
 
 		TagComponent& tagComponent = object.AddComponent<TagComponent>(tag);
@@ -388,13 +483,14 @@ namespace TriEngine {
 			tagComponent.Tag = IncrementObjectName(tagComponent.Tag);
 
 		object.AddComponent<Transform2DComponent>();
+		object.AddComponent<TransformComponent>();
 
 		m_GameObjects.emplace(uuid, object);
 		m_GameObjectNameMapping.emplace(tagComponent.Tag, object);
 		return object;
 	}
 
-	GameObject Scene::GetObjectByID(UUID uuid) const noexcept {
+    GameObject Scene::GetObjectByID(UUID uuid) const noexcept {
 		TRI_CORE_ASSERT(m_GameObjects.contains(uuid), "Invalid UUID");
 		return m_GameObjects.at(uuid);
 	}
@@ -419,6 +515,20 @@ namespace TriEngine {
 		TRI_CORE_ASSERT(IsObjectValid(object), "Tried to delete invalid game object");
 		uint64_t uuid = object.GetComponent<IDComponent>().ID;
 		const std::string& name = object.GetComponent<TagComponent>().Tag;
+
+		if (object.HasComponent<RelationshipComponent>()) {
+			auto& relationship = object.GetComponent<RelationshipComponent>();
+			if (relationship.Parent) {
+				GameObject parent = m_GameObjects.at(relationship.Parent);
+				auto& parentChildren = parent.GetComponent<RelationshipComponent>().Children;
+				parentChildren.erase(std::find(parentChildren.begin(), parentChildren.end(), UUID(uuid)));
+			}
+
+			for (UUID childid : relationship.Children) {
+				GameObject child = GetObjectByID(childid);
+				DeleteGameObject(child);
+			}
+		}
 
 		if (object.HasComponent<ScriptComponent>()) {
 			ScriptEngine& engine = ScriptEngine::Get();

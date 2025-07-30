@@ -150,11 +150,7 @@ namespace TriEngine {
 
 			if (ImGui::MenuItem("Add Child")) {
 				GameObject newObject = m_Data->ActiveScene->CreateGameObject();
-				newObject.AddComponent<RelationshipComponent>(object.GetComponent<IDComponent>().ID);
-
-				if (!object.HasComponent<RelationshipComponent>())
-					object.AddComponent<RelationshipComponent>();
-				object.GetComponent<RelationshipComponent>().Children.push_back(newObject.GetComponent<IDComponent>().ID);
+				m_Data->ActiveScene->AddChildToObject(object, newObject);
 			}
 
 			ImGui::EndPopup();
@@ -392,11 +388,11 @@ namespace TriEngine {
 
 		DrawComponent<RigidBody2DComponent>("RigidBody2D", object, [](RigidBody2DComponent& component)
 			{
-				constexpr const char* bodyTypes[] = { "Static", "Dynamic", "Kinematic" };
+				constexpr const char* bodyTypes[] = { "None", "Static", "Dynamic", "Kinematic" };
 				const char* currentType = bodyTypes[(uint8_t)component.Type];
 
 				if (ImGui::BeginCombo("Type", currentType)) {
-					for (int i = 0; i < 3; i++) {
+					for (int i = 1; i < 4; i++) {
 						bool selected = currentType == bodyTypes[i];
 						if (ImGui::Selectable(bodyTypes[i], &selected)) {
 							currentType = bodyTypes[i];

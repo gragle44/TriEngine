@@ -1,0 +1,49 @@
+TriEngine Scene File
+---
+Scene: Scene
+Objects:
+  - Entity: 269380543933118119
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
+    TagComponent:
+      Tag: Camera
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    Camera2DComponent:
+      Zoom: 21.1000004
+      AspectRatio: 0
+      YScale: 0
+      NearClip: -1
+      FarClip: 1
+      Resizable: true
+      Primary: true
+  - Entity: 5046026344282926128
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
+    TagComponent:
+      Tag: Object
+    Transform2DComponent:
+      Position: [0, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    ParticleEmmiterComponent:
+      MinColor: [0.143233672, 0.218991488, 0.577656686, 1]
+      MaxColor: [0.907356977, 0.509306669, 0.509306669, 1]
+      MinOffset: [0, 0, 0]
+      MaxOffset: [0, 0, 0]
+      MinVelocity: [-4, -4]
+      MaxVelocity: [4, 4]
+      MinAccel: [0, 0]
+      MaxAccel: [0, 0]
+      MinLife: 1
+      MaxLife: 2
+      SpawnInterval: 0.0500000007
+      SpawnTimer: 0
+      Texture:
+        ResourceID: 0

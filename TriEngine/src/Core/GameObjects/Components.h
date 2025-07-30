@@ -49,7 +49,7 @@ namespace TriEngine {
 			Dynamic, 
 			Kinematic
 		};
-		BodyType Type = BodyType::Dynamic;
+		BodyType Type = BodyType::Static;
 
 		void* Body;
 
@@ -111,21 +111,7 @@ namespace TriEngine {
 	};
 
 	struct TransformComponent {
-		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
-
-		TransformComponent() = default;
-		TransformComponent(const TransformComponent&) = default;
-		TransformComponent(const glm::vec3& position)
-			: Position(position) {}
-
-		glm::mat4 GetTransform() const {
-			return glm::translate(glm::mat4(1.0f), Position) 
-				* glm::toMat4(glm::quat(Rotation)) 
-				* glm::scale(glm::mat4(1.0f), Scale);
-		}
-
+		glm::mat4 Transform{1.0f};
 	};
 
 	struct ScriptComponent {

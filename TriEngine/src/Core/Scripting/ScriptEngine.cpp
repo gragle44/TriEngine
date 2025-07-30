@@ -214,6 +214,7 @@ namespace TriEngine {
             return;
         }
 
+        // Switch to doing this manually, maybe make a RAII wrapper for script objects? or just use script instance
         asbind20::script_object scriptObject = asbind20::instantiate_class(m_Context, sc.ScriptResource->TypeInfo);
         // Prepare is called in asbind20::instantiate_class
         m_Context->Unprepare();
@@ -231,6 +232,7 @@ namespace TriEngine {
         }
 
         auto& sc = object.GetComponent<ScriptComponent>();
+        TRI_CORE_ASSERT(sc.Instance, "Invalid instance! Maybe just return instead of asserting?")
         sc.Instance->Clear();
 
         m_ScriptInstances.erase(static_cast<uint32_t>(object.GetHandle()));

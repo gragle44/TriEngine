@@ -1,8 +1,4 @@
 class BirdScript : ScriptInterface {
-    void OnStart() {}
-
-    void OnStop() {}
-
     void OnUpdate(float deltaTime) 
     {
         auto@ rigidBody = gameObject.GetRigidBody2DComponent();
@@ -39,8 +35,6 @@ class BirdScript : ScriptInterface {
     void OnCollisionStart(GameObject collider) {
         scene.Reset();
     }
-
-    void OnCollisionStop(GameObject collider) {}
 
     GameObject gameObject;
     Scene@ scene;

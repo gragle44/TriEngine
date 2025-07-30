@@ -36,7 +36,13 @@ namespace TriEngine {
 			return m_Scene->m_Registry.all_of<T>(m_Handle);
 		}
 
+		const std::string& GetName();
+		UUID GetID();
+		GameObject GetParent();
+
 		[[nodiscard]] ObjectID GetHandle() const { return m_Handle; }
+
+		[[nodiscard]] Scene* GetScene() const { return m_Scene; }
 
 		operator bool() const noexcept { return m_Handle != entt::null; }
 

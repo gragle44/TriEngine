@@ -60,7 +60,7 @@ namespace TriEngine {
 
     struct ScriptInstance {
         ScriptInstance() = default;
-        ScriptInstance(asbind20::script_object& object)
+        ScriptInstance(asbind20::script_object& object) noexcept
             : Object(std::move(object)) {}
 
         operator bool() const noexcept
@@ -68,7 +68,7 @@ namespace TriEngine {
             return Object.get() != nullptr;
         }
 
-        void Clear()
+        void Clear() noexcept
         {
             Properties = {};
             Object.reset();

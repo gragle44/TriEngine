@@ -24,8 +24,21 @@ namespace TriEngine {
         return this_->ScriptResource->Name;
     }
 
-    static const std::string& ObjectGetName_Proxy(GameObject* this_) {
+    static const std::string& ObjectGetName(GameObject* this_) {
         return this_->GetComponent<TagComponent>().Tag;
+    }
+
+    static GameObject ObjectGetParent(GameObject* this_) {
+        const auto& relationship =  this_->GetComponent<RelationshipComponent>();
+        if (!relationship.Parent) {
+            TRI_CORE_ERROR("Object {} has no parent, returning self", ObjectGetName(this_));
+            return *this_;
+        }
+        return this_->GetScene()->GetObjectByID(relationship.Parent);
+    }
+
+    static uint64_t ObjectGetID(GameObject* this_) {
+        return this_->GetComponent<IDComponent>().ID;
     }
 
     static void BindComponents(asIScriptEngine* engine) {
@@ -52,6 +65,12 @@ namespace TriEngine {
             asOBJ_NOCOUNT
         )
             .property("uint64 ID", &IDComponent::ID);
+
+        asbind20::ref_class<RelationshipComponent>(
+            engine,
+            "RelationshipComponent",
+            asOBJ_NOCOUNT)
+            .property("uint64 Parent", &RelationshipComponent::Parent);
 
         asbind20::ref_class<ScriptComponent>(
             engine,
@@ -172,9 +191,10 @@ namespace TriEngine {
             .behaviours_by_traits()
             .opEquals()
             .opImplConv<bool>()
-            .method("const string& GetName() const", &ObjectGetName_Proxy)
-            REGISTER_CONST_COMPONENT_METHODS(IDComponent)
-            REGISTER_CONST_COMPONENT_METHODS(TagComponent)
+            .method("const string& GetName() const", &GameObject::GetName)
+            .method("GameObject GetParent() const", &GameObject::GetParent)
+            .method("const uint64 GetID() const", &GameObject::GetID)
+            REGISTER_CONST_COMPONENT_METHODS(RelationshipComponent)
             REGISTER_COMPONENT_METHODS(RigidBody2DComponent)
             REGISTER_COMPONENT_METHODS(BoxCollider2DComponent)
             REGISTER_COMPONENT_METHODS(ScriptComponent)
