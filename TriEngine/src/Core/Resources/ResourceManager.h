@@ -16,6 +16,8 @@ namespace TriEngine {
 			{
 			case TriEngine::ResourceType::Texture: return "png";
 			case TriEngine::ResourceType::Scene: return "tscn";
+			case TriEngine::ResourceType::Script: return "as";
+			case TriEngine::ResourceType::Prefab: return "prefab";
 			default: return "";
 			}
 		}
@@ -23,7 +25,6 @@ namespace TriEngine {
 
 	class ResourceManager {
 	public:
-		static void InitBinary();
 		static void Init();
 		static void Shutdown();
 
@@ -37,9 +38,13 @@ namespace TriEngine {
 
 		static const ResourceRegistry* GetResourceRegistry() { return s_ResourceRegistry; }
 
-		static ResourceID GetIDFromPath(const std::string& path);
-		static Reference<Resource> Get(ResourceID id);
-		static ResourceMetadata& GetMetadata(ResourceID id);
+		static std::string GetRelativePath(std::string_view absolutePath);
+		static std::string GetAbsolutePath(std::string_view relativePath);
+
+		static ResourceID GetIDFromPath(std::string_view relativePath);
+        static Reference<Resource> Get(ResourceID id);
+        static Reference<Resource> Get(const std::string& relativePath) { return Get(GetIDFromPath(relativePath)); }
+        static ResourceMetadata& GetMetadata(ResourceID id);
 
 		static void CreateResourceArchive();
 
@@ -50,7 +55,7 @@ namespace TriEngine {
 			ResourceMetadata metadata;
 			metadata.ID = UUID();
 			metadata.Type = GetTypeFromExtension(filePath);
-			metadata.Filepath = filePath;
+			metadata.Filepath = GetRelativePath(filePath);
 
 			s_ResourceRegistry->SetMetaData(metadata.ID, metadata);
 			s_ResourceRegistry->Save();
@@ -63,7 +68,26 @@ namespace TriEngine {
 			return resource;
 		}
 
-	private:
+        template <typename T, typename... Args>
+        static void Create(Reference<Resource> resource, const std::string& filePath) {
+            static_assert(std::is_base_of<Resource, T>::value, "Can only create resources that extend Resource");
+
+			auto& metadata = resource->MetaData;
+
+            metadata.ID = UUID();
+			auto type = metadata.Type = GetTypeFromExtension(filePath);
+			TRI_CORE_ASSERT(metadata.Type == type, "Type from filepath and resource type do not match");
+            metadata.Type = type;
+            metadata.Filepath = GetRelativePath(filePath);
+
+            s_ResourceRegistry->SetMetaData(metadata.ID, metadata);
+            s_ResourceRegistry->Save();
+
+            s_Resources[metadata.ID] = resource;
+            SaveResource(resource);
+        }
+
+    private:
 		static std::unordered_map<ResourceID, Reference<Resource>> s_Resources;
 		static ResourceRegistry* s_ResourceRegistry;
 

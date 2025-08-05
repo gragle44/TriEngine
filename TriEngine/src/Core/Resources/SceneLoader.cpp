@@ -3,6 +3,7 @@
 #include "SceneLoader.h"
 
 #include "ResourceArchive.h"
+#include "ResourceManager.h"
 
 #include "Core/Projects/ProjectManager.h"
 
@@ -14,7 +15,8 @@ namespace TriEngine {
 	{
 		Reference<Scene> scene = Scene::Create();
 		TriEngine::SceneSerializer s(scene);
-		s.Deserialize(metadata.Filepath);
+		auto filepath = ResourceManager::GetAbsolutePath(metadata.Filepath);
+		s.Deserialize(filepath);
  		scene->MetaData = metadata;
 		return scene;
 	}
@@ -23,8 +25,9 @@ namespace TriEngine {
 	{
 		auto scene = std::dynamic_pointer_cast<Scene>(resource);
 		TriEngine::SceneSerializer s(scene);
-		s.Serialize(scene->MetaData.Filepath);
-	}
+        auto filepath = ResourceManager::GetAbsolutePath(resource->MetaData.Filepath);
+        s.Serialize(filepath);
+    }
 
 	Reference<Resource> TriEngine::SceneLoader::LoadBinary(const ResourceMetadata& metadata)
 	{

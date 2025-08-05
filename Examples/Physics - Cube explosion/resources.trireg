@@ -3,3 +3,9 @@ TriEngine Resource Registry
 - ID: 13147107996859164077
   Filepath: physics.tscn
   Type: Scene
+- ID: 811094971327989395
+  Filepath: cube.prefab
+  Type: Prefab
+- ID: 10938029912508378886
+  Filepath: spawner.as
+  Type: Script

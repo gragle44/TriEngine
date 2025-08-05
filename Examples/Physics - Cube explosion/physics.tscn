@@ -59,6 +59,9 @@ Objects:
       Position: [0, 8.25, 0]
       Rotation: 0
       Scale: [1, 1]
+    ScriptComponent:
+      Active: true
+      ResourceID: 10938029912508378886
     Camera2DComponent:
       Zoom: 18
       AspectRatio: 1.83768654
@@ -138,4 +141,28 @@ Objects:
       Texture:
         ResourceID: 0
       Tint: [1, 0, 0, 1]
+      TilingFactor: 1
+  - Entity: 16217135442332857438
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
+    TagComponent:
+      Tag: CubePrefab
+    Transform2DComponent:
+      Position: [0, 14, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    RigidBody2DComponent:
+      Type: Dynamic
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [0.185286045, 1, 0, 1]
       TilingFactor: 1

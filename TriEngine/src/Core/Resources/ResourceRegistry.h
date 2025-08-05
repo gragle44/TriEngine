@@ -8,6 +8,8 @@ namespace TriEngine {
         // Returns the correct type of resource registry based on project settings. Must be freed by the application
         static ResourceRegistry* Create(const std::filesystem::path& path);
 
+        virtual ~ResourceRegistry() = default;
+
         virtual ResourceMetadata& GetMetaData(ResourceID id) = 0;
 
         virtual void SetMetaData(ResourceID id, const ResourceMetadata& metadata) = 0;

@@ -1,6 +1,7 @@
 #include "tripch.h"
 #include "ContactListener.h"
 
+#include "Core/GameObjects/Scene.h"
 #include "Core/GameObjects/GameObject.h"
 #include "Core/GameObjects/Components.h"
 
@@ -15,10 +16,10 @@ namespace TriEngine {
 		b2Body* bodyB = contact->GetFixtureB()->GetBody();
 
 		if (bodyA->GetUserData().pointer && bodyB->GetUserData().pointer) {
-			GameObject objectA = *(GameObject*)bodyA->GetUserData().pointer;
-			GameObject objectB = *(GameObject*)bodyB->GetUserData().pointer;
+			GameObject objectA = {(entt::entity)bodyA->GetUserData().pointer, m_Scene};
+            GameObject objectB = {(entt::entity)bodyB->GetUserData().pointer, m_Scene};
 
-			ScriptEngine& scriptEngine = ScriptEngine::Get();
+            ScriptEngine& scriptEngine = ScriptEngine::Get();
 			
 			if (objectA.HasComponent<ScriptComponent>()) {
 				auto& script = objectA.GetComponent<ScriptComponent>();
@@ -56,10 +57,10 @@ namespace TriEngine {
 		b2Body* bodyB = contact->GetFixtureB()->GetBody();
 
 		if (bodyA->GetUserData().pointer && bodyB->GetUserData().pointer) {
-			GameObject objectA = *(GameObject*)bodyA->GetUserData().pointer;
-			GameObject objectB = *(GameObject*)bodyB->GetUserData().pointer;
+            GameObject objectA = {(entt::entity)bodyA->GetUserData().pointer, m_Scene};
+            GameObject objectB = {(entt::entity)bodyB->GetUserData().pointer, m_Scene};
 
-			ScriptEngine& scriptEngine = ScriptEngine::Get();
+            ScriptEngine& scriptEngine = ScriptEngine::Get();
 
 			if (objectA.HasComponent<ScriptComponent>()) {
 				auto& script = objectA.GetComponent<ScriptComponent>();

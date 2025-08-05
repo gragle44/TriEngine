@@ -8,11 +8,10 @@
 #include "Core/Base/Input.h"
 #include "../EditorUtils.h"
 
-#include <imgui.h>
+#include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "magic_enum.hpp"
-#include <nfd.h>
-#include <glm/gtc/type_ptr.hpp>
+#include "glm/gtc/type_ptr.hpp"
 
 #include <filesystem>
 
@@ -151,6 +150,16 @@ namespace TriEngine {
 			if (ImGui::MenuItem("Add Child")) {
 				GameObject newObject = m_Data->ActiveScene->CreateGameObject();
 				m_Data->ActiveScene->AddChildToObject(object, newObject);
+			}
+
+			if (!object.HasParent()) {
+				if (ImGui::MenuItem("Make prefab")) {
+					Reference<Prefab> prefab = m_Data->ActiveScene->CreatePrefab(object);
+
+					auto path = SaveFileDialog(ProjectManager::GetCurrent()->GetWorkingDirectory().generic_string(), "prefab");
+	
+					ResourceManager::Create<Prefab>(prefab, path);
+				}
 			}
 
 			ImGui::EndPopup();
@@ -313,26 +322,15 @@ namespace TriEngine {
 				ImGui::DragFloat("Spawn Interval", &component.SpawnInterval);
 
 				if (ImGui::Button("Texture")) {
-					char* output;
 					auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-					nfdresult_t result = NFD_OpenDialog("png", cwd.string().c_str(), &output);
 
-					if (result == NFD_OKAY) {
-						TriEngine::ResourceID resourceID = TriEngine::ResourceManager::GetIDFromPath(output);
-						if (!TriEngine::ResourceManager::ResourceExists(resourceID))
-							component.Texture = TriEngine::ResourceManager::Create<Texture2D>(output, output);
-						else
-							component.Texture = std::reinterpret_pointer_cast<Texture2D>(TriEngine::ResourceManager::Get(resourceID));
-						delete output;
-					}
+					auto output = OpenFileDialog(cwd.generic_string(), "png");
 
-					else if (result == NFD_CANCEL) {
-						TRI_CORE_TRACE("Canceled file dialog");
-					}
-
-					else if (result == NFD_ERROR) {
-						TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-					}
+					ResourceID resourceID = ResourceManager::GetIDFromPath(ResourceManager::GetRelativePath(output.string()));
+					if (!TriEngine::ResourceManager::ResourceExists(resourceID))
+						component.Texture = TriEngine::ResourceManager::Create<Texture2D>(output, output);
+					else
+						component.Texture = std::reinterpret_pointer_cast<Texture2D>(TriEngine::ResourceManager::Get(resourceID));
 				}
 			});
 		
@@ -360,26 +358,15 @@ namespace TriEngine {
 			}
 			
 			if (ImGui::Button("Change image path")) {
-				char* output;
 				auto cwd = ProjectManager::GetCurrent()->GetWorkingDirectory();
-				nfdresult_t result = NFD_OpenDialog("png", cwd.string().c_str(), &output);
 
-				if (result == NFD_OKAY) {
-					TriEngine::ResourceID resourceID = TriEngine::ResourceManager::GetIDFromPath(output);
-					if (!TriEngine::ResourceManager::ResourceExists(resourceID))
-						sprite.Texture = TriEngine::ResourceManager::Create<Texture2D>(output, output);
-					else
-						sprite.Texture = std::reinterpret_pointer_cast<Texture2D>(TriEngine::ResourceManager::Get(resourceID));
-					delete output;
-				}
+				auto output = OpenFileDialog(cwd.string(), "png");
 
-				else if (result == NFD_CANCEL) {
-					TRI_CORE_TRACE("Canceled file dialog");
-				}
-
-				else if (result == NFD_ERROR) {
-					TRI_CORE_ERROR("Error opening file dialog: {0}", NFD_GetError());
-				}
+                ResourceID resourceID = ResourceManager::GetIDFromPath(ResourceManager::GetRelativePath(output.string()));
+                if (!ResourceManager::ResourceExists(resourceID))
+                    sprite.Texture = ResourceManager::Create<Texture2D>(output, output);
+				else
+					sprite.Texture = std::reinterpret_pointer_cast<Texture2D>(ResourceManager::Get(resourceID));
 			}
 
 			ImGui::ColorEdit4("Tint", glm::value_ptr(sprite.Tint));
@@ -439,14 +426,18 @@ namespace TriEngine {
 		{
 			ScriptEngine& engine = ScriptEngine::Get();
 
-			if (!script.Instance && !m_Data->SceneRunning) {
+			if (!script.Instance && !m_Data->SceneRunning && script.ScriptResource) {
 				engine.InstantiateScript(object);
 			}
 
+			std::string scriptName = "No Script Selected";
+			if (script.ScriptResource)
+				scriptName = script.ScriptResource->Name;
+
 			float size = ImGui::CalcItemWidth() / 1.5f;
 			ImGui::PushItemWidth(size);
-			ImGui::InputText("##", &script.ScriptResource->Name, ImGuiInputTextFlags_ReadOnly);
-			ImGui::PopItemWidth();
+            ImGui::InputText("##", &scriptName, ImGuiInputTextFlags_ReadOnly);
+            ImGui::PopItemWidth();
 
 			ImGui::SameLine();
 			if (ImGui::ImageButton("change script button", (ImTextureID)m_Data->FolderTexture->GetID(), { 16.0f, 16.0f }, { 0, 1 }, { 1, 0 })) {
@@ -454,8 +445,8 @@ namespace TriEngine {
 				auto output = OpenFileDialog(cwd.string(), "as");
 
 				if (!output.empty()) {
-					ResourceID resourceID = ResourceManager::GetIDFromPath(output.string());
-					if (!ResourceManager::ResourceExists(resourceID))
+                    ResourceID resourceID = ResourceManager::GetIDFromPath(ResourceManager::GetRelativePath(output.string()));
+                    if (!ResourceManager::ResourceExists(resourceID))
 						script.ScriptResource = ResourceManager::Create<Script>(output.string());
 					else
 						script.ScriptResource = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceID));
@@ -483,58 +474,60 @@ namespace TriEngine {
 				ImGui::Spacing();
 			}
 
-			for (const auto& [name, property] : script.Instance->Properties) {
-				if (property.Type == ScriptVariableType::Bool) {
-					ImGui::Checkbox(name.c_str(), reinterpret_cast<bool*>(property.Address));
-					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+			if (script.Instance) {
+				for (const auto& [name, property] : script.Instance->Properties) {
+					if (property.Type == ScriptVariableType::Bool) {
+						ImGui::Checkbox(name.c_str(), reinterpret_cast<bool*>(property.Address));
+						if (ImGui::IsItemHovered()) {
+							ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+						}
 					}
-				}
-				else if (Utils::IsScriptVariableTypeScalar(property.Type)) {
-					float size = ImGui::CalcItemWidth() / 1.75f;
-					ImGui::PushItemWidth(size);
-					ImGui::InputScalar(name.c_str(), ScriptScalarDataTypeToImGuiDataType(property.Type), property.Address, nullptr, nullptr, nullptr, ImGuiInputTextFlags_ElideLeft);
-					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+					else if (Utils::IsScriptVariableTypeScalar(property.Type)) {
+						float size = ImGui::CalcItemWidth() / 1.75f;
+						ImGui::PushItemWidth(size);
+						ImGui::InputScalar(name.c_str(), ScriptScalarDataTypeToImGuiDataType(property.Type), property.Address, nullptr, nullptr, nullptr, ImGuiInputTextFlags_ElideLeft);
+						if (ImGui::IsItemHovered()) {
+							ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+						}
+						ImGui::PopItemWidth();
 					}
-					ImGui::PopItemWidth();
-				}
-				else if (property.Type == ScriptVariableType::Vec2) {
-					float size = ImGui::CalcItemWidth() / 1.75f;
-					ImGui::PushItemWidth(size);
-					ImGui::InputFloat2(name.c_str(), &reinterpret_cast<glm::vec2*>(property.Address)->x);
-					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+					else if (property.Type == ScriptVariableType::Vec2) {
+						float size = ImGui::CalcItemWidth() / 1.75f;
+						ImGui::PushItemWidth(size);
+						ImGui::InputFloat2(name.c_str(), &reinterpret_cast<glm::vec2*>(property.Address)->x);
+						if (ImGui::IsItemHovered()) {
+							ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+						}
+						ImGui::PopItemWidth();
 					}
-					ImGui::PopItemWidth();
-				}
-				else if (property.Type == ScriptVariableType::Vec3) {
-					float size = ImGui::CalcItemWidth() / 1.75f;
-					ImGui::PushItemWidth(size);
-					ImGui::InputFloat3(name.c_str(), &reinterpret_cast<glm::vec3*>(property.Address)->x);
-					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+					else if (property.Type == ScriptVariableType::Vec3) {
+						float size = ImGui::CalcItemWidth() / 1.75f;
+						ImGui::PushItemWidth(size);
+						ImGui::InputFloat3(name.c_str(), &reinterpret_cast<glm::vec3*>(property.Address)->x);
+						if (ImGui::IsItemHovered()) {
+							ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+						}
+						ImGui::PopItemWidth();
 					}
-					ImGui::PopItemWidth();
-				}
-				else if (property.Type == ScriptVariableType::Vec4) {
-					float size = ImGui::CalcItemWidth() / 1.75f;
-					ImGui::PushItemWidth(size);
-					ImGui::InputFloat4(name.c_str(), &reinterpret_cast<glm::vec4*>(property.Address)->x);
-					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+					else if (property.Type == ScriptVariableType::Vec4) {
+						float size = ImGui::CalcItemWidth() / 1.75f;
+						ImGui::PushItemWidth(size);
+						ImGui::InputFloat4(name.c_str(), &reinterpret_cast<glm::vec4*>(property.Address)->x);
+						if (ImGui::IsItemHovered()) {
+							ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+						}
+						ImGui::PopItemWidth();
 					}
-					ImGui::PopItemWidth();
-				}
-				else if (property.Type == ScriptVariableType::String) {
-					float size = ImGui::CalcItemWidth() / 1.75f;
-					ImGui::PushItemWidth(size);
-					std::string* text = reinterpret_cast<std::string*>(property.Address);
-					ImGui::InputText(name.c_str(), text);
-					if (ImGui::IsItemHovered()) {
-						ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+					else if (property.Type == ScriptVariableType::String) {
+						float size = ImGui::CalcItemWidth() / 1.75f;
+						ImGui::PushItemWidth(size);
+						std::string* text = reinterpret_cast<std::string*>(property.Address);
+						ImGui::InputText(name.c_str(), text);
+						if (ImGui::IsItemHovered()) {
+							ImGui::SetTooltip(magic_enum::enum_name(property.Type).data());
+						}
+						ImGui::PopItemWidth();
 					}
-					ImGui::PopItemWidth();
 				}
 			}
 		});

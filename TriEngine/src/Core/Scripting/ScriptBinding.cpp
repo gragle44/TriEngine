@@ -15,6 +15,8 @@
 
 #include "Core/Renderer/OrthographicCamera.h"
 
+#include "Core/Resources/ResourceManager.h"
+
 #include "GameObjectBinding.h"
 
 #include "scriptmath/scriptmath.h"
@@ -60,6 +62,16 @@ static std::string formatVec3(glm::vec3 vec)
 static std::string formatVec4(glm::vec4 vec)
 {
     return std::format("({}, {}, {}, {})", vec.x, vec.y, vec.z, vec.w);
+}
+
+static void GetResource_Generic(asIScriptGeneric* gen) {
+    std::string_view path = reinterpret_cast<const char*>(gen->GetArgAddress(0));
+
+    void* resource = TriEngine::ResourceManager::Get(TriEngine::ResourceManager::GetIDFromPath(path)).get();
+
+    void* retAddress = gen->GetAddressOfReturnLocation();
+
+    memcpy(retAddress, &resource, sizeof(resource));
 }
 
 static void BindGLM(asIScriptEngine* engine) {
@@ -361,6 +373,7 @@ namespace TriEngine {
         r = engine->RegisterGlobalFunction("bool RandBool()", asFUNCTION(Random::Bool), asCALL_CDECL); TRI_CORE_ASSERT(r >= 0, "Failed to register function");
 
         asbind20::global(engine)
+            .function("T@ GetResource<T>(const string& in)", &GetResource_Generic)
             .function("string formatFloat2(Float2 vec)", &formatVec2)
             .function("string formatFloat3(Float3 vec)", &formatVec3)
             .function("string formatFloat4(Float4 vec)", &formatVec4);

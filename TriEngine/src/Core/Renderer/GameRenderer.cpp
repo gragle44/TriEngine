@@ -35,13 +35,13 @@ namespace TriEngine {
 		glm::mat4 cameraTransform;
 		glm::mat4 cameraProjection;
 
-		auto cameraView = scene->m_Registry.view<Transform2DComponent, Camera2DComponent>();
+		auto cameraView = scene->m_Registry.view<TransformComponent, Camera2DComponent>();
 
 		for (auto entity : cameraView) {
 			GameObject object = { entity, scene };
-			auto [transform, camera] = cameraView.get<Transform2DComponent, Camera2DComponent>(entity);
+			auto [transform, camera] = cameraView.get<TransformComponent, Camera2DComponent>(entity);
 			if (camera.Primary) {
-				cameraTransform = transform.GetTransform();
+				cameraTransform = transform.Transform;
 				cameraProjection = camera.Camera.GetProjection();
 			}
 		}
@@ -86,12 +86,12 @@ namespace TriEngine {
 			cameraProjection = editorCamera->GetProjection();
 		}
 		else {
-			auto cameraView = scene->m_Registry.view<Transform2DComponent, Camera2DComponent>();
+			auto cameraView = scene->m_Registry.view<TransformComponent, Camera2DComponent>();
 
 			for (auto entity : cameraView) {
-				auto [transform, camera] = cameraView.get<Transform2DComponent, Camera2DComponent>(entity);
+				auto [transform, camera] = cameraView.get<TransformComponent, Camera2DComponent>(entity);
 				if (camera.Primary) {
-					cameraTransform = transform.GetTransform();
+					cameraTransform = transform.Transform;
 					cameraProjection = camera.Camera.GetProjection();
 				}
 			}

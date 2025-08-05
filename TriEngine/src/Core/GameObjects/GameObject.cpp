@@ -5,18 +5,19 @@
 #include "Components.h"
 
 namespace TriEngine {
-    const std::string& GameObject::GetName() 
-    {
+    const std::string& GameObject::GetName() {
         return GetComponent<TagComponent>().Tag;
     }
 
-    UUID GameObject::GetID()
-    {
+    UUID GameObject::GetID() {
         return GetComponent<IDComponent>().ID;
     }
 
-    GameObject GameObject::GetParent()
-    {
+    GameObject GameObject::GetParent() {
         return m_Scene->GetObjectByID(GetComponent<RelationshipComponent>().Parent);
+    }
+
+    bool GameObject::HasParent() {
+        return GetComponent<RelationshipComponent>().Parent;
     }
 }

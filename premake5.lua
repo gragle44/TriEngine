@@ -143,6 +143,8 @@ project "TriEngine"
 	filter "system:linux"
 		systemversion "latest"
 
+		buildoptions {"-Wall"}
+
 		links { 
 			"GLU",
 			"GL",

@@ -5,36 +5,41 @@
 #include "TextureLoader.h"
 #include "SceneLoader.h"
 #include "ScriptLoader.h"
+#include "PrefabLoader.h"
 
 namespace TriEngine {
 	using LoadFunction = Reference<Resource>(*)(const ResourceMetadata&);
 	using SaveFunction = void (*)(Reference<Resource>);
 	using SaveBinaryFunction = void (*)(Reference<Resource>, std::ostream&);
 
-	const static std::unordered_map<ResourceType, LoadFunction> s_LoadFunctions = {
-		{ResourceType::Texture, TextureLoader::Load},
-		{ResourceType::Scene, SceneLoader::Load},
-		{ResourceType::Script, ScriptLoader::Load},
-	};
+    const static std::unordered_map<ResourceType, LoadFunction> s_LoadFunctions = {
+        {ResourceType::Texture, TextureLoader::Load},
+        {ResourceType::Scene, SceneLoader::Load},
+        {ResourceType::Script, ScriptLoader::Load},
+        {ResourceType::Prefab, PrefabLoader::Load}
+    };
 
-	const static std::unordered_map<ResourceType, SaveFunction> s_SaveFunctions = {
-		{ResourceType::Texture, TextureLoader::Save},
-		{ResourceType::Scene, SceneLoader::Save},
-		{ResourceType::Script, ScriptLoader::Save},
-	};
+    const static std::unordered_map<ResourceType, SaveFunction> s_SaveFunctions = {
+        {ResourceType::Texture, TextureLoader::Save},
+        {ResourceType::Scene, SceneLoader::Save},
+        {ResourceType::Script, ScriptLoader::Save},
+        {ResourceType::Prefab, PrefabLoader::Save}
+    };
 
-	static const std::unordered_map<ResourceType, LoadFunction> s_BinaryLoadFunctions = {
-		{ResourceType::Texture, TextureLoader::LoadBinary},
-		{ResourceType::Scene, SceneLoader::LoadBinary},
-		{ResourceType::Script, ScriptLoader::LoadBinary},
-	};
-	static const std::unordered_map<ResourceType, SaveBinaryFunction> s_BinarySaveFunctions = {
-		{ResourceType::Texture, TextureLoader::SaveBinary},
-		{ResourceType::Scene, SceneLoader::SaveBinary},
-		{ResourceType::Script, ScriptLoader::SaveBinary},
-	};
+    static const std::unordered_map<ResourceType, LoadFunction> s_BinaryLoadFunctions = {
+        {ResourceType::Texture, TextureLoader::LoadBinary},
+        {ResourceType::Scene, SceneLoader::LoadBinary},
+        {ResourceType::Script, ScriptLoader::LoadBinary},
+        {ResourceType::Prefab, PrefabLoader::LoadBinary}
+    };
+    static const std::unordered_map<ResourceType, SaveBinaryFunction> s_BinarySaveFunctions = {
+        {ResourceType::Texture, TextureLoader::SaveBinary},
+        {ResourceType::Scene, SceneLoader::SaveBinary},
+        {ResourceType::Script, ScriptLoader::SaveBinary},
+        {ResourceType::Prefab, PrefabLoader::SaveBinary}
+    };
 
-	Reference<Resource> ResourceLoader::Load(const ResourceMetadata& metadata)
+    Reference<Resource> ResourceLoader::Load(const ResourceMetadata& metadata)
 	{
 		if (metadata.Type == ResourceType::None) {
 			TRI_CORE_ERROR("Invalid resource type");

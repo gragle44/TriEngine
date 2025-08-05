@@ -2,10 +2,14 @@
 
 #include "Core.h"
 
+#ifdef TRI_PLATFORM_WINDOWS
 #pragma warning(push, 0)
+#endif
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
+#ifdef TRI_PLATFORM_WINDOWS
 #pragma warning(pop)
+#endif
 
 namespace TriEngine {
 	class Log

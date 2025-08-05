@@ -12,7 +12,8 @@ namespace TriEngine {
 		None = 0,
 		Texture,
 		Scene,
-		Script
+		Script,
+		Prefab
 	};
 
 	struct ResourceMetadata {

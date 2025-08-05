@@ -33,6 +33,10 @@ namespace TriEngine {
 			:ID(id) {}
 	};
 
+	struct PrefabComponent {
+		bool x;
+	};
+
 	struct RelationshipComponent {
 		UUID Parent = 0;
 		std::vector<UUID> Children;

@@ -18,6 +18,7 @@
 #include "Core/Projects/Project.h"
 #include "Core/Projects/ProjectManager.h"
 #include "Core/GameObjects/GameObject.h"
+#include "Core/GameObjects/Prefab.h"
 #include "Core/GameObjects/Script.h"
 #include "Core/GameObjects/ScriptRegistry.h"
 #include "Core/GameObjects/Scene.h"

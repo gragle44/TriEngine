@@ -1,12 +1,16 @@
 #include "tripch.h"
 
 #include "SceneSerializer.h"
+
+#include "Scene.h"
 #include "GameObject.h"
 #include "Components.h"
 #include "Script.h"
 #include "ScriptRegistry.h"
 #include "Projects/ProjectManager.h"
 #include "Resources/ResourceManager.h"
+
+#include "yaml-cpp/yaml.h"
 
 #include <glm/glm.hpp>
 
@@ -138,285 +142,13 @@ namespace TriEngine {
 
 	void SceneSerializer::SerializeEntity(YAML::Emitter& out, GameObject object)
 	{
-		auto& idComponent = object.GetComponent<IDComponent>();
-
-		out << YAML::BeginMap << YAML::Key << "Entity" << YAML::Value << idComponent.ID;
-
-		if (object.HasComponent<RelationshipComponent>()) {
-			auto& component = object.GetComponent<RelationshipComponent>();
-
-			UUID parentID = component.Parent ? component.Parent : UUID(0);
-
-			out << YAML::Key << "RelationshipComponent" << YAML::Value << YAML::BeginMap;
-
-			out << YAML::Key << "Parent" << YAML::Value << parentID;
-
-			out << YAML::Key << "Children" << YAML::Value << YAML::BeginSeq;
-
-			for (auto child : component.Children) {
-				out << YAML::BeginMap;
-				out << YAML::Key << "ID" << YAML::Value << child;
-				out << YAML::EndMap;
-			}
-
-			out << YAML::EndSeq;
-
-			out << YAML::EndMap;		
-		}
-
-		if (object.HasComponent<TagComponent>()) {
-			auto& component = object.GetComponent<TagComponent>();
-			out << YAML::Key << "TagComponent" << YAML::Value << YAML::BeginMap;
-
-			out << YAML::Key << "Tag" << YAML::Value << component.Tag;
-
-			out << YAML::EndMap;
-		}
-
-		if (object.HasComponent<Transform2DComponent>()) {
-			auto& component = object.GetComponent<Transform2DComponent>();
-			out << YAML::Key << "Transform2DComponent" << YAML::Value << YAML::BeginMap;
-
-			out << YAML::Key << "Position" << YAML::Value << component.Position;
-			out << YAML::Key << "Rotation" << YAML::Value << component.Rotation;
-			out << YAML::Key << "Scale" << YAML::Value << component.Scale;
-
-			out << YAML::EndMap;
-		}
-
-		if (object.HasComponent<NativeScriptComponent>()) {
-			auto& component = object.GetComponent<NativeScriptComponent>();
-			out << YAML::Key << "NativeScriptComponent" << YAML::Value << YAML::BeginMap;
-
-			out << YAML::Key << "ScriptActive" << YAML::Value << component.ScriptActive;
-
-			out << YAML::Key << "ScriptName" << YAML::Value << component.ScriptName;
-
-			out << YAML::EndMap;
-		}
-
-		if (object.HasComponent<ScriptComponent>()) {
-			auto& component = object.GetComponent<ScriptComponent>();
-			out << YAML::Key << "ScriptComponent" << YAML::Value << YAML::BeginMap;
-
-			out << YAML::Key << "Active" << YAML::Value << component.Active;
-			out << YAML::Key << "ResourceID" << YAML::Value << component.ScriptResource->MetaData.ID;
-
-			out << YAML::EndMap;
-		}
-
-		if (object.HasComponent<RigidBody2DComponent>()) {
-			auto& component = object.GetComponent<RigidBody2DComponent>();
-
-			out << YAML::Key << "RigidBody2DComponent" << YAML::Value << YAML::BeginMap;
-			out << YAML::Key << "Type" << YAML::Value << RigidBodyTypeToString(component.Type);
-			out << YAML::EndMap;
-		}
-
-		if (object.HasComponent<BoxCollider2DComponent>()) {
-			auto& component = object.GetComponent<BoxCollider2DComponent>();
-
-			out << YAML::Key << "BoxCollider2DComponent" << YAML::Value << YAML::BeginMap;
-			out << YAML::Key << "Size" << YAML::Value << component.Size;
-			out << YAML::Key << "Density" << YAML::Value << component.Density;
-			out << YAML::Key << "Friction" << YAML::Value << component.Friction;
-			out << YAML::Key << "Restitution" << YAML::Value << component.Restitution;
-			out << YAML::Key << "RestitutionThreshold" << YAML::Value << component.RestitutionThreshold;
-			out << YAML::EndMap;
-		}
-
-		if (object.HasComponent<Camera2DComponent>()) {
-			auto& component = object.GetComponent<Camera2DComponent>();
-
-			out << YAML::Key << "Camera2DComponent" << YAML::Value << YAML::BeginMap;
-			out << YAML::Key << "Zoom" << YAML::Value << component.Camera.m_Zoom;
-			out << YAML::Key << "AspectRatio" << YAML::Value << component.Camera.m_AspectRatio;
-			out << YAML::Key << "YScale" << YAML::Value << component.Camera.m_YScale;
-			out << YAML::Key << "NearClip" << YAML::Value << component.Camera.m_NearClip;
-			out << YAML::Key << "FarClip" << YAML::Value << component.Camera.m_FarClip;
-			out << YAML::Key << "Resizable" << YAML::Value << component.Resizable;
-			out << YAML::Key << "Primary" << YAML::Value << component.Primary;
-
-			out << YAML::EndMap;
-		}
-
-		if (object.HasComponent<Sprite2DComponent>()) {
-			auto& component = object.GetComponent<Sprite2DComponent>();
-			out << YAML::Key << "Sprite2DComponent" << YAML::Value << YAML::BeginMap;
-			
-			// TODO: save other parameters from the texture
-			out << YAML::Key << "Texture" << YAML::Value << YAML::BeginMap;
-
-			out << YAML::Key << "ResourceID" << YAML::Value << component.Texture->MetaData.ID;
-			out << YAML::EndMap;
-
-			out << YAML::Key << "Tint" << YAML::Value << component.Tint;
-			out << YAML::Key << "TilingFactor" << YAML::Value << component.TilingFactor;
-
-			out << YAML::EndMap;
-		}
-
-		if (object.HasComponent<ParticleEmmiterComponent>()) {
-			auto& component = object.GetComponent<ParticleEmmiterComponent>();
-			out << YAML::Key << "ParticleEmmiterComponent" << YAML::Value << YAML::BeginMap;
-
-			out << YAML::Key << "MinColor" << YAML::Value << component.MinColor;
-			out << YAML::Key << "MaxColor" << YAML::Value << component.MaxColor;
-
-			out << YAML::Key << "MinOffset" << YAML::Value << component.MinOffset;
-			out << YAML::Key << "MaxOffset" << YAML::Value << component.MaxOffset;
-
-			out << YAML::Key << "MinVelocity" << YAML::Value << component.MinVelocity;
-			out << YAML::Key << "MaxVelocity" << YAML::Value << component.MaxVelocity;
-
-			out << YAML::Key << "MinAccel" << YAML::Value << component.MinAccel;
-			out << YAML::Key << "MaxAccel" << YAML::Value << component.MaxAccel;
-
-			out << YAML::Key << "MinLife" << YAML::Value << component.MinLife;
-			out << YAML::Key << "MaxLife" << YAML::Value << component.MaxLife;
-
-			out << YAML::Key << "SpawnInterval" << YAML::Value << component.SpawnInterval;
-			out << YAML::Key << "SpawnTimer" << YAML::Value << component.SpawnTimer;
-
-			// TODO: save other parameters from the texture
-			out << YAML::Key << "Texture" << YAML::Value << YAML::BeginMap;
-
-			auto resID = component.Texture != nullptr ? component.Texture->MetaData.ID : ResourceID(0);
-			out << YAML::Key << "ResourceID" << YAML::Value << resID;
-			out << YAML::EndMap;
-
-
-			out << YAML::EndMap;
-
-
-		}
-
-		out << YAML::EndMap;
+		EntitySerializer::Serialize(out, m_Scene->m_Registry, object.GetHandle());
 	}
 
 	void SceneSerializer::DeserializeEntity(YAML::Node& entity)
 	{
-		uint64_t uuid = entity["Entity"].as<uint64_t>();
-
-		std::string name;
-		if (entity["TagComponent"] and entity["TagComponent"]["Tag"])
-			name = entity["TagComponent"]["Tag"].as<std::string>();
-
-		GameObject newEntity = m_Scene->CreateGameObjectUUID(uuid, name);
-
-		if (entity["RelationshipComponent"]) {
-			auto& relationship = newEntity.AddComponent<RelationshipComponent>();
-
-			relationship.Parent = entity["RelationshipComponent"]["Parent"].as<uint64_t>();
-
-			for (const auto& child : entity["RelationshipComponent"]["Children"]) { 
-				relationship.Children.emplace_back(child["ID"].as<uint64_t>());
-			}
-		}
-
-		if (entity["Transform2DComponent"]) {
-			auto& transform = newEntity.AddComponent<Transform2DComponent>();
-			transform.Position = entity["Transform2DComponent"]["Position"].as<glm::vec3>();
-			transform.Rotation = entity["Transform2DComponent"]["Rotation"].as<float>();
-			transform.Scale = entity["Transform2DComponent"]["Scale"].as<glm::vec2>();
-		}
-
-		if (entity["NativeScriptComponent"]) {
-			std::string scriptName = entity["NativeScriptComponent"]["ScriptName"].as<std::string>();
-			if (ScriptRegistry::Exists(scriptName)) {
-				auto& script = newEntity.AddComponent<NativeScriptComponent>();
-				script.ScriptActive = entity["NativeScriptComponent"]["ScriptActive"].as<bool>();
-				script.Bind(scriptName);
-			}
-			else {
-				TRI_CORE_WARN("Could not find script \"{0}\" in registry, removing NativeScriptComponent from entity {1}" ,scriptName, name);
-			}
-		}
-
-		if (entity["ScriptComponent"]) {
-			uint64_t resourceid = entity["ScriptComponent"]["ResourceID"].as<uint64_t>();
-
-			if (ResourceManager::ResourceExists(resourceid)) {
-				auto& scriptComponent = newEntity.AddComponent<ScriptComponent>();
-				scriptComponent.Active = entity["ScriptComponent"]["Active"].as<bool>();
-				scriptComponent.ScriptResource = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceid));
-			}
-			else {
-				TRI_CORE_ERROR("Resource Manager couldn't find script with ID {0}", resourceid);
-			}
-		}
-
-		if (entity["RigidBody2DComponent"]) {
-			auto& rigidBody = newEntity.AddComponent<RigidBody2DComponent>();
-			rigidBody.Type = StringToRigidBodyType(entity["RigidBody2DComponent"]["Type"].as<std::string>());
-		}
-
-		if (entity["BoxCollider2DComponent"]) {
-			auto& transform = newEntity.AddComponent<BoxCollider2DComponent>();
-			transform.Size = entity["BoxCollider2DComponent"]["Size"].as<glm::vec2>();
-			transform.Density = entity["BoxCollider2DComponent"]["Density"].as<float>();
-			transform.Friction = entity["BoxCollider2DComponent"]["Friction"].as<float>();
-			transform.Restitution = entity["BoxCollider2DComponent"]["Restitution"].as<float>();
-			transform.RestitutionThreshold = entity["BoxCollider2DComponent"]["RestitutionThreshold"].as<float>();
-		}
-
-		if (entity["Camera2DComponent"]) {
-			auto& camera = newEntity.AddComponent<Camera2DComponent>();
-			camera.Camera.m_Zoom = entity["Camera2DComponent"]["Zoom"].as<float>();
-			camera.Camera.m_AspectRatio = entity["Camera2DComponent"]["AspectRatio"].as<float>();
-			camera.Camera.m_YScale = entity["Camera2DComponent"]["YScale"].as<float>();
-			camera.Camera.m_NearClip = entity["Camera2DComponent"]["NearClip"].as<float>();
-			camera.Camera.m_FarClip = entity["Camera2DComponent"]["FarClip"].as<float>();
-			camera.Resizable = entity["Camera2DComponent"]["Resizable"].as<bool>();
-			camera.Primary = entity["Camera2DComponent"]["Primary"].as<bool>();
-		}
-
-		if (entity["Sprite2DComponent"]) {
-			auto& sprite = newEntity.AddComponent<Sprite2DComponent>();
-			//TODO: different types of sprite components under a dropdown in the UI
-
-			uint64_t resourceid = entity["Sprite2DComponent"]["Texture"]["ResourceID"].as<uint64_t>();
-			if (ResourceManager::ResourceExists(resourceid)) {
-				sprite.Texture = std::reinterpret_pointer_cast<Texture2D>(ResourceManager::Get(resourceid));
-			}
-			else {
-				sprite.Texture = Texture2D::Create(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-			}
-			sprite.Tint = entity["Sprite2DComponent"]["Tint"].as<glm::vec4>();
-			sprite.TilingFactor = entity["Sprite2DComponent"]["TilingFactor"].as<float>();
-		}
-
-		if (entity["ParticleEmmiterComponent"]) {
-			auto& component = newEntity.AddComponent<ParticleEmmiterComponent>();
-			uint64_t resourceid = entity["ParticleEmmiterComponent"]["Texture"]["ResourceID"].as<uint64_t>();
-			if (ResourceManager::ResourceExists(resourceid)) {
-				component.Texture = std::reinterpret_pointer_cast<Texture2D>(ResourceManager::Get(resourceid));
-			}
-			else {
-				component.Texture = nullptr;
-			}
-
-			component.MinColor = entity["ParticleEmmiterComponent"]["MinColor"].as<glm::vec4>();
-			component.MaxColor = entity["ParticleEmmiterComponent"]["MaxColor"].as<glm::vec4>();
-
-			component.MinOffset = entity["ParticleEmmiterComponent"]["MinOffset"].as<glm::vec3>();
-			component.MaxOffset = entity["ParticleEmmiterComponent"]["MaxOffset"].as<glm::vec3>();
-
-			component.MinVelocity = entity["ParticleEmmiterComponent"]["MinVelocity"].as<glm::vec2>();
-			component.MaxVelocity = entity["ParticleEmmiterComponent"]["MaxVelocity"].as<glm::vec2>();
-
-			component.MinAccel = entity["ParticleEmmiterComponent"]["MinAccel"].as<glm::vec2>();
-			component.MaxAccel = entity["ParticleEmmiterComponent"]["MaxAccel"].as<glm::vec2>();
-
-			component.MinLife = entity["ParticleEmmiterComponent"]["MinLife"].as<float>();
-			component.MaxLife = entity["ParticleEmmiterComponent"]["MaxLife"].as<float>();
-
-			component.SpawnInterval = entity["ParticleEmmiterComponent"]["SpawnInterval"].as<float>();
-			component.SpawnTimer = entity["ParticleEmmiterComponent"]["SpawnTimer"].as<float>();
-
-
-		}
-
+		entt::entity newEntity = EntitySerializer::Deserialize(entity, m_Scene->m_Registry);
+		m_Scene->CreateGameObject(newEntity);
 	}
 
 	SceneSerializer::SceneSerializer(const Reference<Scene>& scene)
@@ -490,5 +222,282 @@ namespace TriEngine {
 		{
 			DeserializeEntity(entity);
 		}
+	}
+
+    void EntitySerializer::Serialize(YAML::Emitter& out, entt::registry& registry, entt::entity entity) {
+        auto& idComponent = registry.get<IDComponent>(entity);
+
+        out << YAML::BeginMap << YAML::Key << "Entity" << YAML::Value << idComponent.ID;
+
+        if (registry.all_of<RelationshipComponent>(entity)) {
+            auto& component = registry.get<RelationshipComponent>(entity);
+
+            UUID parentID = component.Parent ? component.Parent : UUID(0);
+
+            out << YAML::Key << "RelationshipComponent" << YAML::Value << YAML::BeginMap;
+
+            out << YAML::Key << "Parent" << YAML::Value << parentID;
+
+            out << YAML::Key << "Children" << YAML::Value << YAML::BeginSeq;
+
+            for (auto child : component.Children) {
+                out << YAML::BeginMap;
+                out << YAML::Key << "ID" << YAML::Value << child;
+                out << YAML::EndMap;
+            }
+
+            out << YAML::EndSeq;
+
+            out << YAML::EndMap;
+        }
+
+        if (registry.all_of<TagComponent>(entity)) {
+            auto& component = registry.get<TagComponent>(entity);
+            out << YAML::Key << "TagComponent" << YAML::Value << YAML::BeginMap;
+
+            out << YAML::Key << "Tag" << YAML::Value << component.Tag;
+
+            out << YAML::EndMap;
+        }
+
+        if (registry.all_of<Transform2DComponent>(entity)) {
+            auto& component = registry.get<Transform2DComponent>(entity);
+            out << YAML::Key << "Transform2DComponent" << YAML::Value << YAML::BeginMap;
+
+            out << YAML::Key << "Position" << YAML::Value << component.Position;
+            out << YAML::Key << "Rotation" << YAML::Value << component.Rotation;
+            out << YAML::Key << "Scale" << YAML::Value << component.Scale;
+
+            out << YAML::EndMap;
+        }
+
+        if (registry.all_of<NativeScriptComponent>(entity)) {
+            auto& component = registry.get<NativeScriptComponent>(entity);
+            out << YAML::Key << "NativeScriptComponent" << YAML::Value << YAML::BeginMap;
+
+            out << YAML::Key << "ScriptActive" << YAML::Value << component.ScriptActive;
+
+            out << YAML::Key << "ScriptName" << YAML::Value << component.ScriptName;
+
+            out << YAML::EndMap;
+        }
+
+        if (registry.all_of<ScriptComponent>(entity)) {
+            auto& component = registry.get<ScriptComponent>(entity);
+            out << YAML::Key << "ScriptComponent" << YAML::Value << YAML::BeginMap;
+
+            out << YAML::Key << "Active" << YAML::Value << component.Active;
+            out << YAML::Key << "ResourceID" << YAML::Value << component.ScriptResource->MetaData.ID;
+
+            out << YAML::EndMap;
+        }
+
+        if (registry.all_of<RigidBody2DComponent>(entity)) {
+            auto& component = registry.get<RigidBody2DComponent>(entity);
+
+            out << YAML::Key << "RigidBody2DComponent" << YAML::Value << YAML::BeginMap;
+            out << YAML::Key << "Type" << YAML::Value << RigidBodyTypeToString(component.Type);
+            out << YAML::EndMap;
+        }
+
+        if (registry.all_of<BoxCollider2DComponent>(entity)) {
+            auto& component = registry.get<BoxCollider2DComponent>(entity);
+
+            out << YAML::Key << "BoxCollider2DComponent" << YAML::Value << YAML::BeginMap;
+            out << YAML::Key << "Size" << YAML::Value << component.Size;
+            out << YAML::Key << "Density" << YAML::Value << component.Density;
+            out << YAML::Key << "Friction" << YAML::Value << component.Friction;
+            out << YAML::Key << "Restitution" << YAML::Value << component.Restitution;
+            out << YAML::Key << "RestitutionThreshold" << YAML::Value << component.RestitutionThreshold;
+            out << YAML::EndMap;
+        }
+
+        if (registry.all_of<Camera2DComponent>(entity)) {
+            auto& component = registry.get<Camera2DComponent>(entity);
+
+            out << YAML::Key << "Camera2DComponent" << YAML::Value << YAML::BeginMap;
+            out << YAML::Key << "Zoom" << YAML::Value << component.Camera.m_Zoom;
+            out << YAML::Key << "AspectRatio" << YAML::Value << component.Camera.m_AspectRatio;
+            out << YAML::Key << "YScale" << YAML::Value << component.Camera.m_YScale;
+            out << YAML::Key << "NearClip" << YAML::Value << component.Camera.m_NearClip;
+            out << YAML::Key << "FarClip" << YAML::Value << component.Camera.m_FarClip;
+            out << YAML::Key << "Resizable" << YAML::Value << component.Resizable;
+            out << YAML::Key << "Primary" << YAML::Value << component.Primary;
+
+            out << YAML::EndMap;
+        }
+
+        if (registry.all_of<Sprite2DComponent>(entity)) {
+            auto& component = registry.get<Sprite2DComponent>(entity);
+            out << YAML::Key << "Sprite2DComponent" << YAML::Value << YAML::BeginMap;
+
+            // TODO: save other parameters from the texture
+            out << YAML::Key << "Texture" << YAML::Value << YAML::BeginMap;
+
+            out << YAML::Key << "ResourceID" << YAML::Value << component.Texture->MetaData.ID;
+            out << YAML::EndMap;
+
+            out << YAML::Key << "Tint" << YAML::Value << component.Tint;
+            out << YAML::Key << "TilingFactor" << YAML::Value << component.TilingFactor;
+
+            out << YAML::EndMap;
+        }
+
+        if (registry.all_of<ParticleEmmiterComponent>(entity)) {
+            auto& component = registry.get<ParticleEmmiterComponent>(entity);
+            out << YAML::Key << "ParticleEmmiterComponent" << YAML::Value << YAML::BeginMap;
+
+            out << YAML::Key << "MinColor" << YAML::Value << component.MinColor;
+            out << YAML::Key << "MaxColor" << YAML::Value << component.MaxColor;
+
+            out << YAML::Key << "MinOffset" << YAML::Value << component.MinOffset;
+            out << YAML::Key << "MaxOffset" << YAML::Value << component.MaxOffset;
+
+            out << YAML::Key << "MinVelocity" << YAML::Value << component.MinVelocity;
+            out << YAML::Key << "MaxVelocity" << YAML::Value << component.MaxVelocity;
+
+            out << YAML::Key << "MinAccel" << YAML::Value << component.MinAccel;
+            out << YAML::Key << "MaxAccel" << YAML::Value << component.MaxAccel;
+
+            out << YAML::Key << "MinLife" << YAML::Value << component.MinLife;
+            out << YAML::Key << "MaxLife" << YAML::Value << component.MaxLife;
+
+            out << YAML::Key << "SpawnInterval" << YAML::Value << component.SpawnInterval;
+            out << YAML::Key << "SpawnTimer" << YAML::Value << component.SpawnTimer;
+
+            // TODO: save other parameters from the texture
+            out << YAML::Key << "Texture" << YAML::Value << YAML::BeginMap;
+
+            auto resID = component.Texture != nullptr ? component.Texture->MetaData.ID : ResourceID(0);
+            out << YAML::Key << "ResourceID" << YAML::Value << resID;
+            out << YAML::EndMap;
+
+            out << YAML::EndMap;
+        }
+
+        out << YAML::EndMap;
+    }
+
+    entt::entity EntitySerializer::Deserialize(YAML::Node& entity, entt::registry& registry) {
+
+        entt::entity newEntity = registry.create();
+
+        uint64_t uuid = entity["Entity"].as<uint64_t>();
+        registry.emplace<IDComponent>(newEntity, uuid);
+
+        std::string name;
+        if (entity["TagComponent"] and entity["TagComponent"]["Tag"])
+            name = entity["TagComponent"]["Tag"].as<std::string>();
+
+        registry.emplace<TagComponent>(newEntity, name);
+
+        if (entity["RelationshipComponent"]) {
+            auto& relationship = registry.emplace<RelationshipComponent>(newEntity);
+
+            relationship.Parent = entity["RelationshipComponent"]["Parent"].as<uint64_t>();
+
+            for (const auto& child : entity["RelationshipComponent"]["Children"]) {
+                relationship.Children.emplace_back(child["ID"].as<uint64_t>());
+            }
+        }
+
+        if (entity["Transform2DComponent"]) {
+            auto& transform = registry.emplace<Transform2DComponent>(newEntity);
+            transform.Position = entity["Transform2DComponent"]["Position"].as<glm::vec3>();
+            transform.Rotation = entity["Transform2DComponent"]["Rotation"].as<float>();
+            transform.Scale = entity["Transform2DComponent"]["Scale"].as<glm::vec2>();
+        }
+
+        if (entity["NativeScriptComponent"]) {
+            std::string scriptName = entity["NativeScriptComponent"]["ScriptName"].as<std::string>();
+            if (ScriptRegistry::Exists(scriptName)) {
+                auto& script = registry.emplace<NativeScriptComponent>(newEntity);
+                script.ScriptActive = entity["NativeScriptComponent"]["ScriptActive"].as<bool>();
+                script.Bind(scriptName);
+            } else {
+                TRI_CORE_ERROR("Could not find script \"{0}\" in registry, removing NativeScriptComponent from entity {1}", scriptName, name);
+            }
+        }
+
+        if (entity["ScriptComponent"]) {
+            uint64_t resourceid = entity["ScriptComponent"]["ResourceID"].as<uint64_t>();
+
+            if (ResourceManager::ResourceExists(resourceid)) {
+                auto& scriptComponent = registry.emplace<ScriptComponent>(newEntity);
+                scriptComponent.Active = entity["ScriptComponent"]["Active"].as<bool>();
+                scriptComponent.ScriptResource = std::dynamic_pointer_cast<Script>(ResourceManager::Get(resourceid));
+            } else {
+                TRI_CORE_ERROR("Resource Manager couldn't find script with ID {0}, script component will not be added", resourceid);
+            }
+        }
+
+        if (entity["RigidBody2DComponent"]) {
+            auto& rigidBody = registry.emplace<RigidBody2DComponent>(newEntity);
+            rigidBody.Type = StringToRigidBodyType(entity["RigidBody2DComponent"]["Type"].as<std::string>());
+        }
+
+        if (entity["BoxCollider2DComponent"]) {
+            auto& collider = registry.emplace<BoxCollider2DComponent>(newEntity);
+            collider.Size = entity["BoxCollider2DComponent"]["Size"].as<glm::vec2>();
+            collider.Density = entity["BoxCollider2DComponent"]["Density"].as<float>();
+            collider.Friction = entity["BoxCollider2DComponent"]["Friction"].as<float>();
+            collider.Restitution = entity["BoxCollider2DComponent"]["Restitution"].as<float>();
+            collider.RestitutionThreshold = entity["BoxCollider2DComponent"]["RestitutionThreshold"].as<float>();
+        }
+
+        if (entity["Camera2DComponent"]) {
+            auto& camera = registry.emplace<Camera2DComponent>(newEntity);
+            camera.Camera.m_Zoom = entity["Camera2DComponent"]["Zoom"].as<float>();
+            camera.Camera.m_AspectRatio = entity["Camera2DComponent"]["AspectRatio"].as<float>();
+            camera.Camera.m_YScale = entity["Camera2DComponent"]["YScale"].as<float>();
+            camera.Camera.m_NearClip = entity["Camera2DComponent"]["NearClip"].as<float>();
+            camera.Camera.m_FarClip = entity["Camera2DComponent"]["FarClip"].as<float>();
+            camera.Resizable = entity["Camera2DComponent"]["Resizable"].as<bool>();
+            camera.Primary = entity["Camera2DComponent"]["Primary"].as<bool>();
+        }
+
+        if (entity["Sprite2DComponent"]) {
+            auto& sprite = registry.emplace<Sprite2DComponent>(newEntity);
+            // TODO: different types of sprite components under a dropdown in the UI
+
+            uint64_t resourceid = entity["Sprite2DComponent"]["Texture"]["ResourceID"].as<uint64_t>();
+            if (ResourceManager::ResourceExists(resourceid)) {
+                sprite.Texture = std::reinterpret_pointer_cast<Texture2D>(ResourceManager::Get(resourceid));
+            } else {
+                sprite.Texture = Texture2D::Create(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            }
+            sprite.Tint = entity["Sprite2DComponent"]["Tint"].as<glm::vec4>();
+            sprite.TilingFactor = entity["Sprite2DComponent"]["TilingFactor"].as<float>();
+        }
+
+        if (entity["ParticleEmmiterComponent"]) {
+            auto& component = registry.emplace<ParticleEmmiterComponent>(newEntity);
+            uint64_t resourceid = entity["ParticleEmmiterComponent"]["Texture"]["ResourceID"].as<uint64_t>();
+            if (ResourceManager::ResourceExists(resourceid)) {
+                component.Texture = std::reinterpret_pointer_cast<Texture2D>(ResourceManager::Get(resourceid));
+            } else {
+                component.Texture = nullptr;
+            }
+
+            component.MinColor = entity["ParticleEmmiterComponent"]["MinColor"].as<glm::vec4>();
+            component.MaxColor = entity["ParticleEmmiterComponent"]["MaxColor"].as<glm::vec4>();
+
+            component.MinOffset = entity["ParticleEmmiterComponent"]["MinOffset"].as<glm::vec3>();
+            component.MaxOffset = entity["ParticleEmmiterComponent"]["MaxOffset"].as<glm::vec3>();
+
+            component.MinVelocity = entity["ParticleEmmiterComponent"]["MinVelocity"].as<glm::vec2>();
+            component.MaxVelocity = entity["ParticleEmmiterComponent"]["MaxVelocity"].as<glm::vec2>();
+
+            component.MinAccel = entity["ParticleEmmiterComponent"]["MinAccel"].as<glm::vec2>();
+            component.MaxAccel = entity["ParticleEmmiterComponent"]["MaxAccel"].as<glm::vec2>();
+
+            component.MinLife = entity["ParticleEmmiterComponent"]["MinLife"].as<float>();
+            component.MaxLife = entity["ParticleEmmiterComponent"]["MaxLife"].as<float>();
+
+            component.SpawnInterval = entity["ParticleEmmiterComponent"]["SpawnInterval"].as<float>();
+            component.SpawnTimer = entity["ParticleEmmiterComponent"]["SpawnTimer"].as<float>();
+        }
+
+		return newEntity;
 	}
 }

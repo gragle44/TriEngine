@@ -1,0 +1,35 @@
+TriEngine Prefab File
+---
+Objects:
+  - Entity: 6979882371076717872
+    RelationshipComponent:
+      Parent: 7552629153983875923
+      Children:
+        []
+    TagComponent:
+      Tag: Object2
+    Transform2DComponent:
+      Position: [-2.75, 0, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [0.125340581, 1, 0.978550494, 1]
+      TilingFactor: 1
+  - Entity: 7552629153983875923
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        - ID: 6979882371076717872
+    TagComponent:
+      Tag: Object1
+    Transform2DComponent:
+      Position: [7.5, 6.75, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [1, 0.0299727321, 0.902204573, 1]
+      TilingFactor: 1

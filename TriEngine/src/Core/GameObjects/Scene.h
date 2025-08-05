@@ -3,7 +3,6 @@
 #include "EditorCamera.h"
 #include "Core/Events/Event.h"
 #include "Core/Renderer/RenderPass.h"
-#include "Core/Physics/ContactListener.h"
 
 #include "entt/entt.hpp"
 
@@ -13,6 +12,7 @@ class b2World;
 namespace TriEngine {
 	class GameObject;
 	class Prefab;
+	class ContactListener;
 }
 
 namespace TriEngine {
@@ -43,13 +43,15 @@ namespace TriEngine {
 		[[nodiscard]] const std::unordered_map<uint64_t, GameObject>& GetAllObjects() const { return m_GameObjects; }
 
 		[[nodiscard]] bool IsObjectValid(GameObject object);
-		GameObject CreateGameObject(const std::string& tag = "");
-		GameObject CreateGameObjectUUID(uint64_t uuid, const std::string& tag = "");
+        GameObject CreateGameObject(entt::entity entity);
+        GameObject CreateGameObject(const std::string& tag = "");
+        GameObject CreateGameObjectUUID(uint64_t uuid, const std::string& tag = "");
 
-		Reference<Prefab> CreatePrefab(GameObject object) const;
-		void InstantiatePrefab(Reference<Prefab> prefab);
+		[[nodiscard]] Reference<Prefab> CreatePrefab(GameObject object) const;
+        GameObject InstantiatePrefab(Reference<Prefab> prefab);
+        GameObject InstantiatePrefab(Prefab* prefab);
 
-		[[nodiscard]] GameObject GetObjectByID(UUID uuid) const noexcept;
+        [[nodiscard]] GameObject GetObjectByID(UUID uuid) const noexcept;
 		[[nodiscard]] GameObject GetObjectByName(const std::string& name) const noexcept;
 
 		void OnObjectRenamed(GameObject object, std::string_view oldName, std::string_view newName);
@@ -60,6 +62,8 @@ namespace TriEngine {
 
 		void DeleteGameObject(GameObject object);
 
+		entt::registry& GetRegistry() { return m_Registry; }
+
 	private:
 		friend class GameObject;
 		friend class Prefab;
@@ -68,6 +72,8 @@ namespace TriEngine {
 		friend class SceneSerializer;
 
 		void UpdateTransform(GameObject object, const glm::mat4 &parentTransform);
+
+		void InitializeGameObject(GameObject object);
 
 		void ShouldReset();
 
@@ -79,15 +85,13 @@ namespace TriEngine {
 		std::unordered_map<uint64_t, GameObject> m_GameObjects;
 		std::unordered_map<std::string, GameObject> m_GameObjectNameMapping;
 
-		static entt::registry s_PrefabRegistry;
-
 		// Pointer to avoid including GameObject.h
 		GameObject* m_DummyObject = nullptr;
 
 		std::unique_ptr<Scene> m_ResetPoint = nullptr;
 
-		b2World* m_PhysicsWorld = nullptr;
-		ContactListener* m_ContactListener = nullptr;
+		std::unique_ptr<b2World> m_PhysicsWorld;
+		std::unique_ptr<ContactListener> m_ContactListener;
 
 		// Needed to restore cameras when the scene resets
 		glm::ivec2 m_ViewPortSize;

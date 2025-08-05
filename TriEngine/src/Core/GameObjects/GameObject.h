@@ -40,16 +40,18 @@ namespace TriEngine {
 		UUID GetID();
 		GameObject GetParent();
 
+		bool HasParent();
+
 		[[nodiscard]] ObjectID GetHandle() const { return m_Handle; }
 
 		[[nodiscard]] Scene* GetScene() const { return m_Scene; }
 
-		operator bool() const noexcept { return m_Handle != entt::null; }
+		operator bool() const noexcept { return m_Handle != entt::null && m_Scene != nullptr; }
 
-		bool operator==(const GameObject & other) const {
+		bool operator==(const GameObject & other) const noexcept {
 			return m_Handle == other.m_Handle && m_Scene == other.m_Scene;
 		}
-		bool operator!=(const GameObject& other) const {
+		bool operator!=(const GameObject& other) const noexcept {
 			return !(*this == other);
 		}
 	private:

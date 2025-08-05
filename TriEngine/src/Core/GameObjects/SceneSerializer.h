@@ -1,13 +1,18 @@
 #pragma once
 
 #include "Core/Base/Core.h"
-#include "Scene.h"
 #include "entt/entt.hpp"
 
-#include "yaml-cpp/yaml.h"
+namespace YAML {
+	class Emitter;
+	class Node;
+}
 
 namespace TriEngine {
-	class SceneSerializer {
+	class Scene;
+    class GameObject;
+
+    class SceneSerializer {
 	public:
 		SceneSerializer(const Reference<Scene>& scene);
 
@@ -20,5 +25,11 @@ namespace TriEngine {
 		void DeserializeEntity(YAML::Node& serializedEntity);
 
 		Reference<Scene> m_Scene;
+	};
+
+	class EntitySerializer {
+	public:
+		static void Serialize(YAML::Emitter& out, entt::registry& registry, entt::entity entity);
+		static entt::entity Deserialize(YAML::Node& serializedEntity, entt::registry& registry);
 	};
 }

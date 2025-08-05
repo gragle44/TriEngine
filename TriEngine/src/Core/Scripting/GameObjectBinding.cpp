@@ -5,6 +5,9 @@
 #include "Core/GameObjects/Components.h"
 #include "Core/GameObjects/GameObject.h"
 #include "Core/GameObjects/Scene.h"
+#include "Core/GameObjects/Prefab.h"
+
+#include "Core/Resources/ResourceManager.h"
 
 #include "asbind20/asbind.hpp"
 
@@ -22,23 +25,6 @@ namespace TriEngine {
 
     static const std::string& GetScriptName_Proxy(ScriptComponent* this_) {
         return this_->ScriptResource->Name;
-    }
-
-    static const std::string& ObjectGetName(GameObject* this_) {
-        return this_->GetComponent<TagComponent>().Tag;
-    }
-
-    static GameObject ObjectGetParent(GameObject* this_) {
-        const auto& relationship =  this_->GetComponent<RelationshipComponent>();
-        if (!relationship.Parent) {
-            TRI_CORE_ERROR("Object {} has no parent, returning self", ObjectGetName(this_));
-            return *this_;
-        }
-        return this_->GetScene()->GetObjectByID(relationship.Parent);
-    }
-
-    static uint64_t ObjectGetID(GameObject* this_) {
-        return this_->GetComponent<IDComponent>().ID;
     }
 
     static void BindComponents(asIScriptEngine* engine) {
@@ -172,6 +158,11 @@ namespace TriEngine {
         return this_->GetComponent<T>();
     }
 
+    static GameObject InstantiatePrefab_Proxy(Scene* this_, const std::string& path) {
+        Reference<Prefab> prefab = std::dynamic_pointer_cast<Prefab>(ResourceManager::Get(path));
+        return this_->InstantiatePrefab(prefab);
+    }
+
     #define REGISTER_COMPONENT_METHODS(C) \
     .method("bool Has"#C"() const", &HasComponentProxy<C>) \
     .method(#C"@ Add"#C"()", &AddComponentProxy<C>) \
@@ -183,7 +174,7 @@ namespace TriEngine {
         .method("const "#C"@ Get"#C"() const", &ConstGetComponentProxy<C>) \
 
     static void BindObjectAndScene(asIScriptEngine* engine) {
-        auto& gameObjectClass = asbind20::value_class<GameObject>(
+        asbind20::value_class<GameObject>(
             engine,
             "GameObject",
             asOBJ_APP_CLASS_ALLINTS
@@ -203,16 +194,18 @@ namespace TriEngine {
             REGISTER_COMPONENT_METHODS(Camera2DComponent)
             REGISTER_COMPONENT_METHODS(ParticleEmmiterComponent);
 
+        asbind20::ref_class<Prefab>(engine, "Prefab", asOBJ_NOCOUNT);
+
         asbind20::ref_class<Scene>(engine, "Scene", asOBJ_NOCOUNT)
             .method("void Reset()", &Scene::Reset)
             .method("void Start()", &Scene::Start)
             .method("void Stop()", &Scene::Stop)
             .method("const string& GetName() const", &Scene::GetName)
             .method("bool IsObjectValid(GameObject object) const", &Scene::IsObjectValid)
-            .method("GameObject CreateGameObject(const string& in = \"\")", &Scene::CreateGameObject)
+            .method("GameObject CreateGameObject(const string& in = \"\")", asbind20::overload_cast<const std::string&>(&Scene::CreateGameObject))
             .method("GameObject CreateGameObjectUUID(UUID uuid, const string& in = \"\")", &Scene::CreateGameObjectUUID)
             .method("GameObject GetGameObject(const string& in)", &Scene::GetObjectByName)
-            .method("GameObject DuplicateObject(GameObject object)", &Scene::DuplicateObject)
+            .method("GameObject InstantiatePrefab(const string& in)", &InstantiatePrefab_Proxy)
             .method("void DeleteGameObject(GameObject object)", &Scene::DeleteGameObject);
     }
 

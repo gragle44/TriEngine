@@ -5,6 +5,7 @@
 #include "ResourceArchive.h"
 
 #include "Core/Projects/ProjectManager.h"
+#include "ResourceManager.h"
 
 #include "filesystem"
 #include "stb_image.h"
@@ -18,7 +19,7 @@ namespace TriEngine {
 		stbi_set_flip_vertically_on_load(1);
 
 		int32_t x, y, channels;
-		uint8_t* data = stbi_load(metadata.Filepath.c_str(), &x, &y, &channels, 0);
+		uint8_t* data = stbi_load(ResourceManager::GetRelativePath(metadata.Filepath).c_str(), &x, &y, &channels, 0);
 
 		int32_t size = x * y * channels;
 
@@ -32,7 +33,7 @@ namespace TriEngine {
 		settings.SizeX = x;
 		settings.SizeY = y;
 
-		std::string metadataPath = metadata.Filepath + ".meta";
+		std::filesystem::path metadataPath = ProjectManager::GetCurrent()->GetWorkingDirectory() / metadata.Filepath / ".meta";
 		if (std::filesystem::exists(metadataPath)) {
 			auto node = YAML::LoadFile(metadataPath);
 
@@ -53,9 +54,9 @@ namespace TriEngine {
 	{
 		Reference<Texture2D> texture = std::reinterpret_pointer_cast<Texture2D>(resource);
 		ResourceMetadata& metadata = texture->MetaData;
-		std::string metadataPath = metadata.Filepath + ".meta";
+        std::filesystem::path metadataPath = ProjectManager::GetCurrent()->GetWorkingDirectory() / metadata.Filepath / ".meta";
 
-		YAML::Emitter out;
+        YAML::Emitter out;
 
 		const TextureSettings& texSettings = texture->GetSettings();
 

@@ -36,7 +36,7 @@ namespace TriEngine {
 
 		ProjectData& GetProjectData() { return m_Data; }
 		const std::filesystem::path& GetWorkingDirectory() const { return m_ProjectDirectory; }
-		const std::filesystem::path GetAbsolutePath(const std::string& relativePath) const { return m_ProjectDirectory / relativePath; }
+		const std::filesystem::path GetAbsolutePath(std::string_view relativePath) const { return m_ProjectDirectory / relativePath; }
 
 	private:
 		std::filesystem::path m_ProjectDirectory;

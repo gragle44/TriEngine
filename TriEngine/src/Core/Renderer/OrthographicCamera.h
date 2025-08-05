@@ -23,5 +23,6 @@ namespace TriEngine {
 
 		friend class SceneModule;
 		friend class SceneSerializer;
+		friend class EntitySerializer;
 	};
 }

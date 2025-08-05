@@ -60,16 +60,23 @@ namespace TriEngine {
 		ResourceLoader::Save(resource);
 	}
 
-	ResourceID ResourceManager::GetIDFromPath(const std::string& path)
-	{
-		for (const auto& [id, metadata] : s_ResourceRegistry->GetRegistry()) {
+    std::string ResourceManager::GetRelativePath(std::string_view absolutePath) {
+        return std::filesystem::relative(absolutePath, ProjectManager::GetCurrent()->GetWorkingDirectory()).generic_string();
+    }
+
+    std::string ResourceManager::GetAbsolutePath(std::string_view relativePath) {
+        return ProjectManager::GetCurrent()->GetAbsolutePath(relativePath);
+    }
+
+    ResourceID ResourceManager::GetIDFromPath(std::string_view path) {
+        for (const auto& [id, metadata] : s_ResourceRegistry->GetRegistry()) {
 			if (metadata.Filepath == path)
 				return metadata.ID;
 		}
 		return 0;
-	}
+    }
 
-	Reference<Resource> ResourceManager::Get(ResourceID id)
+    Reference<Resource> ResourceManager::Get(ResourceID id)
 	{
 		if (!ResourceExists(id)) {
 			TRI_CORE_WARN("Invalid Resource ID: {0}", id);
@@ -173,7 +180,7 @@ namespace TriEngine {
 		}
     }
 
-    ResourceType ResourceManager::GetTypeFromExtension(const std::filesystem::path &filePath)
+    ResourceType ResourceManager::GetTypeFromExtension(const std::filesystem::path& filePath)
     {
 		std::filesystem::path extension = filePath.extension();
 		return GetTypeFromString(extension.generic_string());
@@ -186,6 +193,7 @@ namespace TriEngine {
 		else if (type == ".jpeg") return ResourceType::Texture;
 		else if (type == ".tscn") return ResourceType::Scene;
 		else if (type == ".as") return ResourceType::Script;
+		else if (type == ".prefab") return ResourceType::Prefab;
 		else return ResourceType::None;
 	}
 }

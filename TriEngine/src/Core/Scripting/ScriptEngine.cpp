@@ -89,8 +89,8 @@ namespace TriEngine {
     void ScriptEngine::BuildScript(Reference<Script> script) {
         TRI_CORE_ASSERT(script, "Invalid script resource");
 
-        if (!std::filesystem::exists(script->MetaData.Filepath) && script->Bytecode.empty()) [[unlikely]]
-        {
+        std::string scriptPath = ProjectManager::GetCurrent()->GetAbsolutePath(script->MetaData.Filepath).string();
+        if (!std::filesystem::exists(scriptPath) && script->Bytecode.empty()) {
             TRI_CORE_ERROR("Couldn't build script '{0}': invalid file path or no valid bytecode", script->MetaData.Filepath);
             return;
         }
@@ -128,7 +128,7 @@ namespace TriEngine {
             module->LoadByteCode(&stream, &script->HasDebugInfo);
         }
         else {
-            r = builder.AddSectionFromFile(script->MetaData.Filepath.c_str());
+            r = builder.AddSectionFromFile(scriptPath.c_str());
             if (r < 0)
             {
                 TRI_CORE_ERROR("Couldn't build script {0}: see build errors", script->MetaData.Filepath);
@@ -210,7 +210,7 @@ namespace TriEngine {
         auto& sc = object.GetComponent<ScriptComponent>();
 
         if (!sc.ScriptResource->TypeInfo) {
-            TRI_CORE_ERROR("Cannot instantiate script, see errors above");
+            //TRI_CORE_ERROR("Cannot instantiate script, see errors above");
             return;
         }
 

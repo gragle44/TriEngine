@@ -1,0 +1,27 @@
+TriEngine Prefab File
+---
+Objects:
+  - Entity: 5805049991456446207
+    RelationshipComponent:
+      Parent: 0
+      Children:
+        []
+    TagComponent:
+      Tag: CubePrefab
+    Transform2DComponent:
+      Position: [0, 14, 0]
+      Rotation: 0
+      Scale: [1, 1]
+    RigidBody2DComponent:
+      Type: Dynamic
+    BoxCollider2DComponent:
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.300000012
+      Restitution: 0
+      RestitutionThreshold: 1
+    Sprite2DComponent:
+      Texture:
+        ResourceID: 0
+      Tint: [0.185286045, 1, 0, 1]
+      TilingFactor: 1

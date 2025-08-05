@@ -5,44 +5,29 @@
 namespace TriEngine {
     class Prefab : public Resource {
     public:
-        Prefab(std::istream& data, entt::registry* prefabRegistry);
-        Prefab(GameObject object, entt::registry* prefabRegistry);
+        Prefab(std::istream& data);
+        Prefab(GameObject object);
+
         void Save(std::ostream& out);
 
-        template<typename T, typename... Args>
-		T& AddComponent(Args&&... args) {
-			return m_Registry->emplace_or_replace<T>(m_Handle, std::forward<Args>(args)...);
-		}
+        [[nodiscard]] entt::entity GetRoot() const { return m_Root; }
 
-		template<typename T>
-		void RemoveComponent() {
-			m_Registry->remove<T>(m_Handle);
-		}
+		[[nodiscard]] entt::registry& GetRegistry() { return m_Registry; }
 
-		template<typename T>
-		[[nodiscard]] T& GetComponent() {
-			return m_Registry->get<T>(m_Handle);
-		}
+        [[nodiscard]] uint32_t GetEntityCount() const { return m_EntityCount; }
+    private:
+        void CopyFromObject(entt::entity entity, GameObject object);
 
-		template<typename T>
-		[[nodiscard]] bool HasComponent() const {
-			return m_Registry->all_of<T>(m_Handle);
-		}
-
-        // TODO: move this into a utility somewhere
-        template <typename... Cs>
-        void CopyComponents(entt::registry& dst, entt::registry& src, entt::entity from, entt::entity to)
-        {
-            ([&]()
-            {
-            if(src.all_of<Cs>(from)) {
-                dst.emplace_or_replace<Cs>(to, src.get<Cs>(from));
-            } }(), ...);
+        template <typename T>
+        void CopyComponentFromGameObject(entt::entity entity, GameObject object) {
+            if (object.HasComponent<T>())
+                m_Registry.emplace_or_replace<T>(entity, object.GetComponent<T>());
         }
 
-		[[nodiscard]] ObjectID GetHandle() const { return m_Handle; }
-    private:
-        entt::entity m_Handle = entt::null;
-        entt::registry* m_Registry = nullptr;
+        void CopyAllComponents(entt::entity entity, GameObject object);
+
+        entt::registry m_Registry;
+        entt::entity m_Root = entt::null;
+        uint32_t m_EntityCount = 0;
     };
 }

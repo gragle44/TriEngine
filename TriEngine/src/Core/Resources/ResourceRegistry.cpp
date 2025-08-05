@@ -31,7 +31,7 @@ namespace TriEngine {
         {
             ResourceMetadata metadata;
             metadata.ID = data["ID"].as<uint64_t>();
-            metadata.Filepath = ProjectManager::GetCurrent()->GetAbsolutePath(data["Filepath"].as<std::string>()).string();
+            metadata.Filepath = data["Filepath"].as<std::string>();
             metadata.Type = magic_enum::enum_cast<ResourceType>(data["Type"].as<std::string>()).value_or(ResourceType::None);
             m_Registry[metadata.ID] = metadata;
         }
@@ -47,7 +47,7 @@ namespace TriEngine {
 
         for (const auto &[id, metadata] : m_Registry)
         {
-            std::string filepath = std::filesystem::relative(metadata.Filepath, ProjectManager::GetCurrent()->GetWorkingDirectory()).generic_string();
+            std::string filepath = metadata.Filepath;
 
             #ifdef TRI_PLATFORM_WINDOWS
                 std::replace(filepath.begin(), filepath.end(), '\\', '/');

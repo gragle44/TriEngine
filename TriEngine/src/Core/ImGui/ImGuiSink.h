@@ -18,13 +18,13 @@ namespace TriEngine {
     class ImGuiSink : public spdlog::sinks::base_sink<Mutex>
     {
     static constexpr ImVec4 black = ImVec4(0.000f, 0.000f, 0.000f, 1.00f);
-    static constexpr ImVec4 red = ImVec4(0.502f, 0.000f, 0.000f, 1.00f);
-    static constexpr ImVec4 green = ImVec4(0.000f, 0.502f, 0.000f, 1.00f);
-    static constexpr ImVec4 yellow = ImVec4(0.502f, 0.502f, 0.000f, 1.00f);
-    static constexpr ImVec4 blue = ImVec4(0.000f, 0.000f, 0.502f, 1.00f);
-    static constexpr ImVec4 magenta = ImVec4(0.502f, 0.000f, 0.502f, 1.00f);
-    static constexpr ImVec4 cyan = ImVec4(0.000f, 0.502f, 0.502f, 1.00f);
-    static constexpr ImVec4 white = ImVec4(0.753f, 0.753f, 0.753f, 1.00f);
+    static constexpr ImVec4 red = ImVec4(0.75f, 0.000f, 0.000f, 1.00f);
+    static constexpr ImVec4 green = ImVec4(0.000f, 0.75f, 0.000f, 1.00f);
+    static constexpr ImVec4 yellow = ImVec4(0.75f, 0.75f, 0.000f, 1.00f);
+    static constexpr ImVec4 blue = ImVec4(0.000f, 0.000f, 0.75f, 1.00f);
+    static constexpr ImVec4 magenta = ImVec4(0.75f, 0.000f, 0.75f, 1.00f);
+    static constexpr ImVec4 cyan = ImVec4(0.000f, 0.75f, 0.75f, 1.00f);
+    static constexpr ImVec4 white = ImVec4(0.8f, 0.8f, 0.8f, 1.00f);
 
     public:
         void OnImGuiRender(uint32_t maxShownMessages = 200) {
