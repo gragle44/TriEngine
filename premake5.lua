@@ -77,8 +77,6 @@ project "TriEngine"
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
-		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.cpp",
-		"%{prj.name}/vendor/ImGuizmo/ImGuizmo.h",
 		"%{prj.name}/vendor/tracy/public/TracyClient.cpp",
 		"%{prj.name}/vendor/angelscript/add_on/datetime/**.cpp",
 		"%{prj.name}/vendor/angelscript/add_on/datetime/**.h",
@@ -108,11 +106,9 @@ project "TriEngine"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.box2D}",
-		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
-		"%{IncludeDir.nativefiledialog}",
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.angelscript}",
 		"%{IncludeDir.asbind20}",
@@ -127,7 +123,6 @@ project "TriEngine"
 		"ImGui",
 		"box2D",
 		"yaml_cpp",
-		"nativefiledialog",
 		"angelscript"
 	}
 
@@ -168,7 +163,7 @@ project "TriEngine"
 		runtime "Debug"
 
 	filter "configurations:Release"
-		defines {"TRI_RELEASE"}
+		defines {"TRI_RELEASE", "TRACY_ENABLE"}
 		optimize "on"
 		runtime "Release"
 
@@ -257,7 +252,7 @@ project "TriEditor"
 		runtime "Debug"
 
 	filter "configurations:Release"
-		defines {"TRI_RELEASE"}
+		defines {"TRI_RELEASE", "TRACY_ENABLE"}
 		optimize "on"
 		runtime "Release"
 
@@ -288,15 +283,14 @@ project "TriRuntime"
 	{
 		"TriEngine/vendor/spdlog/include",
 		"TriEngine/vendor/imgui",
-		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.box2D}",
-		"%{IncludeDir.nativefiledialog}",
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.angelscript}",
 		"%{IncludeDir.asbind20}",
+		"%{IncludeDir.tracy}",
 		"TriEngine/vendor/angelscript/add_on",
 		"TriEngine/src"
 	}
@@ -337,7 +331,7 @@ project "TriRuntime"
 		runtime "Debug"
 
 	filter "configurations:Release"
-		defines "TRI_RELEASE"
+		defines {"TRI_RELEASE", "TRACY_ENABLE"}
 		optimize "on"
 		runtime "Release"
 

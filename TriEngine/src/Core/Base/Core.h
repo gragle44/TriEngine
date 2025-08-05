@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Profiler.h"
+
 #include <memory>
 #include <vector>
 

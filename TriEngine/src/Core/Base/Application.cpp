@@ -7,7 +7,6 @@
 #include "Renderer/Renderer2D.h"
 
 #include "Input.h"
-#include "Profiler.h"
 
 namespace TriEngine {
 	Application* Application::s_Instance = nullptr;
