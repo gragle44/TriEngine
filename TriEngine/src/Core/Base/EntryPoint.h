@@ -10,6 +10,10 @@ int main(int argc, char** argv)
 	TRI_CORE_INFO("Initialized logger!");
 
 	auto app = TriEngine::CreateApplication(argc, argv);
+	if (!app) {
+		TRI_CORE_ERROR("Failed to create application!");
+		return 0;
+	}
 	app->Run();
 	delete app;
 }

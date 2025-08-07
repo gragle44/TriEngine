@@ -68,8 +68,8 @@ namespace TriEngine {
 			return resource;
 		}
 
-        template <typename T, typename... Args>
-        static void Create(Reference<Resource> resource, const std::string& filePath) {
+        template <typename T>
+        static void Create(Reference<T> resource, const std::string& filePath) {
             static_assert(std::is_base_of<Resource, T>::value, "Can only create resources that extend Resource");
 
 			auto& metadata = resource->MetaData;

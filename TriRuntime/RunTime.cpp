@@ -46,6 +46,10 @@ TriEngine::Application* TriEngine::CreateApplication(int argc, char** argv) {
             return nullptr;
         }
     }
+    else {
+        TRI_CORE_ERROR("Could not find project path '{}'", path);
+        return nullptr;
+    }
 
     auto& projectData = ProjectManager::GetCurrent()->GetProjectData();
 

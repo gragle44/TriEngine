@@ -65,7 +65,7 @@ namespace TriEngine {
     }
 
     std::string ResourceManager::GetAbsolutePath(std::string_view relativePath) {
-        return ProjectManager::GetCurrent()->GetAbsolutePath(relativePath);
+        return ProjectManager::GetCurrent()->GetAbsolutePath(relativePath).string();
     }
 
     ResourceID ResourceManager::GetIDFromPath(std::string_view path) {

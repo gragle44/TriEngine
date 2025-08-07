@@ -191,6 +191,7 @@ namespace TriEngine {
 
 	void WindowsWindow::OnUpdate()
 	{
+		TRI_PROFILE;
 		glfwPollEvents();
 		m_Context->SwapBuffers();
 	}

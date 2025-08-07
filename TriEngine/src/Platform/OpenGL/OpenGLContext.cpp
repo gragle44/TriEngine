@@ -108,6 +108,7 @@ namespace TriEngine {
 
 	void OpenGLContext::SwapBuffers()
 	{
+		TRI_PROFILE;
 		glfwSwapBuffers(m_WindowHandle);
 	}
 }

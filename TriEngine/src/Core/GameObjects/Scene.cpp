@@ -256,6 +256,7 @@ namespace TriEngine {
 
 	void Scene::UpdateTransform(GameObject object, const glm::mat4& parentTransform)
     {
+		TRI_PROFILE;
 		auto& transform = object.GetComponent<TransformComponent>();
 		const auto& localTransform = object.GetComponent<Transform2DComponent>();
 		const auto& relationship = object.GetComponent<RelationshipComponent>();
@@ -271,6 +272,8 @@ namespace TriEngine {
 
 	void Scene::OnUpdate(float deltaTime)
 	{
+		TRI_PROFILE;
+
 		for (auto&& [entity, sc] : m_Registry.view<NativeScriptComponent>().each())
 		{
 			if (sc.ScriptActive && sc.InstantiateScript != nullptr) {
@@ -284,80 +287,95 @@ namespace TriEngine {
 			}
 		}
 
-		for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
 		{
-			ScriptEngine& scriptEngine = ScriptEngine::Get();
+			TRI_PROFILE_NAMED("Update Scripts");
+			for (auto&& [entity, sc] : m_Registry.view<ScriptComponent>().each())
+			{
+				ScriptEngine& scriptEngine = ScriptEngine::Get();
 
-			if (sc.Active && sc.ScriptResource) {
-				scriptEngine.UpdateScript({entity, this}, deltaTime);
+				if (sc.Active && sc.ScriptResource) {
+					scriptEngine.UpdateScript({ entity, this }, deltaTime);
+				}
 			}
 		}
 
-		//Physics config
-		const int32_t velocityIterations = 6;
-		const int32_t positionIterations = 2;
+		{
+			TRI_PROFILE_NAMED("Update Physics");
 
-		m_PhysicsWorld->Step(deltaTime, velocityIterations, positionIterations);
+			//Physics config
+			const int32_t velocityIterations = 6;
+			const int32_t positionIterations = 2;
 
-		auto view = m_Registry.view<RigidBody2DComponent, BoxCollider2DComponent>();
+			m_PhysicsWorld->Step(deltaTime, velocityIterations, positionIterations);
 
-		for (auto entity : view) {
-			GameObject object = { entity, this };
+			auto view = m_Registry.view<RigidBody2DComponent, BoxCollider2DComponent>();
 
-			auto& rigidBody = object.GetComponent<RigidBody2DComponent>();
-			auto& transform = object.GetComponent<Transform2DComponent>();
+			for (auto entity : view) {
+				GameObject object = { entity, this };
 
-			b2Body* body = (b2Body*)rigidBody.Body;
-			const b2Vec2& position = body->GetPosition();
-			transform.Position.x = position.x;
-			transform.Position.y = position.y;
-			transform.Rotation = glm::degrees(body->GetAngle());
+				auto& rigidBody = object.GetComponent<RigidBody2DComponent>();
+				auto& transform = object.GetComponent<Transform2DComponent>();
 
-		}
+				b2Body* body = (b2Body*)rigidBody.Body;
+				const b2Vec2& position = body->GetPosition();
+				transform.Position.x = position.x;
+				transform.Position.y = position.y;
+				transform.Rotation = glm::degrees(body->GetAngle());
 
-		auto transformView = m_Registry.view<Transform2DComponent, TransformComponent, RelationshipComponent>();
-
-		for (auto [entity, transform2d, transform, relationship] : transformView.each()) {
-			if (relationship.Parent == static_cast<UUID>(0)) {
-				UpdateTransform({entity, this}, glm::mat4(1.0f));
 			}
 		}
 
-		auto particleView = m_Registry.view<ParticleEmmiterComponent, Transform2DComponent>();
+		{
+			TRI_PROFILE_NAMED("Update Transforms");
 
-		ParticleSystem::GetData().ShouldRender = false;
-		ParticleSystem::GetData().ParticleBuffer->Bind(0);
-		ParticleSystem::GetData().FreelistBuffer->Bind(1);
+			auto transformView = m_Registry.view<Transform2DComponent, TransformComponent, RelationshipComponent>();
 
-		// Particle spawn updates
-
-		// TODO: when creating particles, calculate their global transform
-
-		ParticleSystem::GetData().EmmisionShader->Bind();
-
-		for (auto entity : particleView) {
-			GameObject object = { entity, this };
-
-			auto& emmiter = object.GetComponent<ParticleEmmiterComponent>();
-			auto& transform = object.GetComponent<Transform2DComponent>();
-
-			ParticleSystem::UpdateEmmitter(deltaTime, emmiter, transform);
+			for (auto [entity, transform2d, transform, relationship] : transformView.each()) {
+				if (relationship.Parent == static_cast<UUID>(0)) {
+					UpdateTransform({ entity, this }, glm::mat4(1.0f));
+				}
+			}
 		}
 
-		RenderCommand::MemoryBarrier();
+		{
+			TRI_PROFILE_NAMED("Update Particles");
 
-		// Particle Updates
-		ParticleSystem::GetData().UpdateShader->Bind();
+			auto particleView = m_Registry.view<ParticleEmmiterComponent, Transform2DComponent>();
 
-		for (auto entity : particleView) {
-			GameObject object = { entity, this };
+			ParticleSystem::GetData().ShouldRender = false;
+			ParticleSystem::GetData().ParticleBuffer->Bind(0);
+			ParticleSystem::GetData().FreelistBuffer->Bind(1);
 
-			auto& emmiter = object.GetComponent<ParticleEmmiterComponent>();
-			auto& transform = object.GetComponent<Transform2DComponent>();
+			// Particle spawn updates
 
-			ParticleSystem::Update(deltaTime);
+			// TODO: when creating particles, calculate their global transform
+
+			ParticleSystem::GetData().EmmisionShader->Bind();
+
+			for (auto entity : particleView) {
+				GameObject object = { entity, this };
+
+				auto& emmiter = object.GetComponent<ParticleEmmiterComponent>();
+				auto& transform = object.GetComponent<Transform2DComponent>();
+
+				ParticleSystem::UpdateEmmitter(deltaTime, emmiter, transform);
+			}
+
+			RenderCommand::MemoryBarrier();
+
+			// Particle Updates
+			ParticleSystem::GetData().UpdateShader->Bind();
+
+			for (auto entity : particleView) {
+				GameObject object = { entity, this };
+
+				auto& emmiter = object.GetComponent<ParticleEmmiterComponent>();
+				auto& transform = object.GetComponent<Transform2DComponent>();
+
+				ParticleSystem::Update(deltaTime);
+			}
+			RenderCommand::MemoryBarrier();
 		}
-		RenderCommand::MemoryBarrier();
 
 		ShouldReset();
 	}

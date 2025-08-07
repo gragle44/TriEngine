@@ -158,7 +158,7 @@ namespace TriEngine {
 
 					auto path = SaveFileDialog(ProjectManager::GetCurrent()->GetWorkingDirectory().generic_string(), "prefab");
 	
-					ResourceManager::Create<Prefab>(prefab, path);
+					ResourceManager::Create<Prefab>(prefab, path.string());
 				}
 			}
 
@@ -328,7 +328,7 @@ namespace TriEngine {
 
 					ResourceID resourceID = ResourceManager::GetIDFromPath(ResourceManager::GetRelativePath(output.string()));
 					if (!TriEngine::ResourceManager::ResourceExists(resourceID))
-						component.Texture = TriEngine::ResourceManager::Create<Texture2D>(output, output);
+						component.Texture = TriEngine::ResourceManager::Create<Texture2D>(output.string(), output.string());
 					else
 						component.Texture = std::reinterpret_pointer_cast<Texture2D>(TriEngine::ResourceManager::Get(resourceID));
 				}
@@ -364,7 +364,7 @@ namespace TriEngine {
 
                 ResourceID resourceID = ResourceManager::GetIDFromPath(ResourceManager::GetRelativePath(output.string()));
                 if (!ResourceManager::ResourceExists(resourceID))
-                    sprite.Texture = ResourceManager::Create<Texture2D>(output, output);
+                    sprite.Texture = ResourceManager::Create<Texture2D>(output.string(), output.string());
 				else
 					sprite.Texture = std::reinterpret_pointer_cast<Texture2D>(ResourceManager::Get(resourceID));
 			}

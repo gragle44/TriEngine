@@ -217,7 +217,8 @@ project "TriEditor"
 
 	links
 	{
-		"TriEngine"
+		"TriEngine",
+		"nativefiledialog"
 	}
 
 	defines "YAML_CPP_STATIC_DEFINE"

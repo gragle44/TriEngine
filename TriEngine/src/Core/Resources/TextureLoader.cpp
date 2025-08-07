@@ -16,10 +16,11 @@ namespace TriEngine {
 
 	Reference<Resource> TextureLoader::Load(const ResourceMetadata& metadata)
 	{
+		std::filesystem::path path = ProjectManager::GetCurrent()->GetWorkingDirectory() / metadata.Filepath;
 		stbi_set_flip_vertically_on_load(1);
 
 		int32_t x, y, channels;
-		uint8_t* data = stbi_load(ResourceManager::GetRelativePath(metadata.Filepath).c_str(), &x, &y, &channels, 0);
+		uint8_t* data = stbi_load(path.string().c_str(), &x, &y, &channels, 0);
 
 		int32_t size = x * y * channels;
 
@@ -33,7 +34,7 @@ namespace TriEngine {
 		settings.SizeX = x;
 		settings.SizeY = y;
 
-		std::filesystem::path metadataPath = ProjectManager::GetCurrent()->GetWorkingDirectory() / metadata.Filepath / ".meta";
+		std::string metadataPath = path.string() + ".meta";
 		if (std::filesystem::exists(metadataPath)) {
 			auto node = YAML::LoadFile(metadataPath);
 
