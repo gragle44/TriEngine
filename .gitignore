@@ -21,8 +21,6 @@ TriEngine/vendor/angelscript/docs
 TriEngine/vendor/angelscript/samples
 TriEngine/vendor/angelscript/angelscript/projects
 
-.vscode/
-
 *.log
 
 # Binary files
