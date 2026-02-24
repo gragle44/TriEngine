@@ -225,6 +225,7 @@ namespace TriEngine {
         EnumerateScript(sc.Instance);
     }
 
+    // TODO: Move this into ScriptComponent
     void ScriptEngine::ClearScriptInstance(GameObject object) {
         if (!m_ScriptInstances.contains(static_cast<uint32_t>(object.GetHandle()))) {
             TRI_CORE_WARN("Script instances map doesn't contain key object '{}'", object.GetComponent<TagComponent>().Tag);

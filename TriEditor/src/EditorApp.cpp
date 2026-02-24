@@ -28,7 +28,9 @@ void EditorLayer::SetupImGuiStyle()
 
 	SetFont<FontType::Bold>(io.Fonts->AddFontFromFileTTF("assets/fonts/droidsans/DroidSans-Bold.ttf", 18.0f));
 
-	style.FontScaleDpi = 1.2f;
+	io.ConfigDpiScaleFonts = true;
+
+	style.FontScaleDpi = 1.0f;
 	style.Alpha = 1.0f;
 	style.DisabledAlpha = 1.0f;
 	style.WindowPadding = ImVec2(12.0f, 12.0f);

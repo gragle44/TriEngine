@@ -174,10 +174,9 @@ namespace TriEngine {
 
     void ResourceManager::FreeUnused()
     {
-		for (auto& [id, resource] : s_Resources) {
-			if (resource.use_count() == 1)
-				s_Resources.erase(id);
-		}
+		std::erase_if(s_Resources, [](const auto& pair) {
+			return pair.second.use_count() == 1;
+		});
     }
 
     ResourceType ResourceManager::GetTypeFromExtension(const std::filesystem::path& filePath)

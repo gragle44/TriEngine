@@ -9,8 +9,9 @@
 
 namespace TriEngine {
 	using LoadFunction = Reference<Resource>(*)(const ResourceMetadata&);
-	using SaveFunction = void (*)(Reference<Resource>);
-	using SaveBinaryFunction = void (*)(Reference<Resource>, std::ostream&);
+    using SaveFunction = void (*)(Reference<Resource>);
+    using ReloadFunction = void (*)(Reference<Resource>);
+    using SaveBinaryFunction = void (*)(Reference<Resource>, std::ostream&);
 
     const static std::unordered_map<ResourceType, LoadFunction> s_LoadFunctions = {
         {ResourceType::Texture, TextureLoader::Load},
@@ -18,7 +19,6 @@ namespace TriEngine {
         {ResourceType::Script, ScriptLoader::Load},
         {ResourceType::Prefab, PrefabLoader::Load}
     };
-
     const static std::unordered_map<ResourceType, SaveFunction> s_SaveFunctions = {
         {ResourceType::Texture, TextureLoader::Save},
         {ResourceType::Scene, SceneLoader::Save},
@@ -26,12 +26,16 @@ namespace TriEngine {
         {ResourceType::Prefab, PrefabLoader::Save}
     };
 
-    static const std::unordered_map<ResourceType, LoadFunction> s_BinaryLoadFunctions = {
-        {ResourceType::Texture, TextureLoader::LoadBinary},
-        {ResourceType::Scene, SceneLoader::LoadBinary},
-        {ResourceType::Script, ScriptLoader::LoadBinary},
-        {ResourceType::Prefab, PrefabLoader::LoadBinary}
-    };
+    const static std::unordered_map<ResourceType, ReloadFunction> s_ReloadFunctions = {
+
+	};
+
+	static const std::unordered_map<ResourceType, LoadFunction> s_BinaryLoadFunctions = {
+		{ResourceType::Texture, TextureLoader::LoadBinary},
+		{ResourceType::Scene, SceneLoader::LoadBinary},
+		{ResourceType::Script, ScriptLoader::LoadBinary},
+		{ResourceType::Prefab, PrefabLoader::LoadBinary}
+	};
     static const std::unordered_map<ResourceType, SaveBinaryFunction> s_BinarySaveFunctions = {
         {ResourceType::Texture, TextureLoader::SaveBinary},
         {ResourceType::Scene, SceneLoader::SaveBinary},
@@ -46,7 +50,9 @@ namespace TriEngine {
 			return nullptr;
 		}
 
-		LoadFunction loadfn = s_LoadFunctions.at(metadata.Type);
+        TRI_CORE_ASSERT(s_LoadFunctions.contains(metadata.Type), "Load function not implemented")
+
+        LoadFunction loadfn = s_LoadFunctions.at(metadata.Type);
 		return loadfn(metadata);
 	}
 
@@ -58,9 +64,24 @@ namespace TriEngine {
 			return;
 		}
 
-		SaveFunction savefn = s_SaveFunctions.at(metadata.Type);
+        TRI_CORE_ASSERT(s_SaveFunctions.contains(metadata.Type), "Save function not implemented")
+
+        SaveFunction savefn = s_SaveFunctions.at(metadata.Type);
 		savefn(resource);
 	}
+
+    void ResourceLoader::Reload(Reference<Resource> resource) {
+        const ResourceMetadata& metadata = resource->MetaData;
+        if (metadata.Type == ResourceType::None) {
+            TRI_CORE_ERROR("Invalid resource type");
+            return;
+        }
+
+        TRI_CORE_ASSERT(s_ReloadFunctions.contains(metadata.Type), "Reload function not implemented")
+
+        ReloadFunction reloadfn = s_ReloadFunctions.at(metadata.Type);
+		reloadfn(resource);
+    }
 
     Reference<Resource> ResourceLoader::LoadBinary(const ResourceMetadata& metadata)
     {
@@ -70,7 +91,9 @@ namespace TriEngine {
 			return nullptr;
 		}
 
-		LoadFunction loadfn = s_BinaryLoadFunctions.at(metadata.Type);
+        TRI_CORE_ASSERT(s_BinaryLoadFunctions.contains(metadata.Type), "Load function not implemented")
+
+        LoadFunction loadfn = s_BinaryLoadFunctions.at(metadata.Type);
 		return loadfn(metadata);
 	}
 
@@ -83,7 +106,9 @@ namespace TriEngine {
 			return;
 		}
 
-		SaveBinaryFunction savefn = s_BinarySaveFunctions.at(metadata.Type);
+        TRI_CORE_ASSERT(s_BinarySaveFunctions.contains(metadata.Type), "Save function not implemented")
+
+        SaveBinaryFunction savefn = s_BinarySaveFunctions.at(metadata.Type);
 		savefn(resource, stream);
 	}
 }
