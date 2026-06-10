@@ -314,6 +314,8 @@ void EditorLayer::LoadProject(const std::string& path)
 		LoadEmptyScene();
 	}
 
+	Log::SetLevel(projectData.LogLevel);
+
 	GenerateScriptDefinitions();
 	
 	m_Data->NoProjectLoaded = false;

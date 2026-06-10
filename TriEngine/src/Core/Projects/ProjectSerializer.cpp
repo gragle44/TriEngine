@@ -73,6 +73,7 @@ namespace TriEngine {
 		out MAP_START;
 		out KEYVAL("Project", data.Name);
 		out KEYVAL("StartupSceneID", data.StartupSceneID);
+		out KEYVAL("LogLevel", magic_enum::enum_name(data.LogLevel).data());
 
 		out << YAML::Key << "WindowSettings" << YAML::Value << YAML::BeginMap;
 		out KEYVAL("Width", data.WindowSettings.Width);
@@ -113,6 +114,7 @@ namespace TriEngine {
 
 		data.Name = project[1]["Project"].as<std::string>();
 		data.StartupSceneID = project[1]["StartupSceneID"].as<uint64_t>();
+		data.LogLevel = magic_enum::enum_cast<Log::LogLevel>(project[1]["LogLevel"].as<std::string>()).value_or(Log::LogLevel::Info);
 
 		data.WindowSettings.Width = project[1]["WindowSettings"]["Width"].as<uint32_t>();
 		data.WindowSettings.Height = project[1]["WindowSettings"]["Height"].as<uint32_t>();

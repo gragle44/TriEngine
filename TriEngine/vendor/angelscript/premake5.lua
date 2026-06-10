@@ -36,7 +36,4 @@ project "angelscript"
 		symbols "off"
 		runtime "Release"
 
-		flags 
-		{
-			"linktimeoptimization"
-		}
+		linktimeoptimization "On"

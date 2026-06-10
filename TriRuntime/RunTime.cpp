@@ -53,6 +53,8 @@ TriEngine::Application* TriEngine::CreateApplication(int argc, char** argv) {
 
     auto& projectData = ProjectManager::GetCurrent()->GetProjectData();
 
+    Log::SetLevel(projectData.LogLevel);
+
     ApplicationConfiguration appConfig{
         .Name = projectData.Name, 
         .WindowWidth = projectData.WindowSettings.Width,

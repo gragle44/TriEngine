@@ -16,4 +16,9 @@ namespace TriEngine {
 		s_ClientLogger = spdlog::stdout_color_mt("APP");
 		s_ClientLogger->set_level(spdlog::level::trace);
 	}
+
+	void Log::SetLevel(LogLevel level) {
+		s_CoreLogger->set_level(static_cast<spdlog::level::level_enum>(level));
+		s_ClientLogger->set_level(static_cast<spdlog::level::level_enum>(level));
+	}
 }

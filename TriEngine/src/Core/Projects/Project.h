@@ -23,6 +23,8 @@ namespace TriEngine {
 	struct ProjectData {
 		std::string Name = "Untitled Project";
 		ResourceID StartupSceneID = 0;
+		Log::LogLevel LogLevel = Log::LogLevel::Info;
+
 		bool Binary = false;
 
 		ProjectWindowSettings WindowSettings;

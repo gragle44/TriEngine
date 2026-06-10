@@ -9,7 +9,7 @@ workspace "TriEngine"
 		"Dist"
 	}
 
-	flags "MultiProcessorCompile"
+	flags "multiprocessorcompile"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
@@ -151,6 +151,8 @@ project "TriEngine"
 	filter "system:windows"
 		systemversion "latest"
 
+		buildoptions { "/utf-8" }
+
 		links 
 		{
 			"dwmapi.lib"
@@ -173,10 +175,7 @@ project "TriEngine"
 		symbols "off"
 		runtime "Release"
 
-		flags 
-		{
-			"linktimeoptimization"
-		}
+		linktimeoptimization "On"
 
 
 project "TriEditor"
@@ -226,6 +225,8 @@ project "TriEditor"
 	filter "system:windows"
 		systemversion "latest"
 
+		buildoptions { "/utf-8" }
+
 	filter "system:linux"
 		systemversion "latest"
 
@@ -262,7 +263,7 @@ project "TriEditor"
 		optimize "speed"
 		symbols "off"
 		runtime "Release"
-		flags "linktimeoptimization"
+		linktimeoptimization "On"
 	
 project "TriRuntime"
 	location "TriRuntime"
@@ -306,6 +307,8 @@ project "TriRuntime"
 	filter "system:windows"
 		systemversion "latest"
 
+		buildoptions { "/utf-8" }
+
 	filter "system:linux"
 		systemversion "latest"
 
@@ -341,4 +344,4 @@ project "TriRuntime"
 		optimize "speed"
 		symbols "off"
 		runtime "Release"
-		flags "linktimeoptimization"
+		linktimeoptimization "On"

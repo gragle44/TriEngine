@@ -2,6 +2,13 @@
 
 #if defined(TRI_PLATFORM_WINDOWS) || defined(TRI_PLATFORM_LINUX)
 
+#ifdef TRI_PLATFORM_WINDOWS
+extern "C" {
+	_declspec(dllexport) DWORD NvOptimusEnablement = 1;
+	_declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+#endif
+
 extern TriEngine::Application* TriEngine::CreateApplication(int argc, char** argv);
 
 int main(int argc, char** argv)
